@@ -1,0 +1,4 @@
+class NoFxnValueException(Exception):
+    pass
+
+
