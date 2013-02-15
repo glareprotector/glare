@@ -19,20 +19,15 @@ class feature(object):
         pass
 
 class side_effect_feature(feature):
-
+    """
+    has side_effect attribute
+    """
     def get_side_effect(self):
         return self.side_effect
 
     def __init__(self, side_effect):
         self.side_effect = side_effect
 
-class feature_factory(object):
-    """
-    features are objects with a generate function.  feature factories generate instances of features
-    """
-    @classmethod
-    def get_feature(cls):
-        pass
 
 
 class side_effect_excerpt_feature(side_effect_feature):
@@ -72,12 +67,6 @@ class side_effect_excerpt_feature(side_effect_feature):
             return 1
 
 
-class side_effect_excerpt_feature_factory(feature_factory):
-
-    @classmethod
-    def get_feature(cls, side_effect):
-        return side_effect_excerpt_feature(side_effect)
-
 
 class side_effect_report_record_feature(side_effect_feature):
 
@@ -103,13 +92,6 @@ class side_effect_report_record_feature(side_effect_feature):
             return sv_int(1)
         else:
             return sv_int(0)
-
-
-class side_effect_report_record_feature_factory(feature_factory):
-    
-    @classmethod
-    def get_feature(cls, side_effect):
-        return side_effect_report_record_feature(side_effect)
 
 
 class report_feature_time_course_feature(feature):
@@ -140,16 +122,6 @@ class report_feature_time_course_feature(feature):
 
 
 
-class report_feature_time_course_feature_factory(feature_factory):
-
-    @classmethod
-    def get_feature(cls, report_feature):
-        return report_feature_time_course_feature(report_feature)
-
-
-
-
-
 
 class side_effect_time_course_times_only_feature(side_effect_feature):
 
@@ -164,42 +136,7 @@ class side_effect_time_course_times_only_feature(side_effect_feature):
             return my_data_types.ordinal_list([helper.my_timedelta( (x - tumor.get_attribute(tumor.date_diagnosed)).days) for x in excerpts.get_ordinals()])
 
 
-class side_effect_time_course_times_only_feature_factory(feature_factory):
-
-    @classmethod
-    def get_feature(cls, side_effect):
-        return side_effect_time_course_times_only_feature(side_effect)
-
-
-
-
-
-class apply_feature_to_buckets_from_series_feature(feature):
-    """
-    specify the ordinal_list feature, specify feature that will act on collections
-    """
-    def _generate(self, series, intervals, *args):
-        #series = self.feature.generate(tumor, args)
-        bl = my_data_types.bucketed_ordinal_list.init_from_intervals_and_ordinal_list(intervals, series)
-        return bl.apply_feature_always_add(self.bucket_feature)
-
-
-    def __init__(self, collection_feature):
-        """
-        takes in collection_feature instance that operates on a collection, not on a bucket
-        """
-        self.bucket_feature = single_ordinal_single_value_wrapper_feature_factory.get_feature(collection_feature)
-
-        
-
-class generic_apply_feature_to_buckets_from_series_feature_factory(feature_factory):
-
-    @classmethod
-    def get_feature(cls, collection_feature):
-        return generic_apply_feature_to_buckets_from_series_feature(collection_feature)
-
-
-
+# if a feature output is to be used for bucket functions, then it has to implement get_value
 
 
 class get_bucket_mean_feature(feature):
@@ -352,14 +289,6 @@ class single_ordinal_single_value_wrapper_feature(feature):
         return my_data_types.single_ordinal_single_value_ordered_object(x.get_ordinal(), self.f.generate(x.get_value()))
 
 
-class single_ordinal_single_value_wrapper_feature_factory(feature_factory):
-    """
-    takes in feature instance
-    """
-    @classmethod
-    def get_feature(cls, f):
-        return single_ordinal_single_value_wrapper_feature(f)
-
 
 
 
@@ -370,97 +299,62 @@ class single_attribute_feature(feature):
     def get_which_attribute(self):
         return self.which_attribute
 
-class scalar_feature(single_attribute_feature):
+class range_checked_feature(feature):
+    
 
     def error_check(self, tumor):
         lower, upper = self.get_valid_range()
         if self.get_code(tumor) < lower or self.get_code(tumor) > upper:
             raise my_exceptions.ScalarFeatureOutOfRange
 
-    def _generate(self, tumor):
-        return [tumor.get_attribute(self.get_which_attribute())]
-
     def get_valid_range(self):
         return self.low, self.high
 
-    def __init__(self, which_attribute, low, high):
-        self.which_attribute = which_attribute
+    def __init__(self, low, high):
         self.low = low
         self.high = high
 
-class scalar_feature_factory(feature_factory):
-
-    @classmethod
-    def get_feature(cls, which_attribute, low, high):
-        return scalar_feature(which_attribute, low, high)
-
-class hard_coded_scalar_feature_factory(scalar_feature_factory):
-
-    @classmethod
-    def get_which_attribute(cls):
-        pass
-
-    @classmethod
-    def get_valid_range(cls):
-        pass
-
-    @classmethod
-    def get_feature(cls):
-        low, high = cls.get_valid_range()
-        return scalar_feature(cls.get_which_attribute(), low, high)
 
 
 
-    
-
-
-class complex_categorical_feature(feature):
+class generic_categorical_feature(feature):
+    """
+    always based on some feature.  specify that, as well as the possible values
+    returns a list
+    """
 
     def error_check(self, tumor):
         if self.get_code(tumor) not in self.get_possible_values():
             raise Exception
 
-    def get_code(self, tumor):
-        return (self.get_code_f)(tumor)
-
     def _generate(self, tumor):
-        ans = [1 if helper.compare_in(self.get_code(tumor), val) else 0 for val in self.get_possible_values()]
+        ans = [1 if helper.compare_in(self.backing_feature.generate(tumor), val) else 0 for val in self.get_possible_values()]
         return ans
 
     def get_possible_values(self):
         return self.possible_values
 
-    def __init__(self, possible_values, get_code_f):
+    def __init__(self, possible_values, backing_feature, category_descriptions = None):
         self.possible_values = possible_values
-        self.get_code_f = get_code_f
+        self.backing_feature = backing_feature
+        if category_descriptions == None:
+            self.category_descriptions = ['' for i in range(len(self.possible_values))]
+        else:
+            self.category_descriptions = category_descriptions
 
-class complex_categorical_feature_factory(feature_factory):
+    def get_num_categories(self):
+        return len(self.get_possible_values())
 
-    @classmethod
-    def get_feature(cls, possible_values, get_code_f):
-        return complex_categorical_feature(possible_values, get_code_f)
+    def get_category_descriptions(self):
+        return self.category_descriptions
 
-
-
-class hard_coded_complex_categorical_feature_factory(feature_factory):
-
-    @classmethod
-    def get_which_attribute(cls):
-        pass
-
-    @classmethod
-    def get_possible_values(cls):
-        pass
-
-    @classmethod
-    def get_feature(cls):
-        return complex_categorical_feature_factory.get_feature(cls.get_possible_values(), cls.get_code_f)
+    def get_actual_value(self, tumor):
+        return self.backing_feature.generate(tumor)
 
 
-class treatment_code_feature_factory(hard_coded_complex_categorical_feature_factory):
+class treatment_code_feature(feature):
 
-    @staticmethod
-    def get_code_f(tumor):
+    def _generate(self, tumor):
         """
         notes: for surgery, 0 means none, 50 means radical prostectomy.  for radiation, 0 means none, 1 means beam, 2 means brachy
         0 for no treatment
@@ -478,107 +372,36 @@ class treatment_code_feature_factory(hard_coded_complex_categorical_feature_fact
             return 2
         elif radiation_code == '2':
             return 3
-        else:
-            return 4
-    
-    @classmethod
-    def get_possible_values(cls):
-        return [[0],[1],[2],[3],[4]]
 
-class categorical_feature(complex_categorical_feature):
+class treatment_code_categorical_feature(generic_categorical_feature):
 
-    def get_which_attribute(self):
-        return self.which_attribute
+    def __init__(self):
+        possible_values = [[0],[1],[2],[3],[4]]
+        backing_feature = treatment_code_feature()
+        category_descriptions = ['ww','rp','beam','brachy']
+        generic_categorical_feature.__init__(self, possible_values, backing_feature, category_descriptions)
 
-    def get_code(tumor):
-        return tumor.get_attribute(self.get_which_attribute())
-
-    def __init__(self, which_attribute, possible_values):
+class single_attribute_feature(feature):
+    """
+    just returns the specified attribute
+    """
+    def __init__(self, which_attribute):
         self.which_attribute = which_attribute
-        complex_categorical_feature.__init__(possible_values, categorical_feature.get_code)
 
-class binner(object):
-
-    def get_bin_number(self, tumor):
-        pass
-
-    def get_bin_descriptions(self):
-        pass
-
-    def get_num_bins(self):
-        pass
-
-class binner_factory(object):
-
-    pass
+    def _generate(self, tumor):
+        return tumor.get_attribute(self.which_attribute)
 
 
-class categorical_feature_binner(binner):
+class attribute_categorical_feature(generic_categorical_feature):
+    """
+    like generic_categorical_feature, except the backing_feature is assumed to just be a single_attribute_feature, so only attribute is specified
+    """
 
-    def get_bin_number(self, tumor):
-        feat = self.feature.generate(tumor)
-        i = 0
-        for i in range(len(feat)):
-            if i != 0:
-                return i
-        raise 
+    def __init__(self, possible_values, which_attribute, category_descriptions = None):
+        backing_feature = single_attribute_feature(which_attribute)
+        generic_categorical_feature.__init__(self, possible_values, backing_feature, category_descriptions)
+        
 
-    def get_bin_descriptions(self):
-        return self.bin_descriptions
-
-    def get_num_bins(self):
-        return len(self.feature.get_possible_values())
-
-    def __init__(self, feature, bin_descriptions):
-        self.bin_descriptions = bin_descriptions
-        self.feature = feature
-
-class scalar_feature_binner(binner):
-
-    def get_bin_intervals(self):
-        return self.bin_intervals
-
-    def get_num_bins(self):
-        return len(self.get_bin_intervals())
-
-    def get_bin_number(self, tumor):
-        feat = self.feature.generate(tumor)
-        for i in range(self.get_num_bins()):
-            interval = self.get_bin_intervals()[i]
-            if interval.contains(feat):
-                return i
-        raise
-
-    def get_bin_descriptions(self):
-        return self.bin_descriptions
-
-    def __init__(self, feature, bin_intervals, bin_descriptions):
-        self.feature = feature
-        self.bin_intervals = bin_intervals
-        self.bin_descriptions = bin_descriptions
-
-
-class scalar_feature_binner_factory(binner_factory):
-
-    @classmethod
-    def get_binner(cls, feature, bin_intervals, bin_descriptions):
-        return scalar_feature_binner(feature, bin_intervals, bin_descriptions)
-
-
-
-class categorical_feature_binner_factory(feature_factory):
-
-    @classmethod
-    def get_binner(cls, feature, bin_descriptions):
-        return categorical_feature_binner(feature, bin_descriptions)
-
-
-
-class categorical_feature_factory(feature_factory):
-
-    @classmethod
-    def get_feature(cls, which_attribute, possible_values):
-        return categorical_feature(which_attribute, possible_values)
 
 
 class text_label(feature):
@@ -596,9 +419,9 @@ class text_label(feature):
                     present = True
         
         if present:
-            return [1]
+            return 1
         else:
-            return [0]
+            return 0
 
 
 class erectile_text_label_f(feature):
@@ -614,75 +437,51 @@ class erectile_text_label_f(feature):
         against = (erection[1]-erection[0]) + (erections[1]-erections[0]) + eds[0]
         if support + against == 0:
             raise Exception
-        return [int(support > against)]
-
-class hard_coded_categorical_feature_factory(feature_factory):
-
-    @classmethod
-    def get_which_attribute(cls):
-        pass
-
-    @classmethod
-    def get_possible_values(cls):
-        pass
-
-    @classmethod
-    def get_feature(cls):
-        return categorical_feature_factory.get_feature(self.get_which_attribute(), self.get_possible_values())
+        return int(support > against)
 
 
-class gleason_primary_feature_factory(hard_coded_categorical_feature_factory):
+
+
+class gleason_primary_categorical_feature(attribute_categorical_feature):
     """
     primary and secondary come from CS_SSFactor5, which codes both primary and secondary gleason scores
     might be the same as grade_f, not sure
     """
 
-    @classmethod
-    def get_which_attribute(cls):
-        return tumor.gleason_primary
-
-    @classmethod
-    def get_possible_values(cls):
-        return [['3'],['4'],['5'],['8','9']]
+    def __init__(self):
+        possible_values = [['3'],['4'],['5'],['8','9']]
+        which_attribute = tumor.gleason_primary
+        attribute_categorical_feature.__init__(self, possible_values, which_attribute)
 
 
-class gleason_secondary(hard_coded_categorical_feature_factory):
+class gleason_secondary(attribute_categorical_feature):
 
-    @classmethod
-    def get_which_attribute(cls):
-        return tumor.gleason_secondary
+    def __init__(self):
+        possible_values = [['3'],['4'],['5'],['8','9']]
+        which_attribute = tumor.gleason_secondary
+        attribute_categorical_feature.__init__(self, possible_values, which_attribute)
 
-    @classmethod
-    def get_possible_values(cls):
-        return [['3'],['4'],['5'],['8','9']]
+class prev_psa_level_f(attribute_categorical_feature):
 
-class prev_psa_level_f(hard_coded_categorical_feature_factory):
+    def __init__(self):
+        which_attribute = tumor.prev_psa_level
+        possible_values = [['000'], ['010'], ['030'], ['999']]
+        attribute_categorical_feature.__init__(self, possible_values, which_attribute)
 
-    @classmethod
-    def get_which_attribute(cls):
-        return tumor.prev_psa_level
 
-    @classmethod
-    def get_possible_values(cls):
-        return [['000'], ['010'], ['030'], ['999']]
-
-class psa_value_feature_factory(hard_coded_scalar_feature_factory):
+class psa_value_feature(single_attribute_feature, range_checked_feature):
     """
     field name: CS_SSFactor1
     psa level
     goes from 1 to 999 in units of 0.1 ng/mL
     """
-
-    @classmethod
-    def get_which_attribute(cls):
-        return tumor.psa_level
-
-    @classmethod
-    def get_valid_range(cls):
-        return 1, 989
+    def __init__(self):
+        single_attribute_feature.__init__(self, tumor.psa_level)
+        range_checked_feature.__init__(self, 1, 989)
 
 
-class grade_f(categorical_feature_factory):
+
+class grade_f(attribute_categorical_feature):
     """
     field name: Grade
     http://www.upmccancercenter.com/cancer/prostate/gradingsystems.html 
@@ -690,41 +489,32 @@ class grade_f(categorical_feature_factory):
     1:21, 2:2305, 3:2225, 4:11, 9:103
     """
 
-    @classmethod
-    def get_possible_values(cls):
-        return [['1'],['2'],['3'],['4'],['9']]
+    def __init__(self):
+        possible_values = [['1'],['2'],['3'],['4'],['9']]
+        which_attribute = tumor.grade
+        attribute_categorical_feature.__init__(possible_values, which_attribute)
 
-    @classmethod
-    def get_which_attribute(cls):
-        return tumor.grade
-
-class SEERStage_f(categorical_feature_factory):
+class SEERStage_f(attribute_categorical_feature):
     """
     field name: SEERSummStage2000
     how far the cancer has spread
     http://seer.cancer.gov/tools/ssm/malegen.pdf
     same terminology for every site, but terms like regional and distant vary depending on the site
     """
-    @classmethod
-    def get_possible_values(cls):
-        return [['1'],['2'],['3'],['4'],['9']]
+    def __init__(self):
+        possible_values = [['1'],['2'],['3'],['4'],['9']]
+        which_attribute = tumor.SEERSummStage2000
+        attribute_categorical_feature.__init__(posible_values, which_attribute)
 
-    @classmethod
-    def get_which_attribute(cls):
-        return tumor.SEERSummStage2000
-
-class BestStage_f(categorical_feature_factory):
+class BestStage_f(attribute_categorical_feature):
     """
     BestStage
     ???
     """
-    @classmethod
-    def get_possible_values(cls):
-        return [['1'],['2'],['2A'],['2B'],['3'],['4']]
-
-    @classmethod
-    def get_which_attribute(cls):
-        return tumor.SEERSummStage2000
+    def __init__(self):
+        possible_values = [['1'],['2'],['2A'],['2B'],['3'],['4']]
+        which_attribute = tumor.SEERSummStage2000
+        attribute_categorical_feature.__init__(posible_values, which_attribute)
 
 class psa_series_feature_factor(feature):
 

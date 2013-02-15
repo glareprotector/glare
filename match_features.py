@@ -25,12 +25,6 @@ class phrase_matcher(feature):
         self.ignore_phrases = ignore_phrases
 
 
-class phrase_matcher_factory(feature_factory):
-
-    @classmethod
-    def get_feature(self, phrase, ignore_phrases=[]):
-        return phrase_matcher(phrase, ignore_phrases)
-
 
 class position_phrase_matcher(phrase_matcher):
 
@@ -74,11 +68,6 @@ class position_phrase_matcher(phrase_matcher):
         phrase_matcher.__init__(self, phrase, ignore_phrases)
 
 
-class position_phrase_matcher_factory(feature_factory):
-
-    @classmethod
-    def get_feature(self, phrase, word_window, ignore_phrases=[]):
-        return position_phrase_matcher(phrase, word_window, ignore_phrases)
 
 
 

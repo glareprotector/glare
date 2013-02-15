@@ -30,11 +30,9 @@ tumor_list = wc.get_stuff(objects.tumor_list, p)
 interval_boundaries = [-0,2,10]
 intervals = [my_data_types.ordered_interval(helper.my_timedelta(interval_boundaries[i]*365), helper.my_timedelta(interval_boundaries[i+1]*365)) for i in range(len(interval_boundaries)-1)]
 
-pdb.set_trace()
 
-the_binner = f.categorical_feature_binner(f.treatment_code_feature_factory.get_feature(), ['none','prostectomy','beam','brachy'])
+the_binner = f.treatment_code_categorical_feature()
 
-pdb.set_trace()
 
 plotters.plot_time_series_by_bins(tumor_list, the_binner, intervals, helper.tumor.erection_time_series, 'test', 'test.pdf')
 

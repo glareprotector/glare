@@ -7,7 +7,7 @@ import numpy as np
 import my_exceptions
 import pdb
 
-
+collection_to_bucket = f.single_ordinal_single_value_wrapper_feature
 
 def plot_time_series_by_bins(tumor_list, binner, time_series_intervals, which_attribute, title, file_name):
     """
@@ -15,17 +15,18 @@ def plot_time_series_by_bins(tumor_list, binner, time_series_intervals, which_at
     """
     num_intervals = len(time_series_intervals)
     # put tumors into separate list_lists of bucket means
-    bin_list_of_bucket_means = [my_data_types.homo_my_list_interval_list() for i in range(binner.get_num_bins())]
+    bin_list_of_bucket_means = [my_data_types.homo_my_list_interval_list() for i in range(binner.get_num_categories())]
     pdb.set_trace()
     for tumor in tumor_list:
         # add interval means for each series to appropriate bin
-        which_bin = binner.get_bin_number(tumor)
+        which_bin = binner.get_actual_value(tumor)
         series = tumor.get_attribute(which_attribute)
         bucketed_series = my_data_types.bucketed_ordinal_list.init_from_intervals_and_ordinal_list(time_series_intervals, series)
         interval_means = bucketed_series.apply_feature_always_add(collection_to_bucket(f.get_bucket_mean_feature()))
         bin_list_of_bucket_means[which_bin].append(interval_means)
 
     # collapse each list of interval means into a single interval means
+    pdb.set_trace()
     bin_list_of_bucket_means_buckets = [hlil.get_bucket_ordinal_list() for hlil in bin_list_of_bucket_means]
     bin_list_of_bucket_means_bucket_means = [bl.apply_feature_always_add(collection_to_bucket(f.get_bucket_mean_feature()), ) for bl in bin_list_of_bucket_means_buckets]
 
