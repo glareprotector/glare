@@ -1,5 +1,6 @@
 from features import *
 import helper
+from my_data_types import sv_int, sv_float
 
 #sv = get_wrapped_single_value_object_feature_factory.get_feature().generate
 
@@ -10,12 +11,12 @@ class phrase_matcher(feature):
 
         for ignore_phrase in self.ignore_phrases:
             if helper.match_phrase(excerpt, ignore_phrase):
-                return sv(0)
+                return sv_int(0)
 
         if helper.match_phrase(excerpt, self.phrase):
-            return sv(1)
+            return sv_int(1)
         else:
-            return sv(0)
+            return sv_int(0)
 
 
 

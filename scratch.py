@@ -7,15 +7,75 @@ import features as f
 import side_effects
 import datetime
 import my_data_types
-
+import pickle
 import get_info
+import global_stuff
+import plotters
 
-p = param.param({'count_words':helper.words_to_coded_words(['erection','erections','erectile dysfunction'])})
+p = global_stuff.get_param()
 
 A = set(wc.get_stuff(objects.PID_with_SS_info, p))
 B = set(wc.get_stuff(objects.PID_with_shared_MRN, p))
 C = set(wc.get_stuff(objects.PID_with_multiple_tumors, p))
 PID_to_use = list(A - B - C)
+
+
+
+test_PID_to_use = PID_to_use[0:20]
+p.set_param('pid_list', test_PID_to_use)
+p.set_param('list_name', 'test')
+
+tumor_list = wc.get_stuff(objects.tumor_list, p)
+
+interval_boundaries = [-0,2,10]
+intervals = [my_data_types.ordered_interval(helper.my_timedelta(interval_boundaries[i]*365), helper.my_timedelta(interval_boundaries[i+1]*365)) for i in range(len(interval_boundaries)-1)]
+
+pdb.set_trace()
+
+the_binner = f.categorical_feature_binner(f.treatment_code_feature_factory.get_feature(), ['none','prostectomy','beam','brachy'])
+
+pdb.set_trace()
+
+plotters.plot_time_series_by_bins(tumor_list, the_binner, intervals, helper.tumor.erection_time_series, 'test', 'test.pdf')
+
+
+
+
+
+pdb.set_trace()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -75,9 +135,11 @@ for pid in PID_to_use:
             count += 1
 
             #get new series
-            series = f.report_feature_time_course_feature_factory.get_feature(f.side_effect_report_record_feature_factory.get_feature(side_effects.erection_side_effect)).generate(tumor, True)
+            #series = f.report_feature_time_course_feature_factory.get_feature(f.side_effect_report_record_feature_factory.get_feature(side_effects.erection_side_effect)).generate(tumor, True)
+            series = tumor.get_attribute(tumor.erection_time_series)
             helper.print_if_verbose(str(series),1)
-            
+            pickle.dump(series, open('temp.pickle','wb'))
+            pdb.set_trace()
             # add to time_series_list
             erection_time_series_list.append(series)
 

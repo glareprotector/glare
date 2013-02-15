@@ -11,6 +11,7 @@ import param
 import random
 import sys
 import my_exceptions
+from my_data_types import sv_int, sv_float
 
 
 def print_traceback():
@@ -458,7 +459,7 @@ def parse_p_input(p, arg_string):
 
 def get_cursor():
     import pyodbc
-    connection = pyodbc.connect('DRIVER={SQL Server};SERVER=REDPANDA\REDPANDA;UID=CM;PWD=tdie4u@tLQM')
+    connection = pyodbc.connect('DRIVER={SQL Server};SERVER=REDPANDA\REDPANDA;UID=DBA;PWD=tdie4u@tLQM')
     cursor = connection.cursor()
     return cursor
 
@@ -512,7 +513,7 @@ def print_if_verbose(x,level):
     if level <= verbose:
         print x
 
-verbose = 0.8
+verbose = 1.2
 
 def match_phrase(excerpt, phrase):
     import re
@@ -702,15 +703,15 @@ class excerpt(record):
 
 class tumor(object):
 
-    pid, grade, SEERSummStage2000, texts, surgery_code, radiation_code, date_diagnosed, surgery_date, radiation_date = range(9)
+    pid, grade, SEERSummStage2000, texts, surgery_code, radiation_code, date_diagnosed, surgery_date, radiation_date, erection_time_series = range(10)
 
 
     """
     pid:int, grade:string, SEERSummStage2000:string, texts:list(string), erection_negation_counts:dict{str:int}, surgery_code:char(2), radiation_code:char(1), psa_value:char(3), prev_psa_level(3)
-    gleason_primary:char(1), gleason_secondary:char(2)
+    gleason_primary:char(1), gleason_secondary:char(2), erection_ts
     """
-    def __init__(self, _pid, _grade, _SEERSummStage, _texts, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date):
-        self.attributes = [_pid, _grade, _SEERSummStage, _texts, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date]
+    def __init__(self, _pid, _grade, _SEERSummStage, _texts, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series):
+        self.attributes = [_pid, _grade, _SEERSummStage, _texts, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series]
 
     def get_attribute(self, attribute):
         return self.attributes[attribute]

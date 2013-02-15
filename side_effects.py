@@ -1,7 +1,9 @@
 import my_exceptions
 from match_features import *
 import helper
-from features import sv
+from my_data_types import sv_int, sv_float
+
+
 
 # generic side effect classifying functionality will be left to features, but feature specific stuff will be here
 class side_effect(object):
@@ -45,10 +47,10 @@ class side_effect(object):
             raise my_exceptions.NoFxnValueException
         
         if absolute_good:
-            return sv(1)
+            return sv_int(1)
         
         if absolute_bad:
-            return sv(0)
+            return sv_int(0)
 
         num_semi_good = 0
         for semi_good_match in cls.get_semi_good_match_features():
@@ -81,9 +83,9 @@ class side_effect(object):
             raise my_exceptions.NoFxnValueException
         else:
             if num_semi_bad % 2 == 0:
-                return sv(1)
+                return sv_int(1)
             else:
-                return sv(0)
+                return sv_int(0)
 
 
     @classmethod

@@ -4,10 +4,13 @@ import my_data_types
 import my_exceptions
 import pdb
 import helper
+from my_data_types import sv_int, sv_float
 
 
 class feature(object):
-    
+    """
+    feature is just a class that takes in a tumor or something, and implements callable
+    """
     def generate(self, *args, **kwargs):
         self.error_check(*args, **kwargs)
         return self._generate(*args, **kwargs)
@@ -32,31 +35,6 @@ class feature_factory(object):
         pass
 
 
-class get_wrapped_single_value_object_feature(feature):
-
-    def _generate(self, val):
-
-        class anon_class(type(val), my_data_types.single_value_object):
-            pass
-
-        return anon_class(val)
-
-
-class get_wrapped_single_value_object_feature_factory(feature_factory):
-
-    @classmethod
-    def get_feature(cls):
-        return get_wrapped_single_value_object_feature()
-
-
-sv = get_wrapped_single_value_object_feature_factory.get_feature().generate
-
-
-
-
-
-
-
 class side_effect_excerpt_feature(side_effect_feature):
 
     def get_negex_irules(self):
@@ -77,9 +55,9 @@ class side_effect_excerpt_feature(side_effect_feature):
                 raise my_exceptions.NoFxnValueException
 
         try:
-            return sv(self.get_side_effect().classify_excerpt(excerpt))
+            return helper.sv_int(self.get_side_effect().classify_excerpt(excerpt))
         except my_exceptions.NoFxnValueException:
-            return sv(self.basic_classify(excerpt))
+            return sv_int(self.basic_classify(excerpt))
 
     def basic_classify(self, excerpt):
         # find out which word is actually in the excerpt
@@ -111,8 +89,8 @@ class side_effect_report_record_feature(side_effect_feature):
         if len(excerpt_scores) == 0:
             raise my_exceptions.NoFxnValueException
 
-        total = sv(0.0)
-        count = sv(0)
+        total = sv_float(0.0)
+        count = sv_int(0)
         for score in excerpt_scores:
             try:
                 total += score
@@ -122,9 +100,9 @@ class side_effect_report_record_feature(side_effect_feature):
                 count += 1
 
         if total > count / 2.0:
-            return sv(1)
+            return sv_int(1)
         else:
-            return sv(0)
+            return sv_int(0)
 
 
 class side_effect_report_record_feature_factory(feature_factory):
@@ -136,7 +114,7 @@ class side_effect_report_record_feature_factory(feature_factory):
 
 class report_feature_time_course_feature(feature):
 
-    def _generate(self, tumor, relative_to_diagnosis):
+    def _generate(self, tumor_texts, relative_to_diagnosis, date_diagnosed):
         """
         applies report_feature to tumor's reports
         returns single_ordinal_single_value_ordered_object consisting of time and value
@@ -144,14 +122,14 @@ class report_feature_time_course_feature(feature):
 
         ans = my_data_types.single_ordinal_ordinal_list()
         #report_feature = side_effect_report_record_feature_factory.get_feature(self.get_side_effect())
-        for report in tumor.get_attribute(tumor.texts):
+        for report in tumor_texts:
             try:
                 temp = self.report_feature.generate(report)
             except my_exceptions.NoFxnValueException:
                 pass
             else:
                 if relative_to_diagnosis:
-                    ans.append(my_data_types.single_ordinal_single_value_ordered_object(helper.my_timedelta((report.date - tumor.get_attribute(tumor.date_diagnosed)).days), temp))
+                    ans.append(my_data_types.single_ordinal_single_value_ordered_object(helper.my_timedelta((report.date - date_diagnosed).days), temp))
                 else:
                     ans.append(my_data_types.single_ordinal_single_value_ordered_object(report.date, temp))
         return ans
@@ -193,14 +171,7 @@ class side_effect_time_course_times_only_feature_factory(feature_factory):
         return side_effect_time_course_times_only_feature(side_effect)
 
 
-class feature_composition_wrapper_feature(feature):
 
-    def _generate(self, tumor, relative_to_diagnosis):
-        """
-        for now, only used to call function that takes in tumor, relative_to_diagnosis
-        """
-        series = self.g(tumor, relative_to_diagnosis)
-        return self.f(series, relative_to_diagnosis)
 
 
 class apply_feature_to_buckets_from_series_feature(feature):
@@ -248,7 +219,7 @@ class get_bucket_mean_feature(feature):
         if count == 0:
             return my_data_types.no_value_object()
         else:
-            return sv(total / float(count))
+            return sv_float(total / float(count))
 
 
 class get_bucket_sum_feature(feature):
@@ -263,7 +234,7 @@ class get_bucket_sum_feature(feature):
             except my_exceptions.NoFxnValueException:
                 # if there is no value, get_value will raise exception
                 pass
-        return sv(total)
+        return sv_float(total)
 
 
 
@@ -319,7 +290,7 @@ class get_bucket_count_feature(feature):
                 pass
             else:
                 count += 1
-        return sv(count)
+        return sv_int(count)
 
 
 
@@ -337,9 +308,9 @@ class get_bucket_count_nonzero_feature(feature):
             else:
                 count += 1
         if count > 0:
-            return sv(1)
+            return sv_int(1)
         else:
-            return sv(0)
+            return sv_int(0)
 
 
 
@@ -361,25 +332,11 @@ class get_bucket_label_feature(feature):
         if num_0 + num_1 == 0:
             return my_data_types.no_value_object()
         if num_1 > num_0:
-            return sv(1)
+            return sv_int(1)
         else:
-            return sv(0)
+            return sv_int(0)
 
 
-class generic_apply_feature_to_homo_column(feature):
-
-    def __init__(self, collection_feature):
-        self.bucket_feature = single_ordinal_single_value_wrapper_feature_factory.get_feature(collection_feature)
-
-    def _generate(self, hll):
-        bl = hll.get_bucket_ordinal_list()
-        return bl.apply_feature_always_add(self.bucket_feature)
-
-class generic_apply_feature_to_homo_column_factory(feature_factory):
-
-    @classmethod
-    def get_feature(cls, collection_feature):
-        return generic_apply_feature_to_homo_column(collection_feature)
 
 
 
@@ -407,54 +364,103 @@ class single_ordinal_single_value_wrapper_feature_factory(feature_factory):
 
 
 
-
 # takes in tumor instances, and returns a vector corresponding to the feature.  may be longer than 1 for categorical features
-class single_attribute_feature_factory(feature_factory):
+class single_attribute_feature(feature):
+
+    def get_which_attribute(self):
+        return self.which_attribute
+
+class scalar_feature(single_attribute_feature):
+
+    def error_check(self, tumor):
+        lower, upper = self.get_valid_range()
+        if self.get_code(tumor) < lower or self.get_code(tumor) > upper:
+            raise my_exceptions.ScalarFeatureOutOfRange
+
+    def _generate(self, tumor):
+        return [tumor.get_attribute(self.get_which_attribute())]
+
+    def get_valid_range(self):
+        return self.low, self.high
+
+    def __init__(self, which_attribute, low, high):
+        self.which_attribute = which_attribute
+        self.low = low
+        self.high = high
+
+class scalar_feature_factory(feature_factory):
+
+    @classmethod
+    def get_feature(cls, which_attribute, low, high):
+        return scalar_feature(which_attribute, low, high)
+
+class hard_coded_scalar_feature_factory(scalar_feature_factory):
 
     @classmethod
     def get_which_attribute(cls):
         pass
 
-class scalar_feature_factory(single_attribute_feature_factory):
-
-    @classmethod
-    def error_check(cls, tumor):
-        lower, upper = cls.get_valid_range()
-        if cls.get_code(tumor) < lower or cls.get_code(tumor) > upper:
-            raise Exception
-
-    @classmethod
-    def _generate(cls, tumor):
-        return [tumor.get_attribute(cls.get_which_attribute())]
-
     @classmethod
     def get_valid_range(cls):
         pass
 
+    @classmethod
+    def get_feature(cls):
+        low, high = cls.get_valid_range()
+        return scalar_feature(cls.get_which_attribute(), low, high)
+
+
+
+    
+
+
+class complex_categorical_feature(feature):
+
+    def error_check(self, tumor):
+        if self.get_code(tumor) not in self.get_possible_values():
+            raise Exception
+
+    def get_code(self, tumor):
+        return (self.get_code_f)(tumor)
+
+    def _generate(self, tumor):
+        ans = [1 if helper.compare_in(self.get_code(tumor), val) else 0 for val in self.get_possible_values()]
+        return ans
+
+    def get_possible_values(self):
+        return self.possible_values
+
+    def __init__(self, possible_values, get_code_f):
+        self.possible_values = possible_values
+        self.get_code_f = get_code_f
+
 class complex_categorical_feature_factory(feature_factory):
 
     @classmethod
-    def error_check(cls, tumor):
-        if cls.get_code(cls,tumor) not in cls.get_possible_values():
-            raise Exception
+    def get_feature(cls, possible_values, get_code_f):
+        return complex_categorical_feature(possible_values, get_code_f)
+
+
+
+class hard_coded_complex_categorical_feature_factory(feature_factory):
 
     @classmethod
-    def get_code(cls, tumor):
+    def get_which_attribute(cls):
         pass
-
-    @classmethod
-    def _generate(cls, tumor):
-        ans = [1 if helper.compare_in(cls.get_code(tumor), val) else 0 for val in cls.get_possible_values()]
-        return ans
 
     @classmethod
     def get_possible_values(cls):
         pass
 
-class treatment_code(complex_categorical_feature_factory):
-
     @classmethod
-    def get_code(cls, tumor):
+    def get_feature(cls):
+        return complex_categorical_feature_factory.get_feature(cls.get_possible_values(), cls.get_code_f)
+
+
+class treatment_code_feature_factory(hard_coded_complex_categorical_feature_factory):
+
+    @staticmethod
+    def get_code_f(tumor):
         """
         notes: for surgery, 0 means none, 50 means radical prostectomy.  for radiation, 0 means none, 1 means beam, 2 means brachy
         0 for no treatment
@@ -476,33 +482,116 @@ class treatment_code(complex_categorical_feature_factory):
             return 4
     
     @classmethod
-    def get_possible_values(cls, tumor):
+    def get_possible_values(cls):
         return [[0],[1],[2],[3],[4]]
 
-class categorical_feature_factory(complex_categorical_feature_factory):
+class categorical_feature(complex_categorical_feature):
 
-    @classmethod
-    def get_which_attribute(cls):
+    def get_which_attribute(self):
+        return self.which_attribute
+
+    def get_code(tumor):
+        return tumor.get_attribute(self.get_which_attribute())
+
+    def __init__(self, which_attribute, possible_values):
+        self.which_attribute = which_attribute
+        complex_categorical_feature.__init__(possible_values, categorical_feature.get_code)
+
+class binner(object):
+
+    def get_bin_number(self, tumor):
         pass
 
-    @classmethod
-    def get_code(cls, tumor):
-        return tumor.get_attribute(cls.get_which_attribute())
-
-
-class text_label(feature_factory):
-
-    @classmethod
-    def get_words_to_search_for(cls):
+    def get_bin_descriptions(self):
         pass
 
+    def get_num_bins(self):
+        pass
+
+class binner_factory(object):
+
+    pass
+
+
+class categorical_feature_binner(binner):
+
+    def get_bin_number(self, tumor):
+        feat = self.feature.generate(tumor)
+        i = 0
+        for i in range(len(feat)):
+            if i != 0:
+                return i
+        raise 
+
+    def get_bin_descriptions(self):
+        return self.bin_descriptions
+
+    def get_num_bins(self):
+        return len(self.feature.get_possible_values())
+
+    def __init__(self, feature, bin_descriptions):
+        self.bin_descriptions = bin_descriptions
+        self.feature = feature
+
+class scalar_feature_binner(binner):
+
+    def get_bin_intervals(self):
+        return self.bin_intervals
+
+    def get_num_bins(self):
+        return len(self.get_bin_intervals())
+
+    def get_bin_number(self, tumor):
+        feat = self.feature.generate(tumor)
+        for i in range(self.get_num_bins()):
+            interval = self.get_bin_intervals()[i]
+            if interval.contains(feat):
+                return i
+        raise
+
+    def get_bin_descriptions(self):
+        return self.bin_descriptions
+
+    def __init__(self, feature, bin_intervals, bin_descriptions):
+        self.feature = feature
+        self.bin_intervals = bin_intervals
+        self.bin_descriptions = bin_descriptions
+
+
+class scalar_feature_binner_factory(binner_factory):
+
     @classmethod
-    def _generate(cls, tumor):
+    def get_binner(cls, feature, bin_intervals, bin_descriptions):
+        return scalar_feature_binner(feature, bin_intervals, bin_descriptions)
+
+
+
+class categorical_feature_binner_factory(feature_factory):
+
+    @classmethod
+    def get_binner(cls, feature, bin_descriptions):
+        return categorical_feature_binner(feature, bin_descriptions)
+
+
+
+class categorical_feature_factory(feature_factory):
+
+    @classmethod
+    def get_feature(cls, which_attribute, possible_values):
+        return categorical_feature(which_attribute, possible_values)
+
+
+class text_label(feature):
+
+    def get_words_to_search_for(self):
+        return self.which_words
+
+    def _generate(self, tumor):
         texts = tumor.get_attribute(tumor.texts)
         assert len(texts) > 0
         present = False
         for text in texts:
-            for word in cls.get_words_to_search_for():
+            for word in self.get_words_to_search_for():
                 if word.lower() in text.lower():
                     present = True
         
@@ -512,12 +601,11 @@ class text_label(feature_factory):
             return [0]
 
 
-class erectile_text_label_f(feature_factory):
+class erectile_text_label_f(feature):
     """
     1 means you have erectile dysfunction
     """
-    @classmethod
-    def _generate(cls, tumor):
+    def _generate(self, tumor):
         counts = tumor.get_attribute(tumor.erection_negation_counts)
         erection = counts['erection']
         erections = counts['erections']
@@ -528,7 +616,22 @@ class erectile_text_label_f(feature_factory):
             raise Exception
         return [int(support > against)]
 
-class gleason_primary(categorical_feature_factory):
+class hard_coded_categorical_feature_factory(feature_factory):
+
+    @classmethod
+    def get_which_attribute(cls):
+        pass
+
+    @classmethod
+    def get_possible_values(cls):
+        pass
+
+    @classmethod
+    def get_feature(cls):
+        return categorical_feature_factory.get_feature(self.get_which_attribute(), self.get_possible_values())
+
+
+class gleason_primary_feature_factory(hard_coded_categorical_feature_factory):
     """
     primary and secondary come from CS_SSFactor5, which codes both primary and secondary gleason scores
     might be the same as grade_f, not sure
@@ -543,7 +646,7 @@ class gleason_primary(categorical_feature_factory):
         return [['3'],['4'],['5'],['8','9']]
 
 
-class gleason_secondary(categorical_feature_factory):
+class gleason_secondary(hard_coded_categorical_feature_factory):
 
     @classmethod
     def get_which_attribute(cls):
@@ -553,7 +656,7 @@ class gleason_secondary(categorical_feature_factory):
     def get_possible_values(cls):
         return [['3'],['4'],['5'],['8','9']]
 
-class prev_psa_level_f(categorical_feature_factory):
+class prev_psa_level_f(hard_coded_categorical_feature_factory):
 
     @classmethod
     def get_which_attribute(cls):
@@ -563,7 +666,7 @@ class prev_psa_level_f(categorical_feature_factory):
     def get_possible_values(cls):
         return [['000'], ['010'], ['030'], ['999']]
 
-class psa_value_f(scalar_feature_factory):
+class psa_value_feature_factory(hard_coded_scalar_feature_factory):
     """
     field name: CS_SSFactor1
     psa level

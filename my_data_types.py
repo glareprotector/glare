@@ -127,6 +127,14 @@ class single_value_object(base_single_value_object):
         self.val = val
 
 
+# if an object is to be used by functions, they must either implement get_value or get_ordinal, depending on the function
+
+
+class sv_int(int, single_value_object):
+    pass
+
+class sv_float(float, single_value_object):
+    pass
 
 
 
