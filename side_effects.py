@@ -118,7 +118,8 @@ class erection_side_effect(side_effect):
         except:
             pass
         words = ['excellent']
-        cls.absolute_good_match_features = [position_phrase_matcher_factory.get_feature(word, 10) for word in words]
+        cls.absolute_good_match_features = [position_phrase_matcher(word, 10) for word in words]
+        cls.absolute_good_match_features.append(position_phrase_matcher('good',3))
         return cls.absolute_good_match_features
 
     @classmethod
@@ -128,7 +129,7 @@ class erection_side_effect(side_effect):
         except:
             pass
         words = ['absent','unable','failed','gone','poor','diminished','incomplete', 'no erections']
-        cls.absolute_bad_match_features = [position_phrase_matcher_factory.get_feature(word, 10) for word in words]
+        cls.absolute_bad_match_features = [position_phrase_matcher(word, 10) for word in words]
         return cls.absolute_bad_match_features
 
     @classmethod
@@ -137,8 +138,8 @@ class erection_side_effect(side_effect):
             return cls.semi_good_match_features
         except:
             pass
-        words = ['stable','intact','present','able','achieve','adequate','good','satisfactory','normal','return','full','reasonable','sustainable','strong','recover','sufficient','has','have','had']
-        cls.semi_good_match_features = [position_phrase_matcher_factory.get_feature(word, 10) for word in words]
+        words = ['stable','intact','present','able','achieve','adequate','satisfactory','normal','return','full','reasonable','sustainable','strong','recover','sufficient','has','have','had','having']
+        cls.semi_good_match_features = [position_phrase_matcher(word, 10) for word in words]
         return cls.semi_good_match_features
 
     @classmethod
@@ -148,8 +149,8 @@ class erection_side_effect(side_effect):
         except:
             pass
         words = ['not','denies','difficulty','problem','difficulties','problems']
-        cls.semi_bad_match_features = [position_phrase_matcher_factory.get_feature(word, 10) for word in words]
-        cls.semi_bad_match_features.append(position_phrase_matcher_factory.get_feature('no', 10, ['no requirement']))
+        cls.semi_bad_match_features = [position_phrase_matcher(word, 10) for word in words]
+        cls.semi_bad_match_features.append(position_phrase_matcher('no', 10, ['no requirement']))
         return cls.semi_bad_match_features
 
     @classmethod
@@ -159,7 +160,7 @@ class erection_side_effect(side_effect):
         except:
             pass
         words = ['possible','possibly','prior','may','expect','can','risk','chance','expect','important','likely','probability','suggested','suggest','discuss','will']
-        cls.no_info_match_features = [position_phrase_matcher_factory.get_feature(word, 15) for word in words]
+        cls.no_info_match_features = [position_phrase_matcher(word, 15) for word in words]
         return cls.no_info_match_features
 
     @classmethod

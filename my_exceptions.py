@@ -3,3 +3,7 @@ class NoFxnValueException(Exception):
 
 class ScalarFeatureOutOfRange(Exception):
     pass
+
+class WCFailException(Exception):
+    pass
+

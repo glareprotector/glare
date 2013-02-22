@@ -599,12 +599,27 @@ class my_date(date, my_data_types.ordered_object):
         date_str = str(month) + '/' + str(day) + '/' + str(year)
         return cls.init_from_str(date_str)
 
+    @classmethod
+    def init_from_hyphen_string(cls, date_string):
+        s = date_string.strip().split('-')
+        year = int(s[0])
+        month = int(s[1])
+        day = int(s[2])
+        return cls(year, month, day)
+
+    @classmethod
+    def init_from_slash_string(cls, date_string):
+        s = date_string.strip().split('/')
+        year = int(s[2])
+        month = int(s[0])
+        day = int(s[1])
+        return cls(year, month, day)
 
 class my_timedelta(timedelta):
 
     def __repr__(self):
 
-        return str(self.days / 365)
+        return str(self.days / 365.0)
 
 
     
@@ -639,8 +654,11 @@ class report_record(record):
         """
 
         # for now, get rid of all punctuation. and then split/join with space to get space separated words
+
+        #cleaned_text = clean_text(self.raw_text)
         
-        cleaned_text = clean_text(self.raw_text)
+
+        cleaned_text = self.raw_text
 
         searchers = []
         matches = set()
@@ -655,9 +673,8 @@ class report_record(record):
                 return self.pos == other.pos
             def __hash__(self):
                 return self.pos.__hash__()
-
         for word in words:
-            searchers.append(re.compile('\s'+word+'\s'))
+            searchers.append(re.compile('[\s.,]'+word+'[\s.,]'))
         for searcher in searchers:
             this_matches = [pos_word_tuple(m.start(), m.group()) for m in searcher.finditer(cleaned_text)]
             for match in this_matches:
@@ -701,32 +718,62 @@ class excerpt(record):
         record.__init__(self, pid, date, raw_text)
 
 
-class tumor(object):
+class tumor_lite(object):
 
-    pid, grade, SEERSummStage2000, texts, surgery_code, radiation_code, date_diagnosed, surgery_date, radiation_date, erection_time_series = range(10)
+    num_attributes = 15
+    pid, grade, SEERSummStage2000, surgery_code, radiation_code, date_diagnosed, surgery_date, radiation_date, erection_time_series, DLC, alive, DOB , tumor_tuple, patient_tuple, super_tuple= range(num_attributes)
 
 
     """
-    pid:int, grade:string, SEERSummStage2000:string, texts:list(string), erection_negation_counts:dict{str:int}, surgery_code:char(2), radiation_code:char(1), psa_value:char(3), prev_psa_level(3)
-    gleason_primary:char(1), gleason_secondary:char(2), erection_ts
+    pid:int, grade:string, SEERSummStage2000:string, texts:list(string), erection_negation_counts:dict{str:int}, surgery_code:char(2), radiation_code:char(1), psa_value:char(3), prev_psa_level(3). 
+    gleason_primary:char(1), gleason_secondary:char(2), erection_ts, date_last_contact, alive_or_not, DOB
     """
-    def __init__(self, _pid, _grade, _SEERSummStage, _texts, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series):
-        self.attributes = [_pid, _grade, _SEERSummStage, _texts, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series]
+    def __init__(self, _pid, _grade, _SEERSummStage, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series, _DLC, _alive, _DOB, _tt, _pt, _sdt):
+        self.attributes = [_pid, _grade, _SEERSummStage, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series, _DLC, _alive, _DOB, _tt, _pt, _sdt]
 
     def get_attribute(self, attribute):
         return self.attributes[attribute]
-
-    def get_feature_vector(self, feature_list):
-        vector = []
-        for feature in feature_list:
-            vector = vector + feature.generate(self)
-        return vector
 
     def get_label(self, label_f):
         ans = label_f.generate(self)
         assert(len(ans) == 1)
         return ans[0]
-    
+
+    def get_csv_string(self, feature_list):
+        feature_vector = self.get_feature_vector(feature_list)
+        import string
+        return string.join([str(x) for x in feature_vector],sep=',')
+
+    def get_feature_vector(self, feature_list):
+        """
+        creates feature vector given list of features.  if features are categorical and thus a list, flattens them
+        """
+        vector = []
+        for feature in feature_list:
+            to_add = feature.generate(self)
+            try:
+                vector = vector + to_add
+            except TypeError:
+                vector.append(to_add)
+        return vector
+
+
+class tumor(tumor_lite):
+
+
+    num_attributes = 1
+    texts, = range(tumor_lite.num_attributes, tumor_lite.num_attributes + num_attributes)
+
+    """
+    pid:int, grade:string, SEERSummStage2000:string, texts:list(string), erection_negation_counts:dict{str:int}, surgery_code:char(2), radiation_code:char(1), psa_value:char(3), prev_psa_level(3). 
+    gleason_primary:char(1), gleason_secondary:char(2), erection_ts, date_last_contact, alive_or_not, DOB
+    """
+    def __init__(self, _pid, _grade, _SEERSummStage, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series, _DLC, _alive, _DOB, _tt, _pt, _sdt, _texts):
+        tumor_lite.__init__(self, _pid, _grade, _SEERSummStage, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series, _DLC, _alive, _DOB, _tt, _pt, _sdt)
+        self.attributes += [_texts]
+
+
+
 
 
 def interval_val_as_string(series):
@@ -757,6 +804,22 @@ class data_set(object):
 
     def get_num_samples(self):
         return len(self.the_data)
+
+    
+    def filter(self, f):
+        return data_set(filter(f, self.the_data))
+
+    def get_csv_string(self, feature_list):
+        header_strings = []
+        for feature in feature_list:
+            for i in range(len(feature)):
+                header_strings.append(feature.get_name())
+        import string
+        header_string = string.join(header_strings, sep = ',')
+        ans = ''
+        for tumor in self.the_data:
+            ans += tumor.get_csv_string(feature_list) + '\n'
+        return header_string + '\n' + ans
 
     def get_feature_matrix(self, feature_list):
         import numpy
@@ -821,6 +884,10 @@ class data_set(object):
         return cls.data_set_from_pid_list(pids, params)
 
     
+    def __iter__(self):
+        return self.the_data.__iter__()
+
+
     # functions here don't know about any objects in objects.py, except for this one
     # this function gets tumor object via wc.  nothing in analysis part should call wc
     # if i want to cache any features, do so upstream of creating tumor class
@@ -828,14 +895,24 @@ class data_set(object):
     def data_set_from_pid_list(cls, pid_list, params):
         import wc
         import objects
+        from global_stuff import get_tumor_cls, get_tumor_w
         the_data = []
         i = 0
         for pid in pid_list:
             print i, pid
             i += 1
             params.set_param('pid', pid)
-            a_tumor = wc.get_stuff(objects.tumor_w, params)
-            the_data.append(a_tumor)
+            try:
+                a_tumor = wc.get_stuff(get_tumor_w(), params)
+                #assert len(a_tumor.attributes) == get_tumor_cls().num_attributes
+            except my_exceptions.WCFailException:
+                print 'failed to get ', pid
+            except AssertionError:
+                print 'failed to get ', pid, ' number of attributes was incorrect'
+            except Exception:
+                print 'failed to get ', pid, ' not sure of error'
+            else:
+                the_data.append(a_tumor)
         return cls(the_data)
 
 

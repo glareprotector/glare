@@ -15,7 +15,7 @@ def print_tumor_side_effect_excerpts_and_classification(tumor, side_effect):
             ans += '\nexcerpt: ' + '\n'
             ans += str(excerpt) + '\n'
             ans += 'class: ' + '\n'
-            ans += str(features.side_effect_excerpt_feature_factory.get_feature(side_effect).generate(excerpt)) + '\n'
+            ans += str(features.side_effect_excerpt_feature(side_effect).generate(excerpt)) + '\n'
     return ans
 
 

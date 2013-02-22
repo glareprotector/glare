@@ -82,7 +82,7 @@ def dec(f):
                 fname, lineno,fn,text = frame
                 print "Error in %s on line %d" % (fname, lineno)
             print sys.exc_traceback.tb_lineno
-            print params
+
             self.temp_used_keys.pop()
             self.temp_dependents_keys.pop()
             self.temp_new_param_keys.pop()

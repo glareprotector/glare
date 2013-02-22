@@ -11,6 +11,7 @@ import math
 import datetime
 import pdb
 
+
 time_total = datetime.timedelta(0)
 
 cosmic_or_humvar = 'cosmic'
@@ -68,9 +69,9 @@ elif orchestra_or_no == 'no':
     HHBLITS_DB_PATH = '/mnt/work/fultonw/deleterious/hh/hhdb/nr20_12Aug11'
     HHBLITS_CONVERT_A3M_TO_FASTA = '/mnt/work/fultonw/deleterious/hh/hhsuite-2.0.15-linux-x86_64/lib/hh/scripts/reformat.pl'
 elif orchestra_or_no == 'mgh':
-    real_home = '/home/fulton/prostate/'
+    real_home = '/home/fulton/Dropbox/prostate/'
     temp_home = None
-    real_base_folder = '/home/fulton/Dropbox/prostate/by_pid/'
+    real_base_folder = '/home/fulton/Dropbox/prostate/data/by_pid/'
 elif orchestra_or_no == 'dragon':
     real_home = '/home/fultonw/pros/'
     temp_home = None
@@ -137,3 +138,12 @@ MIP_wild_char = 'Z'
 
 #aa_to_num = {'A':2,'M':1,'C':0}
 #q=3
+
+
+def get_tumor_cls():
+    import helper
+    return helper.tumor
+
+def get_tumor_w():
+    import objects
+    return objects.tumor_w

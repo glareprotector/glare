@@ -256,6 +256,8 @@ class indexed_wrapper(wrapper):
     def process_index(self, index):
         self.name = str(index)
 
+
+
 class obj_wrapper(wrapper):
 
     def get_pickle_dumper(self, maker, params):

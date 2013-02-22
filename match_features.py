@@ -20,7 +20,7 @@ class phrase_matcher(feature):
 
 
 
-    def __init__(self, phrase, ignore_phrases):
+    def __init__(self, phrase, ignore_phrases = []):
         self.phrase = phrase
         self.ignore_phrases = ignore_phrases
 
@@ -61,10 +61,11 @@ class position_phrase_matcher(phrase_matcher):
     def _generate(self, excerpt, anchor):
         shortened_excerpt = self.get_word_window(excerpt, anchor)
         helper.print_if_verbose('SHORTENED: ' + shortened_excerpt, 2)
-        return phrase_matcher_factory.get_feature(self.phrase).generate(shortened_excerpt)
+        return phrase_matcher(self.phrase).generate(shortened_excerpt)
 
-    def __init__(self, phrase, word_window, ignore_phrases):
+    def __init__(self, phrase, word_window, delimiters, ignore_phrases = []):
         self.word_window = word_window
+        self.delimiters = delimiters
         phrase_matcher.__init__(self, phrase, ignore_phrases)
 
 

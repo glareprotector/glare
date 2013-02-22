@@ -4,6 +4,7 @@ import objects
 import helper
 import pdb
 import features as f
+import basic_features as bf
 import side_effects
 import datetime
 import my_data_types
@@ -11,6 +12,12 @@ import pickle
 import get_info
 import global_stuff
 import plotters
+import numpy
+import my_exceptions
+from global_stuff import get_tumor_cls
+
+import matplotlib.pyplot as plt
+
 
 p = global_stuff.get_param()
 
@@ -18,16 +25,163 @@ A = set(wc.get_stuff(objects.PID_with_SS_info, p))
 B = set(wc.get_stuff(objects.PID_with_shared_MRN, p))
 C = set(wc.get_stuff(objects.PID_with_multiple_tumors, p))
 PID_to_use = list(A - B - C)
+test_PID_to_use = PID_to_use[1000:1100]
 
 
 
-test_PID_to_use = PID_to_use[0:20]
-p.set_param('pid_list', test_PID_to_use)
-p.set_param('list_name', 'test')
 
-tumor_list = wc.get_stuff(objects.tumor_list, p)
+"""
+for pid in PID_to_use:
+    p.set_param('pid', pid)
+    reports = wc.get_stuff(objects.raw_pathology_text, p)
+    print reports
+    pdb.set_trace()
+"""
 
-interval_boundaries = [-0,2,10]
+
+the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
+pdb.set_trace()
+for tumor in the_data_set.the_data:
+    for record in tumor.get_attribute(get_tumor_cls().texts):
+
+        to_look_at = False
+        try:
+            if record.date < f.treatment_date_f().generate(tumor):
+                to_look_at = True
+        except:
+            pass
+        treatment_code = f.treatment_code_f().generate(tumor)
+        if treatment_code == 0:
+            to_look_at = True
+        if to_look_at:
+            for excerpt in record.get_excerpts_by_side_effect(side_effects.erection_side_effect):
+                print 'TREATMENT: ', treatment_code
+                if treatment_code in [1,2]:
+                    print 'COMPARISON: ',  record.date, tumor.get_attribute(get_tumor_cls().date_diagnosed), f.treatment_date_f().generate(tumor)
+                print excerpt
+                try:
+                    label = bf.side_effect_excerpt_feature(side_effects.erection_side_effect).generate(excerpt)
+                    print 'LABEL: ', label
+                except Exception, err:
+                    print 'EEEEEEEEEEEEEERRRRRRRRRRRRRRRRROR ', Exception, err
+                pdb.set_trace()
+
+
+
+
+
+print 'afsdfasdfasdfasdf'
+pdb.set_trace()
+
+
+
+
+
+
+num_no_value, num_0, num_1 = 0,0,0
+for tumor in treated_data_set:
+    try:
+        pre = bf.pre_treatment_side_effect_label(side_effects.erection_side_effect).generate(tumor).get_value()
+    except my_exceptions.NoFxnValueException:
+        num_no_value += 1
+    else:
+        if pre == 0:
+            num_0 += 1
+        elif pre == 1:
+            num_1 += 1
+    print f.treatment_date_f().generate(tumor) - tumor.get_attribute(get_tumor_cls().date_diagnosed), pre
+    
+    
+print num_no_value, num_0, num_1
+raise
+
+treated_data_set = the_data_set.filter(lambda x: f.treatment_code_f().generate(x) in [1,2])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+for tumor in the_data_set.the_data:
+    for record in tumor.get_attribute(get_tumor_cls().texts):
+        for excerpt in record.get_excerpts_by_words(['urinary']):
+            print excerpt
+            pdb.set_trace()
+
+
+pdb.set_trace()
+
+
+feature_list = [f.treatment_code_f(), f.age_at_diagnosis_f(), f.age_at_LC_f(), f.vital_status_f(), f.age_at_LC_f(), f.follow_up_time_f()]
+
+feature_string = the_data_set.get_csv_string(feature_list)
+print feature_string
+
+f = open('test_features.csv', 'w')
+f.write(feature_string)
+
+raise Exception
+
+deads = filter(lambda x: f.single_attribute_feature(helper.tumor.alive).generate(x) == 0, tumor_list)
+
+# plot age at diagnosis vs number of years lived
+ages = [(x.get_attribute(tumor_class.date_diagnosed) - x.get_attribute(tumor_class.DOB)).days/365.0 for x in tumor_list]
+post_lived = [(x.get_attribute(tumor_class.DLC) - x.get_attribute(tumor_class.date_diagnosed)).days/365.0 for x in tumor_list]
+total_lived = [(x.get_attribute(tumor_class.DLC) - x.get_attribute(tumor_class.DOB)).days/365.0 for x in tumor_list]
+
+print 'mean', sum(ages) / float(len(ages))
+pdb.set_trace()
+
+
+plt.scatter(ages, post_lived, label = 'post_lived', color = 'red')
+plt.scatter(ages, total_lived, label = 'total_lived', color = 'blue')
+
+plt.legend()
+plt.savefig('years_vs_diagnosis_age.pdf')
+
+
+
+
+
+
+pdb.set_trace()
+
+
+
+
+
+
+interval_boundaries = numpy.array(range(-4,20)) / 2.0
 intervals = [my_data_types.ordered_interval(helper.my_timedelta(interval_boundaries[i]*365), helper.my_timedelta(interval_boundaries[i+1]*365)) for i in range(len(interval_boundaries)-1)]
 
 
@@ -38,9 +192,7 @@ plotters.plot_time_series_by_bins(tumor_list, the_binner, intervals, helper.tumo
 
 
 
-
-
-pdb.set_trace()
+raise
 
 
 

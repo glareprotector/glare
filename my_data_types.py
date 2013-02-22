@@ -38,6 +38,7 @@ class my_list(list):
             cls = self.get_class()
         ans = cls()
         for item in self:
+
             ans.append(f.generate(item))
         return ans
 
@@ -82,14 +83,6 @@ class base_single_ordinal_ordered_object(ordered_object):
         return self.get_ordinal() == other.get_ordinal()
 
 
-class single_ordinal_ordered_object(base_single_ordinal_ordered_object):
-
-    def get_ordinal(self):
-        return self.val
-
-    def __init__(self, val):
-        self.val = val
-
 
 class base_single_value_object(object):
 
@@ -109,7 +102,7 @@ class no_value_object(base_single_value_object):
         raise my_exceptions.NoFxnValueException
 
     def __repr__(self):
-        return 'no value'
+        return 'NA'
 
 
 class single_value_object(base_single_value_object):
@@ -125,6 +118,7 @@ class single_value_object(base_single_value_object):
 
     def set_value(self, val):
         self.val = val
+
 
 
 # if an object is to be used by functions, they must either implement get_value or get_ordinal, depending on the function
@@ -152,6 +146,9 @@ class single_ordinal_ordered_object(base_single_ordinal_ordered_object):
 
     def get_ordinal(self):
         return self.ordinal
+
+    def set_ordinal(self, ordinal):
+        self.ordinal = ordinal
 
 
 class single_ordinal_single_value_ordered_object(single_ordinal_ordered_object, single_value_object):
@@ -185,6 +182,9 @@ class ordered_interval(ordered_object):
     def __repr__(self):
         return '('+repr(self.low)+'/'+repr(self.high)+')'
 
+    def __eq__(self, other):
+        return self.low == other.low and self.high == other.high
+
 
 class ordinal_list(my_list):
     """
@@ -192,7 +192,9 @@ class ordinal_list(my_list):
     """
 
     def __iter__(self):
+        pdb.set_trace()
         self.sort()
+
         return my_list.__iter__(self)
 
         
@@ -235,16 +237,22 @@ class bucketed_ordinal_list(single_ordinal_ordinal_list, bucketed_list):
                     pass
             ans.append(single_ordinal_single_value_ordered_object(interval, temp))
         return cls(ans)
-    
-    """
+
+
     @classmethod
-    def init_from_homo_my_list_list(cls, hll):
-        
-        takes in homo_my_list_list, returns bucketed_ordinal_list, where each element is single_ordinal, and single_valued.  don't have a specific class for this type, but could, if there is a function that requires this type.  but could also keep track mentally of what specializing of the class this actually returns
-        
-        for  in hll.get_ordinals():
-            temp = my_list()
-    """     
+    def init_empty_bucket_list_with_specified_ordinals(cls, ordinals):
+        ans = list()
+        for ordinal in ordinals:
+            ans.append(single_ordinal_single_value_ordered_object(ordinal, my_list()))
+        return cls(ans)
+
+    def lay_in_matching_ordinal_list(self, to_add):
+        assert len(to_add) == len(self)
+        for bucket_item, item in zip(self, to_add):
+            assert bucket_item.get_ordinal() == item.get_ordinal()
+            bucket_item.get_value().append(item)
+
+                      
 
 # NOTE: didn't think thorugh my_list_list yet
 
