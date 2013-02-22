@@ -136,6 +136,10 @@ aa_to_num = aa_to_class
 q = max(aa_to_num.values())+1
 MIP_wild_char = 'Z'
 
+
+delimiters = ['\.',',','and','\r','\n','\t']
+
+
 #aa_to_num = {'A':2,'M':1,'C':0}
 #q=3
 

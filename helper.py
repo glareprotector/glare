@@ -499,10 +499,30 @@ def compare_in(x, collection):
     return False
 
 
-def clean_text(text):
+def clean_text(text, delimiters):
+    """
+    replace all delimiters with gsw
+    convert to punctuationless string
+    """
+
+    def is_word(s):
+        return len(s) > 1
+
+
+
+
     import re, string
-    period_searcher = re.compile('[\n\r\.]')
-    text = period_searcher.sub(' GSW ', text)
+
+
+    # replace each delimiter with gsw.  
+    # if delimiter is a word, require white space or period/comma around it
+    for delimiter in self.delimiters:
+        if not is_word(delimiter):
+            s = re.compile(delimiter)
+        else:
+            s = re.compile('(^|[\s.,|])'+delimiter+'($|[\s.,|])')
+        raw_text = s.sub(' gsw ', raw_text)
+
     regex = re.compile('[%s]' % re.escape(string.punctuation))
     text = regex.sub(' ', text)
     text = str(string.join(text.split(), ' '))
@@ -517,8 +537,8 @@ verbose = 1.2
 
 def match_phrase(excerpt, phrase):
     import re
-    searcher = re.compile('(^|\s)'+phrase+'($|\s)')
-    matches = [m for m in searcher.finditer(excerpt)]
+    searcher = re.compile('(^|\s|\|)'+phrase+'($|\s|\|)')
+    matches = [mx for m in searcher.finditer(excerpt)]
     if len(matches) > 0:
         return True
     else:
@@ -696,6 +716,7 @@ class report_record(record):
             low = max(0, max(prev_pos, position - report_record.window_size))
             high = min(len(cleaned_text), min(next_pos, position + report_record.window_size))
             #print low, high
+            #to_add = excerpt(self.pid, self.date, cleaned_text[low:high], self, match_list[i].word.strip(), position)
             to_add = excerpt(self.pid, self.date, cleaned_text[low:high], self, match_list[i].word.strip())
             ans.append(to_add)
 
@@ -712,11 +733,14 @@ class report_record(record):
 # excerpt abstract class
 class excerpt(record):
 
-    def __init__(self, pid, date, raw_text, parent_record, anchor):
+    def __init__(self, pid, date, raw_text, parent_record, anchor, position):
         self.parent_record = parent_record
         self.anchor = anchor
+        #self.position = position
         record.__init__(self, pid, date, raw_text)
 
+
+        
 
 class tumor_lite(object):
 

@@ -1,10 +1,14 @@
 from features import *
 import helper
 from my_data_types import sv_int, sv_float
+import re
 
 #sv = get_wrapped_single_value_object_feature_factory.get_feature().generate
 
 class phrase_matcher(feature):
+    """
+    matches word if present and no ignore phrases appear
+    """
 
     def _generate(self, excerpt):
 
@@ -27,13 +31,34 @@ class phrase_matcher(feature):
 
 
 class position_phrase_matcher(phrase_matcher):
+    """
+    matches words in a certain window of the unique anchor of the phrase.  window specified by min of window size and any delimiter
+    phrases have not been processed yet
+    """
 
     def get_word_window(self, excerpt, anchor):
+
+
+        import helper
+        cleaned_text = helper.clean_text(excerpt.raw_text, self.delimiters)
+
+
         anchor = excerpt.anchor
-        words = excerpt.raw_text.split()
+        words = cleaned_text.split()
         idx = words.index(anchor)
         low_idx = max(idx - self.word_window, 0)
         high_idx = min(len(words), idx + self.word_window)
+
+        
+
+
+        raw_text = excerpt.raw_text[:]
+
+
+
+            
+        
+
 
         sentence_positions = [i for i in range(len(words)) if words[i] == 'gsw']
         highest_low = None
@@ -66,6 +91,8 @@ class position_phrase_matcher(phrase_matcher):
     def __init__(self, phrase, word_window, delimiters, ignore_phrases = []):
         self.word_window = word_window
         self.delimiters = delimiters
+        if '|' not in self.delimiters:
+            self.delimiters.append('|')
         phrase_matcher.__init__(self, phrase, ignore_phrases)
 
 
