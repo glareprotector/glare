@@ -8,6 +8,15 @@ import global_stuff
 # generic side effect classifying functionality will be left to features, but feature specific stuff will be here
 class side_effect(object):
 
+
+    @classmethod
+    def use_human_label(cls):
+        pass
+
+    @classmethod
+    def only_use_human_label(cls):
+        pass
+
     @classmethod
     def get_synonyms(cls):
         pass
@@ -16,6 +25,10 @@ class side_effect(object):
     def classify_excerpt(cls, excerpt):
         raise NotImplementedError
 
+
+    @classmethod
+    def get_display_words(cls):
+        return cls.get_synonyms()
 
     @classmethod
     def classify_excerpt(cls, excerpt):
@@ -108,8 +121,54 @@ class side_effect(object):
     def get_no_info_match_features(cls):
         pass
 
+    
+class urinary_incontinence(side_effect):
+    """
+    good should be 1.  so if response in question is 1 or 2, put 1
+    """
+
+
+    @classmethod
+    def get_synonyms(cls):
+        import pdb
+
+        return ['urinary','urine','urination','incontinence','incontinent','continent','continence','void','voiding','leak','leaking','leaks','leakage','retention','retaining','control']
+
+    @classmethod
+    def human_classify(cls, record):
+        import wc
+        import param
+        p = param.param({'pid':record.pid, 'rec_idx':record.idx})
+        stored_qa = wc.get_stuff(side_effect_human_input_report_labels, p)
+        import quesions
+        the_q = questions.urinary_incontinence
+        try:
+            ans = stored_qa[the_q]
+        except KeyError:
+            raise my_exceptions.NoFxnValueException
+        else:
+            if ans == 0:
+                raise my_exceptions.NoFxnValueException
+            else:
+                if ans in [1,2]:
+                    return 1
+                elif ans in [3,4]:
+                    return 0
+                else:
+                    pdb.set_trace()
+                    raise
+
 
 class erection_side_effect(side_effect):
+
+
+    @classmethod
+    def human_classify(cls, record):
+        """
+        returns NoFxnValueException if no human label available
+        """
+        pass
+        
 
     @classmethod
     def get_absolute_good_match_features(cls):

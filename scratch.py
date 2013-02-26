@@ -5,6 +5,7 @@ import helper
 import pdb
 import features as f
 import basic_features as bf
+import aggregate_features as af
 import side_effects
 import datetime
 import my_data_types
@@ -18,6 +19,10 @@ from global_stuff import get_tumor_cls
 
 import matplotlib.pyplot as plt
 
+pdb.set_trace()
+
+sosv = bf.single_ordinal_single_value_wrapper_feature
+
 
 p = global_stuff.get_param()
 
@@ -25,10 +30,96 @@ A = set(wc.get_stuff(objects.PID_with_SS_info, p))
 B = set(wc.get_stuff(objects.PID_with_shared_MRN, p))
 C = set(wc.get_stuff(objects.PID_with_multiple_tumors, p))
 PID_to_use = list(A - B - C)
-test_PID_to_use = PID_to_use[1000:1100]
+test_PID_to_use = PID_to_use
+
+
+interval_boundaries = [-100,0,0.5,1,2,5]
+intervals = [my_data_types.ordered_interval(helper.my_timedelta(interval_boundaries[i]*365), helper.my_timedelta(interval_boundaries[i+1]*365)) for i in range(len(interval_boundaries)-1)]
+
+
+bl = my_data_types.bucketed_ordinal_list.init_empty_bucket_list_with_specified_ordinals(intervals)
+
+count = 0
+has_something = 0
 
 
 
+has_pre = []
+
+
+for pid in PID_to_use:
+    print count, pid
+    p.set_param('pid', pid)
+    try:
+        tumor = wc.get_stuff(objects.global_stuff.get_tumor_w(), p)
+        record_list = tumor.get_attribute(global_stuff.get_tumor_cls().texts)
+        diagnosis_date = tumor.get_attribute(global_stuff.get_tumor_cls().date_diagnosed)
+        
+        
+        time_course_f = bf.report_feature_time_course_feature(bf.side_effect_report_record_has_info_feature(side_effects.urinary_incontinence))
+        
+        series = time_course_f.generate(record_list, 'diagnosis', diagnosis_date)
+        
+        series_bucket = my_data_types.bucketed_ordinal_list.init_from_intervals_and_ordinal_list(intervals, series)
+        
+        series_interval_vals = series_bucket.apply_feature(sosv(af.get_bucket_count_nonzero_feature()))
+        
+        if series_interval_vals[0].get_value() == 1:
+            has_something += 1
+
+
+            for i in range(len(record_list)):
+                p.set_param('rec_idx',i)
+                wc.get_stuff(objects.side_effect_human_input_report_labels, p)
+            
+
+
+
+
+
+        bl.lay_in_matching_ordinal_list(series_interval_vals)
+
+        count += 1
+
+        
+
+
+    except:
+        pass
+
+    print has_something, count
+
+have_keyword_counts = bl.apply_feature(sosv(af.get_bucket_count_feature()))
+pdb.set_trace()
+
+for pid in test_PID_to_use:
+    p.set_param('pid', pid)
+    record_list = wc.get_stuff(objects.raw_medical_text_new, p)
+    for i in range(len(record_list)):
+        p.set_param('rec_idx',i)
+        wc.get_stuff(objects.side_effect_human_input_report_labels, p)
+
+
+
+the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
+
+
+
+
+
+
+treated_data_set = the_data_set.filter(lambda x: f.treatment_code_f().generate(x) in [1,2])
+
+
+
+
+
+g = bf.count_of_side_effect_intervals_values_f(side_effects.erection_side_effect)
+
+
+counts = g.generate(the_data_set, intervals, 'diagnosis')
+
+pdb.set_trace()
 
 """
 for pid in PID_to_use:
@@ -39,7 +130,13 @@ for pid in PID_to_use:
 """
 
 
-the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
+for tumor in the_data_set.the_data:
+    for record in tumor.get_attribute(get_tumor_cls().texts):
+        for excerpt in record.get_excerpts_by_words(['urinary']):
+            print excerpt
+            pdb.set_trace()
+
+
 pdb.set_trace()
 for tumor in the_data_set.the_data:
     for record in tumor.get_attribute(get_tumor_cls().texts):
@@ -132,11 +229,7 @@ treated_data_set = the_data_set.filter(lambda x: f.treatment_code_f().generate(x
 
 
 
-for tumor in the_data_set.the_data:
-    for record in tumor.get_attribute(get_tumor_cls().texts):
-        for excerpt in record.get_excerpts_by_words(['urinary']):
-            print excerpt
-            pdb.set_trace()
+
 
 
 pdb.set_trace()

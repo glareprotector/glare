@@ -656,6 +656,7 @@ class record(my_data_types.single_ordinal_ordered_object):
         self.date = date
         self.raw_text = raw_text
 
+
     def __len__(self):
         return len(self.raw_text)
 
@@ -666,6 +667,14 @@ class record(my_data_types.single_ordinal_ordered_object):
 class report_record(record):
 
     window_size = 100
+
+
+    def __init__(self, pid, date, raw_text, idx):
+        """
+        report_record has to store its index in the list of records for the patient
+        """
+        self.idx = idx
+        record.__init__(self, pid, date, raw_text)
 
     # returns my_list of excerpts containing a list of words.  this only makes sense for report records that have excerpts.  makes sure a window doesn't contain 2 matches
     def get_excerpts_by_words(self, words):
@@ -678,7 +687,7 @@ class report_record(record):
         #cleaned_text = clean_text(self.raw_text)
         
 
-        cleaned_text = self.raw_text
+        cleaned_text = self.raw_text.lower()
 
         searchers = []
         matches = set()
@@ -728,12 +737,14 @@ class report_record(record):
     def get_excerpts_by_side_effect(self, side_effect):
         return self.get_excerpts_by_words(side_effect.get_synonyms())
 
+    def get_excerpts_to_display_by_side_effect(self, side_effect):
+        return self.get_excerpts_by_words(side_effect.get_display_words())
 
 
 # excerpt abstract class
 class excerpt(record):
 
-    def __init__(self, pid, date, raw_text, parent_record, anchor, position):
+    def __init__(self, pid, date, raw_text, parent_record, anchor):
         self.parent_record = parent_record
         self.anchor = anchor
         #self.position = position
@@ -817,6 +828,11 @@ def interval_val_as_string(series):
     actual_lower_str = string.join(lower_strs, sep=',')
     actual_val_str = string.join(val_strs, sep=',')
     return actual_lower_str + '\n' + actual_val_str
+
+
+
+
+
 
 
 

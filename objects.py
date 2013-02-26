@@ -240,7 +240,7 @@ class raw_medical_text(wrapper.vect_string_wrapper, wrapper.by_pid_wrapper):
         pid = self.get_param(params, 'pid')
         map = self.get_var_or_file(PID_to_MRN_dict,params)
 
-        MRN = map[pid]
+        Mrn = map[pid]
         query = 'select Comments from [RPDR].[dbo].[LMRNote] where MRN=' + str(MRN)
         cursor = helper.get_cursor()
         cursor.execute(query)
@@ -291,7 +291,7 @@ class raw_pathology_text(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 class raw_medical_text_new(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
     def whether_to_override(self, object_key):
-        return True
+        return False
 
     @classmethod
     def get_all_keys(cls, params, self=None):
@@ -310,14 +310,17 @@ class raw_medical_text_new(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         #query = 'select Report_Date_Time, Report_Text from [RPDR].[dbo].[PathReport] where MRN=' + str(MRN)
         cursor = helper.get_cursor()
         cursor.execute(query)
+        idx = 0
         for row in cursor:
             date_str = row.LMRNote_Date_Time.split()[0]
             from helper import my_date
             date = my_date.init_from_str(date_str)
             raw_text = row.Comments
             
-            temp = helper.report_record(pid, date, raw_text)
+            temp = helper.report_record(pid, date, raw_text, idx)
             ans.append(temp)
+            
+            idx += 1
         ans.sort()
         return ans
 
@@ -391,6 +394,47 @@ class negation_counts(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
 
 
+class side_effect_human_input_report_labels(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
+
+
+    @classmethod
+    def get_all_keys(cls, params, self=None):
+        return raw_medical_text.get_all_keys(params, self) | set(['rec_idx'])
+
+    @dec
+    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
+
+        # retrieve the record.  need pid and record index
+        record_list = self.get_var_or_file(raw_medical_text_new, params)
+        report_record = record_list[self.get_param(params, 'rec_idx')]
+
+
+        # print entire record
+        print report_record
+
+        # display relevant excerpts
+
+        for side_effect in global_stuff.get_side_effects_to_display():
+            for excerpt in report_record.get_excerpts_to_display_by_side_effect(side_effect):
+                print '________________'
+                print excerpt
+                print '________________'
+
+
+
+
+        ans = {}
+        
+
+        # now print and read in response for the questions to query
+        for question in global_stuff.get_questions_to_query():
+            response = question.get_user_answer()
+            ans[question] = response
+
+        return ans
+        
+            
+
 
 class erection_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
     
@@ -418,11 +462,12 @@ class tumor_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         return set(['pid']) | erection_time_series.get_all_keys(params, self)
 
     def whether_to_override(self, object_key):
-        return True
+        return False
 
     @dec
     def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
         # obtains info related to a tumor.  puts it into a tumor instance and returns it
+
         tt = self.get_var_or_file(tumor_info, params)
         pt = self.get_var_or_file(patient_info, params)
         sdt = self.get_var_or_file(super_db_info, params)
@@ -484,7 +529,7 @@ class tumor_list(wrapper.obj_wrapper):
         return set(['list_name'])
 
     def whether_to_override(self, object_key):
-        return True
+        return False
 
     @dec
     def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):

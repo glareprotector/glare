@@ -24,13 +24,17 @@ class my_list(list):
             cls = self.get_class()
         ans = cls()
         for item in self:
-            candidate = f.generate(item)
+            # assumes f won't raise exception.
             try:
-                candidate.get_value()
+                candidate = f.generate(item)
+                try:
+                    candidate.get_value()
+                except my_exceptions.NoFxnValueException:
+                    pass
+                else:
+                    ans.append(candidate)
             except my_exceptions.NoFxnValueException:
                 pass
-            else:
-                ans.append(candidate)
         return ans
 
     def apply_feature_always_add(self, f, cls = None):

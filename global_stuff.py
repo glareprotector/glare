@@ -140,6 +140,20 @@ MIP_wild_char = 'Z'
 delimiters = ['\.',',','and','\r','\n','\t']
 
 
+
+def get_side_effects_to_display():
+    import side_effects
+    side_effects_to_display = [side_effects.urinary_incontinence]
+    return side_effects_to_display
+
+
+def get_questions_to_query():
+    import questions
+    questions_to_query = [questions.urinary_incontinence]
+    return questions_to_query
+
+
+
 #aa_to_num = {'A':2,'M':1,'C':0}
 #q=3
 

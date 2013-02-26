@@ -2,6 +2,8 @@ import my_exceptions
 import my_data_types
 import global_stuff
 
+from my_data_types import sv_int, sv_float
+
 class feature(object):
     """
     feature is just a class that takes in a tumor or something, and implements callable
@@ -131,6 +133,11 @@ class side_effect_excerpt_feature(side_effect_feature):
         helper.print_if_verbose('\nEXCERPT:', 1.3)
         helper.print_if_verbose(excerpt.raw_text, 1.3)
         helper.print_if_verbose('anchor: ' + anchor, 1.3)
+
+
+        # check if human input labels are there.  if yes, check for key for this side effect.  if not, depending on value in side effect, 
+
+
         for no_info_match in self.get_side_effect().get_no_info_match_features():
             if no_info_match.generate(excerpt, anchor) == True:
                 raise my_exceptions.NoFxnValueException(no_info_match.phrase)
@@ -139,8 +146,8 @@ class side_effect_excerpt_feature(side_effect_feature):
             ans = my_data_types.sv_int(self.get_side_effect().classify_excerpt(excerpt))
         except my_exceptions.NoFxnValueException:
             ans = my_data_types.sv_int(self.basic_classify(excerpt))
-        #print excerpt
-        #print "label: ", ans
+        print excerpt
+        print "label: ", ans
         import sys
         sys.stdout.flush()
         return ans
@@ -160,9 +167,41 @@ class side_effect_excerpt_feature(side_effect_feature):
 
 
 
+
+
+class side_effect_report_record_has_info_feature(side_effect_feature):
+    
+    def _generate(self, report):
+        import my_exceptions
+        excerpts = report.get_excerpts_by_side_effect(self.get_side_effect())
+        if len(excerpts) == 0:
+            return sv_int(0)
+        else:
+            return sv_int(1)
+
+
 class side_effect_report_record_feature(side_effect_feature):
 
     def _generate(self, report):
+
+        """
+        have global option to either query, or not query and fail
+        """
+
+        # check if human label is there.  if yes, check for key for this side effect.  if not, depending on a value in side effect, proceed, or just return fail
+
+        import my_exceptions
+
+        if self.get_side_effect().use_human_label():
+            try:
+                ans = side_effect.human_classify(report)
+                return ans
+            except my_exceptions.NoFxnValueException:
+                pass
+
+
+        if self.get_side_effect().only_use_human_label():
+            raise my_exceptions.NoFxnValueException
 
         side_effect_excerpts = report.get_excerpts_by_side_effect(self.get_side_effect())
         excerpt_scores = side_effect_excerpts.apply_feature(side_effect_excerpt_feature(self.get_side_effect()), my_data_types.my_list)
@@ -193,7 +232,7 @@ class report_feature_time_course_feature(feature):
         applies report_feature to tumor's reports
         returns single_ordinal_single_value_ordered_object consisting of time and value
         """
-
+        import helper
         ans = my_data_types.single_ordinal_ordinal_list()
         #report_feature = side_effect_report_record_feature_factory.get_feature(self.get_side_effect())
         for report in tumor_texts:
