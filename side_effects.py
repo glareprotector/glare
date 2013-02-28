@@ -20,7 +20,7 @@ class side_effect_report_feature(feature):
 
 
         # check if human label is there.  if yes, check for key for this side effect.  if not, depending on a value in side effect, proceed, or just return fail
-        pdb.set_trace()
+
         import my_exceptions
 
         if self.use_human_label():
@@ -247,15 +247,15 @@ class urinary_incontinence(side_effect_report_feature):
             word_matcher = basic_word_matcher()
             sentence_getter = sentence_fragment_getter()
             ignore_getter = ignore_fragment_getter()
-            pdb.set_trace()
-            negation_detector = basic_negation_detector(sentence_getter, ['no','denies','none'])
+     
+            negation_detector = basic_negation_detector(ignore_getter, ['no','denies','none'])
             for incont_match in word_matcher.get_match(text, ['incontinent', 'incontinence']):
                 ignore_fragment = ignore_getter.get_fragment(text, incont_match.get_abs_start())
                 if len(word_matcher.get_match(ignore_fragment, global_stuff.ignore_words)) > 0:
                     pass
                 else:
                     # if negated, return 0.  else, return 1 if a moderating word is found, else 2
-                    pdb.set_trace()
+
                     if negation_detector.is_negated(text, incont_match.get_abs_start()):
                         return sv_int(0)
                     else:

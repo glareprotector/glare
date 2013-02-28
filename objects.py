@@ -453,7 +453,7 @@ class erection_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         diagnosis_date = helper.my_date.init_from_num(tt['DateDx'])
         relative_to_diagnosis = self.get_param(params, 'reltd')
         #return features.report_feature_time_course_feature(features.side_effect_report_record_feature(side_effects.erection_side_effect())).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
-        return features.report_feature_time_course_feature(side_effects.erection_side_effect().generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
+        return features.report_feature_time_course_feature(side_effects.erection_side_effect()).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
 
 class tumor_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 

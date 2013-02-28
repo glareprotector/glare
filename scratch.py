@@ -43,7 +43,7 @@ B = set(wc.get_stuff(objects.PID_with_shared_MRN, p))
 C = set(wc.get_stuff(objects.PID_with_multiple_tumors, p))
 PID_to_use = list(A - B - C)
 
-test_PID_to_use = PID_to_use[2100:2110]
+test_PID_to_use = PID_to_use[2120:2160]
 
 the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
 
@@ -63,17 +63,23 @@ incontinence_feature = side_effects.urinary_incontinence()
 for tumor in treated_data_set.the_data:
     for record in tumor.get_attribute(get_tumor_cls().texts):
         if record.date < f.treatment_date_f().generate(tumor):
-            for excerpt in record.get_excerpts_by_words(['urinary','voiding','urination','leak','leaks','leakage','incontinence','incontinent','continent','continence']):
+            #for excerpt in record.get_excerpts_by_words(['urinary','voiding','urination','leak','leaks','leakage','incontinence','incontinent','continent','continence']):
 #        for excerpt in record.get_excerpts_by_words(['leakage']):
             #print excerpt
+            #print record
+            #pdb.set_trace()
+            try:
+                print '\t\t\t\t\t\t LOLOLOLOLOLOL'
+                val = incontinence_feature.generate(record)
                 print record
+                print 'val: ', val
                 pdb.set_trace()
-                print incontinence_feature.generate(record)
+            except my_exceptions.NoFxnValueException:
+                print 'FAIL'
+                pass
 
-                break
 
-
-
+pdb.set_trace()
 
 
 interval_boundaries = [-100,0,0.5,1,2,5]

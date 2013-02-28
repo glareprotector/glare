@@ -143,7 +143,7 @@ ignore_delimiters = ['\.','\r','\n','\t']
 negation_words_cls = ['no','not','denies','none']
 
 
-ignore_words = ['risk', 'chance','discuss']
+ignore_words = ['risk', 'risks', 'chance','informed', 'possibility','possibilities','possible','possibly','prior','may','expect','can','expect','important','likely','probability','suggested','suggest','discuss','will']
 
 moderating_words = ['occasionally']
 
