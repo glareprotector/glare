@@ -180,49 +180,8 @@ class side_effect_report_record_has_info_feature(side_effect_feature):
             return sv_int(1)
 
 
-class side_effect_report_record_feature(side_effect_feature):
-
-    def _generate(self, report):
-
-        """
-        have global option to either query, or not query and fail
-        """
-
-        # check if human label is there.  if yes, check for key for this side effect.  if not, depending on a value in side effect, proceed, or just return fail
-
-        import my_exceptions
-
-        if self.get_side_effect().use_human_label():
-            try:
-                ans = side_effect.human_classify(report)
-                return ans
-            except my_exceptions.NoFxnValueException:
-                pass
 
 
-        if self.get_side_effect().only_use_human_label():
-            raise my_exceptions.NoFxnValueException
-
-        side_effect_excerpts = report.get_excerpts_by_side_effect(self.get_side_effect())
-        excerpt_scores = side_effect_excerpts.apply_feature(side_effect_excerpt_feature(self.get_side_effect()), my_data_types.my_list)
-        
-        if len(excerpt_scores) == 0:
-            raise my_exceptions.NoFxnValueException
-
-        total = sv_float(0.0)
-        count = sv_int(0)
-        for score in excerpt_scores:
-            try:
-                total += score
-            except:
-                pass
-            else:
-                count += 1
-
-        if total > count / 2.0:
-            return sv_int(1)
-        else:
-            return sv_int(0)
 
 
 class report_feature_time_course_feature(feature):
