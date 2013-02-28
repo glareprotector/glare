@@ -19,7 +19,19 @@ from global_stuff import get_tumor_cls
 
 import matplotlib.pyplot as plt
 
-pdb.set_trace()
+import match_features
+
+a = match_features.base_fragment("This is a sentence:  This is a \n sentence also.  There is a lol.")
+
+#m = match_features.sentence_fragment_getter()
+m = match_features.fragment_getter_by_stuff_after_colon()
+#pdb.set_trace()
+print m.get_fragment(a, 10)
+
+
+#print m.get_match(a, ['asdf'])
+
+#pdb.set_trace()
 
 sosv = bf.single_ordinal_single_value_wrapper_feature
 
@@ -30,7 +42,8 @@ A = set(wc.get_stuff(objects.PID_with_SS_info, p))
 B = set(wc.get_stuff(objects.PID_with_shared_MRN, p))
 C = set(wc.get_stuff(objects.PID_with_multiple_tumors, p))
 PID_to_use = list(A - B - C)
-test_PID_to_use = PID_to_use[2100:2200]
+
+test_PID_to_use = PID_to_use[2100:2110]
 
 the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
 
@@ -41,6 +54,12 @@ the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
 
 treated_data_set = the_data_set.filter(lambda x: f.treatment_code_f().generate(x) in [1,2])
 
+
+# try to classify 
+
+
+incontinence_feature = side_effects.urinary_incontinence()
+
 for tumor in treated_data_set.the_data:
     for record in tumor.get_attribute(get_tumor_cls().texts):
         if record.date < f.treatment_date_f().generate(tumor):
@@ -49,7 +68,12 @@ for tumor in treated_data_set.the_data:
             #print excerpt
                 print record
                 pdb.set_trace()
+                print incontinence_feature.generate(record)
+
                 break
+
+
+
 
 
 interval_boundaries = [-100,0,0.5,1,2,5]

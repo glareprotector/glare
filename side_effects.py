@@ -5,40 +5,99 @@ from my_data_types import sv_int, sv_float
 import global_stuff
 
 
-# generic side effect classifying functionality will be left to features, but feature specific stuff will be here
-class side_effect(object):
+# this is now a feature whose input object is a record
+class side_effect_report_feature(feature):
 
 
-    @classmethod
-    def use_human_label(cls):
+    def _generate(self, report):
+
+        """
+        have global option to either query, or not query and fail
+        """
+
+        # make report text lower case
+        report.raw_text = report.raw_text.lower()
+
+
+        # check if human label is there.  if yes, check for key for this side effect.  if not, depending on a value in side effect, proceed, or just return fail
+        pdb.set_trace()
+        import my_exceptions
+
+        if self.use_human_label():
+            try:
+                ans = side_effect.human_classify(report)
+                return ans
+            except my_exceptions.NoFxnValueException:
+                pass
+
+
+        if self.only_use_human_label():
+            raise my_exceptions.NoFxnValueException
+
+
+        return self.classify_record(report)
+
+
+
+
+    def use_human_label(self):
         pass
 
-    @classmethod
-    def only_use_human_label(cls):
+
+    def only_use_human_label(self):
         pass
 
-    @classmethod
-    def get_synonyms(cls):
+
+
+class side_effect_report_feature_by_excerpt_voting(side_effect_report_feature):
+
+
+    def get_synonyms(self):
         pass
 
-    @classmethod
-    def classify_excerpt(cls, excerpt):
+    def get_display_words(self):
+        return self.get_synonyms()
+
+
+    def classify_record(self, report):
+        
+        side_effect_excerpts = report.get_excerpts_by_side_effect(self.get_side_effect())
+        excerpt_scores = side_effect_excerpts.apply_feature(side_effect_excerpt_feature(self.get_side_effect()), my_data_types.my_list)
+        
+        if len(excerpt_scores) == 0:
+            raise my_exceptions.NoFxnValueException
+
+        total = sv_float(0.0)
+        count = sv_int(0)
+        for score in excerpt_scores:
+            try:
+                total += score
+            except:
+                pass
+            else:
+                count += 1
+
+        if total > count / 2.0:
+            return sv_int(1)
+        else:
+            return sv_int(0)
+
+
+
+    def classify_excerpt(self, excerpt):
         raise NotImplementedError
 
 
-    @classmethod
-    def get_display_words(cls):
-        return cls.get_synonyms()
 
-    @classmethod
-    def classify_excerpt(cls, excerpt):
+
+    def classify_excerpt(self, excerpt):
 
         # anchor of excerpt is guaranteed to be the one and only synonym of side effect that is in the excerpt
         anchor = excerpt.anchor
 
         helper.print_if_verbose('SPECIFIC_CLASSIFY',2)
         absolute_good = False
-        for absolute_good_match in cls.get_absolute_good_match_features():
+        for absolute_good_match in self.get_absolute_good_match_features():
             if absolute_good_match.generate(excerpt, anchor) == True:
                 helper.print_if_verbose('absolute good with phrase:',2) 
                 helper.print_if_verbose(str(absolute_good_match.phrase),2)
@@ -46,7 +105,7 @@ class side_effect(object):
                 break
 
         absolute_bad = False
-        for absolute_bad_match in cls.get_absolute_bad_match_features():
+        for absolute_bad_match in self.get_absolute_bad_match_features():
             if absolute_bad_match.generate(excerpt, anchor) == True:
                 helper.print_if_verbose('absolute bad with phrase:',2) 
                 helper.print_if_verbose(str(absolute_bad_match.phrase),2)
@@ -66,7 +125,7 @@ class side_effect(object):
             return sv_int(0)
 
         num_semi_good = 0
-        for semi_good_match in cls.get_semi_good_match_features():
+        for semi_good_match in self.get_semi_good_match_features():
             try:
                 ans = semi_good_match.generate(excerpt, anchor)
                 ans.get_value()
@@ -78,7 +137,7 @@ class side_effect(object):
                 num_semi_good += ans.get_value()
         
         num_semi_bad = 0
-        for semi_bad_match in cls.get_semi_bad_match_features():
+        for semi_bad_match in self.get_semi_bad_match_features():
             try:
                 ans = semi_bad_match.generate(excerpt, anchor)
                 ans.get_value()
@@ -101,41 +160,58 @@ class side_effect(object):
                 return sv_int(0)
 
 
-    @classmethod
-    def get_absolute_good_match_features(cls):
+    def get_absolute_good_match_features(self):
         pass
 
-    @classmethod
-    def get_absolute_bad_match_features(cls):
+    def get_absolute_bad_match_features(self):
         pass
 
-    @classmethod
-    def get_semi_good_match_features(cls):
+    def get_semi_good_match_features(self):
         pass
 
-    @classmethod
-    def get_semi_bad_match_features(cls):
+    def get_semi_bad_match_features(self):
         pass
 
-    @classmethod
-    def get_no_info_match_features(cls):
+    def get_no_info_match_features(self):
         pass
+
 
     
-class urinary_incontinence(side_effect):
+class urinary_incontinence(side_effect_report_feature):
     """
     good should be 1.  so if response in question is 1 or 2, put 1
     """
 
 
-    @classmethod
-    def get_synonyms(cls):
+    def use_human_label(self):
+        return False
+
+    def only_use_human_label(self):
+        return False
+
+
+    def classify_record(self, report):
+        report_text = base_fragment(report.raw_text)
+        for rule in self.get_report_decision_rules():
+            try:
+                ans = rule.generate(report_text)
+                return ans
+            except my_exceptions.NoFxnValueException:
+                pass
+        raise my_exceptions.NoFxnValueException
+
+
+
+    def get_report_decision_rules(self):
+        return [urinary_incontinence.incontinence_decision_rule1()]
+
+
+    def get_synonyms(self):
         import pdb
 
         return ['urinary','urine','urination','incontinence','incontinent','continent','continence','void','voiding','leak','leaking','leaks','leakage','retention','retaining','control']
 
-    @classmethod
-    def human_classify(cls, record):
+    def human_classify(self, record):
         import wc
         import param
         p = param.param({'pid':record.pid, 'rec_idx':record.idx})
@@ -159,71 +235,130 @@ class urinary_incontinence(side_effect):
                     raise
 
 
-class erection_side_effect(side_effect):
+
+    class incontinence_decision_rule1(decision_rule):
+        """
+        returns 2 if the patient is incontinent, 1 if some, 0 if no incontinence
+        """
+
+        def _generate(self, text):
+            # search for occurrences of incontinent/incontinence.  for each match, search within same sentence for ignore words.
+            found = False
+            word_matcher = basic_word_matcher()
+            sentence_getter = sentence_fragment_getter()
+            ignore_getter = ignore_fragment_getter()
+            pdb.set_trace()
+            negation_detector = basic_negation_detector(sentence_getter, ['no','denies','none'])
+            for incont_match in word_matcher.get_match(text, ['incontinent', 'incontinence']):
+                ignore_fragment = ignore_getter.get_fragment(text, incont_match.get_abs_start())
+                if len(word_matcher.get_match(ignore_fragment, global_stuff.ignore_words)) > 0:
+                    pass
+                else:
+                    # if negated, return 0.  else, return 1 if a moderating word is found, else 2
+                    pdb.set_trace()
+                    if negation_detector.is_negated(text, incont_match.get_abs_start()):
+                        return sv_int(0)
+                    else:
+                        moderating_context = sentence_getter.get_fragment(text, incont_match.get_abs_start())
+                        if len(word_matcher.get_match(moderating_context, global_stuff.moderating_words)) > 0:
+                            return sv_int(1)
+                        else:
+                            return sv_int(2)
+            raise my_exceptions.NoFxnValueException
 
 
-    @classmethod
-    def human_classify(cls, record):
+    class incontinence_decision_rule2(decision_rule):
+        """
+        searches for {lose, loses, losing, leak, leaks, leaking} and {urine} in same sentence.  if negated, return 0.  if not, search for moderating word
+        """
+        def _generate(self, text):
+            sentence_getter = sentence_fragment_getter()
+            multiple_matcher = multiple_word_in_same_fragment_matcher(sentence_getter)
+            negator = basic_negation_detector(sentence_getter)
+            lose_cls = ['lose', 'loses', 'losing', 'leak', 'leaks', 'leaking']
+            urine_cls = ['urine']
+            matches = multiple_matcher.get_matches(text, lose_cls, urine_cls)
+            for m in matches:
+                negation_fragment = sentence_getter.get_fragment(text, m.get_abs_start())
+                if negator.is_negated(text, m.get_abs_start()):
+                    return sv_int(0)
+                else:
+                    moderating_context = sentence_getter.get_fragment(text, incont_match.get_abs_start())
+                    if len(word_matcher.get_match(moderating_context, global_stuff.moderating_words)) > 0:
+                        return sv_int(1)
+                    else:
+                        return sv_int(2)
+
+    class incontinence_decision_rule3(decision_rule):
+        """
+        searches for urinary controls: dry
+        """
+        def _generate(self, text):
+            pass
+
+class erection_side_effect(side_effect_report_feature_by_excerpt_voting):
+
+
+    
+
+
+
+    def human_classify(self, record):
         """
         returns NoFxnValueException if no human label available
         """
         pass
         
 
-    @classmethod
-    def get_absolute_good_match_features(cls):
+    def get_absolute_good_match_features(self):
         try:
-            return cls.absolute_good_match_features
+            return self.absolute_good_match_features
         except:
             pass
         words = ['excellent']
-        cls.absolute_good_match_features = [position_phrase_matcher(word, 10, global_stuff.delimiters) for word in words]
-        cls.absolute_good_match_features.append(position_phrase_matcher('good', 3, global_stuff.delimiters))
-        return cls.absolute_good_match_features
+        self.absolute_good_match_features = [position_phrase_matcher(word, 10, global_stuff.delimiters) for word in words]
+        self.absolute_good_match_features.append(position_phrase_matcher('good', 3, global_stuff.delimiters))
+        return self.absolute_good_match_features
 
-    @classmethod
-    def get_absolute_bad_match_features(cls):
+    def get_absolute_bad_match_features(self):
         try:
-            return cls.absolute_bad_match_features
+            return self.absolute_bad_match_features
         except:
             pass
         words = ['absent','unable','failed','gone','poor','diminished','incomplete', 'no erections']
-        cls.absolute_bad_match_features = [position_phrase_matcher(word, 10, global_stuff.delimiters) for word in words]
-        return cls.absolute_bad_match_features
+        self.absolute_bad_match_features = [position_phrase_matcher(word, 10, global_stuff.delimiters) for word in words]
+        return self.absolute_bad_match_features
 
-    @classmethod
-    def get_semi_good_match_features(cls):
+    def get_semi_good_match_features(self):
         try:
-            return cls.semi_good_match_features
+            return self.semi_good_match_features
         except:
             pass
         words = ['stable','intact','present','able','achieve','adequate','satisfactory','normal','return','full','reasonable','sustainable','strong','recover','sufficient','has','have','had','having']
-        cls.semi_good_match_features = [position_phrase_matcher(word, 10, global_stuff.delimiters) for word in words]
-        return cls.semi_good_match_features
+        self.semi_good_match_features = [position_phrase_matcher(word, 10, global_stuff.delimiters) for word in words]
+        return self.semi_good_match_features
 
-    @classmethod
-    def get_semi_bad_match_features(cls):
+    def get_semi_bad_match_features(self):
         try:
-            return cls.semi_bad_match_features
+            return self.semi_bad_match_features
         except:
             pass
         words = ['not','denies','difficulty','problem','difficulties','problems']
-        cls.semi_bad_match_features = [position_phrase_matcher(word, 10, global_stuff.delimiters) for word in words]
-        cls.semi_bad_match_features.append(position_phrase_matcher('no', 10, global_stuff.delimiters, ['no requirement']))
-        return cls.semi_bad_match_features
+        self.semi_bad_match_features = [position_phrase_matcher(word, 10, global_stuff.delimiters) for word in words]
+        self.semi_bad_match_features.append(position_phrase_matcher('no', 10, global_stuff.delimiters, ['no requirement']))
+        return self.semi_bad_match_features
 
-    @classmethod
-    def get_no_info_match_features(cls):
+
+    def get_no_info_match_features(self):
         try:
-            return cls.no_info_match_features
+            return self.no_info_match_features
         except:
             pass
         words = ['possible','possibly','prior','may','expect','can','risk','chance','expect','important','likely','probability','suggested','suggest','discuss','will']
-        cls.no_info_match_features = [position_phrase_matcher(word, 20, []) for word in words]
-        return cls.no_info_match_features
+        self.no_info_match_features = [position_phrase_matcher(word, 20, []) for word in words]
+        return self.no_info_match_features
 
-    @classmethod
-    def get_synonyms(cls):
+    def get_synonyms(self):
         return ['erection', 'erections']
 
 

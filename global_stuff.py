@@ -138,8 +138,14 @@ MIP_wild_char = 'Z'
 
 
 delimiters = ['\.',',','and','\r','\n','\t']
+newline_delimiters = ['\r','\n']
+ignore_delimiters = ['\.','\r','\n','\t']
+negation_words_cls = ['no','not','denies','none']
 
 
+ignore_words = ['risk', 'chance','discuss']
+
+moderating_words = ['occasionally']
 
 def get_side_effects_to_display():
     import side_effects
