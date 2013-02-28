@@ -30,7 +30,26 @@ A = set(wc.get_stuff(objects.PID_with_SS_info, p))
 B = set(wc.get_stuff(objects.PID_with_shared_MRN, p))
 C = set(wc.get_stuff(objects.PID_with_multiple_tumors, p))
 PID_to_use = list(A - B - C)
-test_PID_to_use = PID_to_use
+test_PID_to_use = PID_to_use[2100:2200]
+
+the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
+
+
+
+
+
+
+treated_data_set = the_data_set.filter(lambda x: f.treatment_code_f().generate(x) in [1,2])
+
+for tumor in treated_data_set.the_data:
+    for record in tumor.get_attribute(get_tumor_cls().texts):
+        if record.date < f.treatment_date_f().generate(tumor):
+            for excerpt in record.get_excerpts_by_words(['urinary','voiding','urination','leak','leaks','leakage','incontinence','incontinent','continent','continence']):
+#        for excerpt in record.get_excerpts_by_words(['leakage']):
+            #print excerpt
+                print record
+                pdb.set_trace()
+                break
 
 
 interval_boundaries = [-100,0,0.5,1,2,5]
@@ -101,14 +120,7 @@ for pid in test_PID_to_use:
 
 
 
-the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
 
-
-
-
-
-
-treated_data_set = the_data_set.filter(lambda x: f.treatment_code_f().generate(x) in [1,2])
 
 
 
@@ -130,11 +142,6 @@ for pid in PID_to_use:
 """
 
 
-for tumor in the_data_set.the_data:
-    for record in tumor.get_attribute(get_tumor_cls().texts):
-        for excerpt in record.get_excerpts_by_words(['urinary']):
-            print excerpt
-            pdb.set_trace()
 
 
 pdb.set_trace()
