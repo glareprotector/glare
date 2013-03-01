@@ -137,9 +137,9 @@ q = max(aa_to_num.values())+1
 MIP_wild_char = 'Z'
 
 
-delimiters = ['\.',',','and','\r','\n','\t']
+clause_delimiters = ['\.',',','and','\r','\n','\t']
 newline_delimiters = ['\r','\n']
-ignore_delimiters = ['\.','\r','\n','\t']
+sentence_delimiters = ['\.','\r','\n','\t']
 negation_words_cls = ['no','not','denies','none']
 
 

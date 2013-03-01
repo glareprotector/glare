@@ -245,12 +245,12 @@ class urinary_incontinence(side_effect_report_feature):
             # search for occurrences of incontinent/incontinence.  for each match, search within same sentence for ignore words.
             found = False
             word_matcher = basic_word_matcher()
+            clause_getter = clause_fragment_getter()
             sentence_getter = sentence_fragment_getter()
-            ignore_getter = ignore_fragment_getter()
      
-            negation_detector = basic_negation_detector(ignore_getter, ['no','denies','none'])
+            negation_detector = basic_negation_detector()
             for incont_match in word_matcher.get_match(text, ['incontinent', 'incontinence']):
-                ignore_fragment = ignore_getter.get_fragment(text, incont_match.get_abs_start())
+                ignore_fragment = sentence_getter.get_fragment(text, incont_match.get_abs_start())
                 if len(word_matcher.get_match(ignore_fragment, global_stuff.ignore_words)) > 0:
                     pass
                 else:
@@ -259,7 +259,7 @@ class urinary_incontinence(side_effect_report_feature):
                     if negation_detector.is_negated(text, incont_match.get_abs_start()):
                         return sv_int(0)
                     else:
-                        moderating_context = sentence_getter.get_fragment(text, incont_match.get_abs_start())
+                        moderating_context = clause_getter.get_fragment(text, incont_match.get_abs_start())
                         if len(word_matcher.get_match(moderating_context, global_stuff.moderating_words)) > 0:
                             return sv_int(1)
                         else:
@@ -272,18 +272,17 @@ class urinary_incontinence(side_effect_report_feature):
         searches for {lose, loses, losing, leak, leaks, leaking} and {urine} in same sentence.  if negated, return 0.  if not, search for moderating word
         """
         def _generate(self, text):
-            sentence_getter = sentence_fragment_getter()
+            clause_getter = clause_fragment_getter()
             multiple_matcher = multiple_word_in_same_fragment_matcher(sentence_getter)
             negator = basic_negation_detector(sentence_getter)
             lose_cls = ['lose', 'loses', 'losing', 'leak', 'leaks', 'leaking']
             urine_cls = ['urine']
             matches = multiple_matcher.get_matches(text, lose_cls, urine_cls)
             for m in matches:
-                negation_fragment = sentence_getter.get_fragment(text, m.get_abs_start())
                 if negator.is_negated(text, m.get_abs_start()):
                     return sv_int(0)
                 else:
-                    moderating_context = sentence_getter.get_fragment(text, incont_match.get_abs_start())
+                    moderating_context = clause_getter.get_fragment(text, incont_match.get_abs_start())
                     if len(word_matcher.get_match(moderating_context, global_stuff.moderating_words)) > 0:
                         return sv_int(1)
                     else:

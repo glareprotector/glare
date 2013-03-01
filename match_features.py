@@ -237,7 +237,7 @@ class fragment_getter_by_stuff_after_colon(fragment_getter):
         else:
             colon_pos = m.start()
             #search for first period/return starting from colon_pos
-            searcher = re.compile('('+string.join(global_stuff.delimiters, sep='|')+')')
+            searcher = re.compile('('+string.join(global_stuff.sentence_delimiters, sep='|')+')')
             m = searcher.search(raw_text, colon_pos)
             if m == None:
                 return None
@@ -246,15 +246,17 @@ class fragment_getter_by_stuff_after_colon(fragment_getter):
                 frag_end = m.start() + current_line.get_abs_start()
                 return fragment(text, frag_start, frag_end)
 
+class clause_fragment_getter(fragment_getter_by_delim):
+
+    def __init__(self):
+        fragment_getter_by_delim.__init__(self, global_stuff.clause_delimiters)
+
 class sentence_fragment_getter(fragment_getter_by_delim):
 
     def __init__(self):
-        fragment_getter_by_delim.__init__(self, global_stuff.delimiters)
+        fragment_getter_by_delim.__init__(self, global_stuff.sentence_delimiters)
 
-class ignore_fragment_getter(fragment_getter_by_delim):
 
-    def __init__(self):
-        fragment_getter_by_delim.__init__(self, global_stuff.ignore_delimiters)
 
 
 class multiple_word_in_same_fragment_matcher(object):
@@ -289,17 +291,29 @@ class negation_detector(object):
 
 class basic_negation_detector(negation_detector):
     """
-    takes as input negation words and fragment getter.  just counts number of negations detected in the gotten fragment
+    first looks within a period and does standard negation.  if no, return no.  if there were ZERO negation words in that, look in entire sentence
     """
 
     def is_negated(self, text, position):
-        fragment = self.fragment_getter.get_fragment(text, position)
-        num_negations = 0
-        basic_matcher = basic_word_matcher()
-        num_negations = len(basic_matcher.get_match(fragment, self.negation_words_cls))
+        clause = clause_fragment_getter().get_fragment(text, position)
+        num_local_negations = len(basic_matcher.get_match(clause, self.negation_words_cls))
+
+        if num_local_negations % 2 == 1:
+            return True
+
+        elif num_local_negations == 0:
+            sentence = sentence_fragment_getter().get_fragment(text, position)
+            num_sentence_negations = len(basic_matcher.get_match(sentence, self.negation_words_cls))
+            return num_sentence_negations % 2 == 1
+        else:
+            assert num_location_negations % 2 == 0
+            return False
+
+
+
         return num_negations % 2 == 1
 
-    def __init__(self, fragment_getter, negation_words_cls = global_stuff.negation_words_cls):
+    def __init__(self):
         self.fragment_getter = fragment_getter
         self.negation_words_cls = negation_words_cls
 
