@@ -192,18 +192,43 @@ class urinary_incontinence(side_effect_report_feature):
 
     def classify_record(self, report):
         report_text = base_fragment(report.raw_text)
+        count = 0
+        pdb.set_trace()
+        print report
         for rule in self.get_report_decision_rules():
             try:
+                
                 ans = rule.generate(report_text)
+                print 'VALUE: ', ans, rule, count
+                pdb.set_trace()
                 return ans
             except my_exceptions.NoFxnValueException:
+                pdb.set_trace()
                 pass
+            count += 1
         raise my_exceptions.NoFxnValueException
 
 
 
     def get_report_decision_rules(self):
-        return [urinary_incontinence.incontinence_decision_rule1()]
+
+
+
+        test1 = generic_basic_decision_rule(hard_coded_basic_word_matcher(['incontinent','incontinence']), basic_negation_detector([], global_stuff.negation_words_cls), compound_ignore_detector(ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), ignore_detector(clause_fragment_getter(), ['bowel','stool','lymph','lymphatic','valsalva','fecal'])), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
+        lose_cls = ['lose', 'loses', 'losing','lost','leak', 'leaks', 'leaking', 'leaked','spill', 'spills', 'spilled']
+        urine_cls = ['urine']
+        test2 = generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), lose_cls, urine_cls), basic_negation_detector([], global_stuff.negation_words_cls), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
+        test3 = generic_basic_decision_rule(hard_coded_basic_word_matcher(['leak','leaks','leakage','dribble','dribbling']), basic_negation_detector([], global_stuff.negation_words_cls), compound_ignore_detector(ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), ignore_detector(clause_fragment_getter(), ['bowel','stool','lymph','lymphatic','valsalva','fecal'])), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
+        test4 = generic_basic_decision_rule(hard_coded_basic_word_matcher(['continent']), basic_negation_detector([], global_stuff.negation_words_cls), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 1)
+        test5 = generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), ['hold','holds','holding'], ['urine']), clause_negation_detector(global_stuff.negation_words_cls + ['problem','problems','difficulty','difficulties']), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 1)
+        #test6 = generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), ['urinary'], ['symptom','symptoms','issue','issues','problem','problems']), clause_negation_detector(global_stuff.negation_words_cls), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
+        test6 = decision_rule_filter(generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), ['urinary'], ['symptom','symptoms','issue','issues','problem','problems']), clause_negation_detector(global_stuff.negation_words_cls), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0), [sv_int(0)])
+        
+
+        
+        return [test1,test2,test3,test4,test5,test6]
+
+        return [urinary_incontinence.incontinence_decision_rule1(), urinary_incontinence.incontinence_decision_rule2(), urinary_incontinence.incontinence_decision_rule3()]
 
 
     def get_synonyms(self):
@@ -236,6 +261,13 @@ class urinary_incontinence(side_effect_report_feature):
 
 
 
+
+
+
+
+    
+
+
     class incontinence_decision_rule1(decision_rule):
         """
         returns 2 if the patient is incontinent, 1 if some, 0 if no incontinence
@@ -243,15 +275,18 @@ class urinary_incontinence(side_effect_report_feature):
 
         def _generate(self, text):
             # search for occurrences of incontinent/incontinence.  for each match, search within same sentence for ignore words.
+            #pdb.set_trace()
             found = False
             word_matcher = basic_word_matcher()
             clause_getter = clause_fragment_getter()
             sentence_getter = sentence_fragment_getter()
      
+            # supply words to neg whose presence means don't look at entire sentence
             negation_detector = basic_negation_detector()
-            for incont_match in word_matcher.get_match(text, ['incontinent', 'incontinence']):
+            for incont_match in word_matcher.get_matches(text, ['incontinent', 'incontinence', 'dribbling']):
+
                 ignore_fragment = sentence_getter.get_fragment(text, incont_match.get_abs_start())
-                if len(word_matcher.get_match(ignore_fragment, global_stuff.ignore_words)) > 0:
+                if len(word_matcher.get_matches(ignore_fragment, global_stuff.ignore_words)) > 0:
                     pass
                 else:
                     # if negated, return 0.  else, return 1 if a moderating word is found, else 2
@@ -260,7 +295,7 @@ class urinary_incontinence(side_effect_report_feature):
                         return sv_int(0)
                     else:
                         moderating_context = clause_getter.get_fragment(text, incont_match.get_abs_start())
-                        if len(word_matcher.get_match(moderating_context, global_stuff.moderating_words)) > 0:
+                        if len(word_matcher.get_matches(moderating_context, global_stuff.moderating_words)) > 0:
                             return sv_int(1)
                         else:
                             return sv_int(2)
@@ -272,28 +307,58 @@ class urinary_incontinence(side_effect_report_feature):
         searches for {lose, loses, losing, leak, leaks, leaking} and {urine} in same sentence.  if negated, return 0.  if not, search for moderating word
         """
         def _generate(self, text):
+            #pdb.set_trace()
             clause_getter = clause_fragment_getter()
-            multiple_matcher = multiple_word_in_same_fragment_matcher(sentence_getter)
-            negator = basic_negation_detector(sentence_getter)
-            lose_cls = ['lose', 'loses', 'losing', 'leak', 'leaks', 'leaking']
+            multiple_matcher = multiple_word_in_same_fragment_matcher(clause_getter)
+            negator = basic_negation_detector()
+            lose_cls = ['lose', 'loses', 'losing','lost','leak', 'leaks', 'leaking', 'leaked','spill', 'spills', 'spilled']
             urine_cls = ['urine']
             matches = multiple_matcher.get_matches(text, lose_cls, urine_cls)
             for m in matches:
+
                 if negator.is_negated(text, m.get_abs_start()):
                     return sv_int(0)
                 else:
                     moderating_context = clause_getter.get_fragment(text, incont_match.get_abs_start())
-                    if len(word_matcher.get_match(moderating_context, global_stuff.moderating_words)) > 0:
+                    if len(word_matcher.get_matches(moderating_context, global_stuff.moderating_words)) > 0:
                         return sv_int(1)
                     else:
                         return sv_int(2)
+            raise my_exceptions.NoFxnValueException
 
     class incontinence_decision_rule3(decision_rule):
         """
         searches for urinary controls: dry
         """
         def _generate(self, text):
-            pass
+            #pdb.set_trace()
+            multiple = multiple_word_in_same_fragment_matcher(clause_fragment_getter())
+            matches = multiple.get_matches(text, ['urinary','urine'], ['function'])
+            word_matcher = basic_word_matcher()
+            after_colon_getter = fragment_getter_by_stuff_after_colon()
+            for m in matches:
+
+                after_colon = after_colon_getter.get_fragment(text, m.get_abs_start())
+                if after_colon != None:
+                    pdb.set_trace()
+                    if len(word_matcher.get_matches(after_colon, ['normal'])) > 0:
+                        return sv_int(0)
+
+            matches = multiple.get_matches(text, ['urinary','urine'], ['control'])
+            for m in matches:
+                after_colon = after_colon_getter.get_fragment(text, m[0].get_abs_start())
+                if after_colon != None:
+                    pdb.set_trace()
+                    if len(word_matcher.get_matches(after_colon, ['dry'])) > 0:
+                        return sv_int(0)
+
+            raise my_exceptions.NoFxnValueException
+
+
+
+
+
+
 
 class erection_side_effect(side_effect_report_feature_by_excerpt_voting):
 

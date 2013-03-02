@@ -1,6 +1,7 @@
 import my_exceptions
 import my_data_types
 import global_stuff
+import pdb
 
 from my_data_types import sv_int, sv_float
 
@@ -194,7 +195,12 @@ class report_feature_time_course_feature(feature):
         import helper
         ans = my_data_types.single_ordinal_ordinal_list()
         #report_feature = side_effect_report_record_feature_factory.get_feature(self.get_side_effect())
+        count = 0
         for report in tumor_texts:
+            #print 'count', count
+            #if count == 32:
+            #    pdb.set_trace()
+            #    print '123'
             try:
                 temp = self.report_feature.generate(report)
             except my_exceptions.NoFxnValueException:
@@ -204,6 +210,7 @@ class report_feature_time_course_feature(feature):
                     ans.append(my_data_types.single_ordinal_single_value_ordered_object(helper.my_timedelta((report.date - date_diagnosed).days), temp))
                 else:
                     ans.append(my_data_types.single_ordinal_single_value_ordered_object(report.date, temp))
+            count += 1
         return ans
 
     def __init__(self, report_feature):

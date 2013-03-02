@@ -546,6 +546,37 @@ def match_phrase(excerpt, phrase):
 
 
 
+
+
+def get_last_match(s, searcher, pos):
+    """
+    returns the last match that ends on or before pos
+    """
+    all_matches = [m for m in searcher.finditer(s)]
+    for i in range(len(all_matches)-1,-1,-1):
+        m = all_matches[i]
+        if m.end() <= pos:
+            return m
+
+
+def get_next_match(s, searcher, pos):
+    """
+    returns the next match that starts on or before pos
+    """
+    return searcher.search(s, pos)
+
+
+
+def get_spanning_match(m1, m2):
+    """
+    assumes m1 and m2 are matches of the same text
+    """
+    import match_features
+    abs_start = min(m1.get_abs_start(), m2.get_abs_start())
+    abs_end = max(m1.get_abs_end(), m2.get_abs_end())
+    return match_features.match(m1.text, abs_start, abs_end)
+
+
 # assumes that exactly 1 of the words is present in the excerpt
 def get_the_word_and_position(self, raw_text, words):
 

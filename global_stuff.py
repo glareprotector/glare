@@ -137,15 +137,21 @@ q = max(aa_to_num.values())+1
 MIP_wild_char = 'Z'
 
 
-clause_delimiters = ['\.',',','and','\r','\n','\t']
+clause_delimiters = ['\.',',','and','\r','\n','\t','though']
 newline_delimiters = ['\r','\n']
 sentence_delimiters = ['\.','\r','\n','\t']
-negation_words_cls = ['no','not','denies','none']
+negation_words_cls = ['no','not','denies','none','without']
 
 
-ignore_words = ['risk', 'risks', 'chance','informed', 'possibility','possibilities','possible','possibly','prior','may','expect','can','expect','important','likely','probability','suggested','suggest','discuss','will']
+ignore_words = ['risk', 'risks', 'chance','informed', 'possibility','possibilities','possible','possibly','prior','may','expect','can','expect','important','likely','probability','suggested','suggest','discuss','will','improve','less','more']
 
-moderating_words = ['occasionally']
+# deleted continues from ignore_words
+
+
+#ignore_words = []
+
+
+moderating_words = ['occasionally','mild', 'minor']
 
 def get_side_effects_to_display():
     import side_effects

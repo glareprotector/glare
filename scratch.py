@@ -21,12 +21,12 @@ import matplotlib.pyplot as plt
 
 import match_features
 
-a = match_features.base_fragment("This is a sentence:  This is a \n sentence also.  There is a lol.")
+#a = match_features.base_fragment("This is a sentence:  This is a \n sentence also.  There is a lol.")
 
 #m = match_features.sentence_fragment_getter()
-m = match_features.fragment_getter_by_stuff_after_colon()
+#m = match_features.fragment_getter_by_stuff_after_colon()
 #pdb.set_trace()
-print m.get_fragment(a, 10)
+#print m.get_fragment(a, 10)
 
 
 #print m.get_match(a, ['asdf'])
@@ -41,14 +41,31 @@ p = global_stuff.get_param()
 A = set(wc.get_stuff(objects.PID_with_SS_info, p))
 B = set(wc.get_stuff(objects.PID_with_shared_MRN, p))
 C = set(wc.get_stuff(objects.PID_with_multiple_tumors, p))
-PID_to_use = list(A - B - C)
+PID_to_use = list(A - B - C)[400:]
 
-test_PID_to_use = PID_to_use[2120:2160]
+test_PID_to_use = PID_to_use[2100:2120]
 
 the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
 
 
 
@@ -64,8 +81,9 @@ for tumor in treated_data_set.the_data:
     for record in tumor.get_attribute(get_tumor_cls().texts):
         if record.date < f.treatment_date_f().generate(tumor):
             #for excerpt in record.get_excerpts_by_words(['urinary','voiding','urination','leak','leaks','leakage','incontinence','incontinent','continent','continence']):
-#        for excerpt in record.get_excerpts_by_words(['leakage']):
-            #print excerpt
+            for excerpt in record.get_excerpts_by_words(['urinary']):
+                print excerpt
+                #pdb.set_trace()
             #print record
             #pdb.set_trace()
             try:
@@ -82,6 +100,42 @@ for tumor in treated_data_set.the_data:
 pdb.set_trace()
 
 
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 interval_boundaries = [-100,0,0.5,1,2,5]
 intervals = [my_data_types.ordered_interval(helper.my_timedelta(interval_boundaries[i]*365), helper.my_timedelta(interval_boundaries[i+1]*365)) for i in range(len(interval_boundaries)-1)]
 
@@ -95,6 +149,10 @@ has_something = 0
 
 has_pre = []
 
+pdb.set_trace()
+
+
+Pid_to_use = [244536]
 
 for pid in PID_to_use:
     print count, pid
@@ -105,14 +163,37 @@ for pid in PID_to_use:
         diagnosis_date = tumor.get_attribute(global_stuff.get_tumor_cls().date_diagnosed)
         
         
-        time_course_f = bf.report_feature_time_course_feature(bf.side_effect_report_record_has_info_feature(side_effects.urinary_incontinence))
+        for record in record_list:
+
+            #for excerpt in record.get_excerpts_by_words(['loses','lose','leak','leaks']):
+            #    print excerpt
+            #    pdb.set_trace()
+            #    side_effects.urinary_incontinence().generate(record)
+            #    pdb.set_trace()
+            #if len(record.get_excerpts_by_words(['urinary'])) > 0:
+            #    print record
+            #    pdb.set_trace()
+            side_effects.urinary_incontinence().generate(record)
+            #pdb.set_trace()
+
+        #time_course_f = bf.report_feature_time_course_feature(bf.side_effect_report_record_has_info_feature(side_effects.urinary_incontinence))
+
+
+
+
+
+
+
+        #time_course_f = bf.report_feature_time_course_feature(side_effects.urinary_incontinence())
+        #series = time_course_f.generate(record_list, 'diagnosis', diagnosis_date)
+        #series_bucket = my_data_types.bucketed_ordinal_list.init_from_intervals_and_ordinal_list(intervals, series)        
+        #series_interval_vals = series_bucket.apply_feature_always_add(sosv(af.get_bucket_label_feature()))
+        #series_interval_vals = series_bucket.apply_feature_always_add(sosv(af.get_bucket_count_nonzero_feature()))
+
+
+
         
-        series = time_course_f.generate(record_list, 'diagnosis', diagnosis_date)
-        
-        series_bucket = my_data_types.bucketed_ordinal_list.init_from_intervals_and_ordinal_list(intervals, series)
-        
-        series_interval_vals = series_bucket.apply_feature(sosv(af.get_bucket_count_nonzero_feature()))
-        
+        """
         if series_interval_vals[0].get_value() == 1:
             has_something += 1
 
@@ -123,23 +204,60 @@ for pid in PID_to_use:
             
 
 
+        """
 
 
-
-        bl.lay_in_matching_ordinal_list(series_interval_vals)
+        #bl.lay_in_matching_ordinal_list(series_interval_vals)
 
         count += 1
 
         
 
 
-    except:
+    except my_exceptions.NoFxnValueException, my_exceptions.WCFailException:
         pass
 
     print has_something, count
 
-have_keyword_counts = bl.apply_feature(sosv(af.get_bucket_count_feature()))
+have_keyword_counts = bl.apply_feature(sosv(af.get_bucket_mean_feature()))
 pdb.set_trace()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 for pid in test_PID_to_use:
     p.set_param('pid', pid)
