@@ -187,7 +187,7 @@ class side_effect_report_record_has_info_feature(side_effect_feature):
 
 class report_feature_time_course_feature(feature):
 
-    def _generate(self, tumor_texts, relative_to_diagnosis, date_diagnosed):
+    def _generate(self, tumor_texts, relative, relative_date):
         """
         applies report_feature to tumor's reports
         returns single_ordinal_single_value_ordered_object consisting of time and value
@@ -206,8 +206,8 @@ class report_feature_time_course_feature(feature):
             except my_exceptions.NoFxnValueException:
                 pass
             else:
-                if relative_to_diagnosis:
-                    ans.append(my_data_types.single_ordinal_single_value_ordered_object(helper.my_timedelta((report.date - date_diagnosed).days), temp))
+                if relative:
+                    ans.append(my_data_types.single_ordinal_single_value_ordered_object(helper.my_timedelta((report.date - relative_date).days), temp))
                 else:
                     ans.append(my_data_types.single_ordinal_single_value_ordered_object(report.date, temp))
             count += 1

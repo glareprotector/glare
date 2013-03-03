@@ -555,7 +555,7 @@ def get_last_match(s, searcher, pos):
     all_matches = [m for m in searcher.finditer(s)]
     for i in range(len(all_matches)-1,-1,-1):
         m = all_matches[i]
-        if m.end() <= pos:
+        if m.end()+1 <= pos:
             return m
 
 

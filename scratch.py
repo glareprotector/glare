@@ -38,21 +38,30 @@ sosv = bf.single_ordinal_single_value_wrapper_feature
 
 p = global_stuff.get_param()
 
-A = set(wc.get_stuff(objects.PID_with_SS_info, p))
+#A = set(wc.get_stuff(objects.PID_with_SS_info, p))
+
+A = set(wc.get_stuff(objects.prostate_PID,p))
+
 B = set(wc.get_stuff(objects.PID_with_shared_MRN, p))
 C = set(wc.get_stuff(objects.PID_with_multiple_tumors, p))
-PID_to_use = list(A - B - C)[400:]
+PID_to_use = list(A - B - C)[:3000]
 
-test_PID_to_use = PID_to_use[2100:2120]
+#test_PID_to_use = PID_to_use[2100:2120]
 
-the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
-
-
+#the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
 
 
 
 
 
+
+for pid in PID_to_use:
+
+    p.set_param('pid', pid)
+    texts = wc.get_stuff(objects.raw_pathology_text, p)
+    print texts
+    print 'LENGTH: ', len(texts)
+    pdb.set_trace()
 
 
 
@@ -140,10 +149,11 @@ interval_boundaries = [-100,0,0.5,1,2,5]
 intervals = [my_data_types.ordered_interval(helper.my_timedelta(interval_boundaries[i]*365), helper.my_timedelta(interval_boundaries[i+1]*365)) for i in range(len(interval_boundaries)-1)]
 
 
-bl = my_data_types.bucketed_ordinal_list.init_empty_bucket_list_with_specified_ordinals(intervals)
+label_bl = my_data_types.bucketed_ordinal_list.init_empty_bucket_list_with_specified_ordinals(intervals)
+#count_bl = my_data_types.bucketed_ordinal_list.init_empty_bucket_list_with_specified_ordinals(intervals)
 
 count = 0
-has_something = 0
+treatment_count = 0
 
 
 
@@ -152,18 +162,19 @@ has_pre = []
 pdb.set_trace()
 
 
-Pid_to_use = [244536]
+#PID_to_use = [246662]
 
 for pid in PID_to_use:
     print count, pid
     p.set_param('pid', pid)
     try:
         tumor = wc.get_stuff(objects.global_stuff.get_tumor_w(), p)
-        record_list = tumor.get_attribute(global_stuff.get_tumor_cls().texts)
-        diagnosis_date = tumor.get_attribute(global_stuff.get_tumor_cls().date_diagnosed)
+        if f.treatment_code_f().generate(tumor) in [1,2]:
+            record_list = tumor.get_attribute(global_stuff.get_tumor_cls().texts)
+            #diagnosis_date = tumor.get_attribute(global_stuff.get_tumor_cls().date_diagnosed)
+            treatment_date = f.treatment_date_f().generate(tumor)
         
-        
-        for record in record_list:
+        ##for record in record_list:
 
             #for excerpt in record.get_excerpts_by_words(['loses','lose','leak','leaks']):
             #    print excerpt
@@ -173,7 +184,7 @@ for pid in PID_to_use:
             #if len(record.get_excerpts_by_words(['urinary'])) > 0:
             #    print record
             #    pdb.set_trace()
-            side_effects.urinary_incontinence().generate(record)
+        ##    side_effects.urinary_incontinence().generate(record)
             #pdb.set_trace()
 
         #time_course_f = bf.report_feature_time_course_feature(bf.side_effect_report_record_has_info_feature(side_effects.urinary_incontinence))
@@ -184,11 +195,18 @@ for pid in PID_to_use:
 
 
 
-        #time_course_f = bf.report_feature_time_course_feature(side_effects.urinary_incontinence())
-        #series = time_course_f.generate(record_list, 'diagnosis', diagnosis_date)
-        #series_bucket = my_data_types.bucketed_ordinal_list.init_from_intervals_and_ordinal_list(intervals, series)        
-        #series_interval_vals = series_bucket.apply_feature_always_add(sosv(af.get_bucket_label_feature()))
-        #series_interval_vals = series_bucket.apply_feature_always_add(sosv(af.get_bucket_count_nonzero_feature()))
+            time_course_f = bf.report_feature_time_course_feature(side_effects.urinary_incontinence())
+            series = time_course_f.generate(record_list, True, treatment_date)
+            series_bucket = my_data_types.bucketed_ordinal_list.init_from_intervals_and_ordinal_list(intervals, series)        
+            series_interval_vals = series_bucket.apply_feature_always_add(sosv(af.get_bucket_label_feature()))
+        
+            label_bl.lay_in_matching_ordinal_list(series_interval_vals)
+            #count_bl.lay_in_matching_ordinal_list(series_interval_vals)
+
+
+            treatment_count += 1
+
+#series_interval_counts = series_bucket.apply_feature_always_add(sosv(af.get_bucket_count_nonzero_feature()))
 
 
 
@@ -207,19 +225,25 @@ for pid in PID_to_use:
         """
 
 
-        #bl.lay_in_matching_ordinal_list(series_interval_vals)
-
-        count += 1
+        
 
         
 
 
-    except my_exceptions.NoFxnValueException, my_exceptions.WCFailException:
+    except my_exceptions.NoFxnValueException:
         pass
+    except my_exceptions.WCFailException:
+        pass
+    count += 1
+    print treatment_count, count
 
-    print has_something, count
+interval_counts = label_bl.apply_feature(sosv(af.get_bucket_count_feature()))
+interval_values = label_bl.apply_feature(sosv(af.get_bucket_mean_feature()))
 
-have_keyword_counts = bl.apply_feature(sosv(af.get_bucket_mean_feature()))
+
+print interval_counts
+print interval_values
+
 pdb.set_trace()
 
 

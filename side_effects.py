@@ -193,17 +193,17 @@ class urinary_incontinence(side_effect_report_feature):
     def classify_record(self, report):
         report_text = base_fragment(report.raw_text)
         count = 0
-        pdb.set_trace()
-        print report
+        #pdb.set_trace()
+        #print report
         for rule in self.get_report_decision_rules():
             try:
                 
                 ans = rule.generate(report_text)
-                print 'VALUE: ', ans, rule, count
-                pdb.set_trace()
+                #print 'VALUE: ', ans, rule, count
+                #pdb.set_trace()
                 return ans
             except my_exceptions.NoFxnValueException:
-                pdb.set_trace()
+                #pdb.set_trace()
                 pass
             count += 1
         raise my_exceptions.NoFxnValueException

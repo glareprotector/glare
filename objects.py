@@ -69,6 +69,41 @@ class PID_with_SS_info(wrapper.obj_wrapper):
             ans.append(row.PatientID)
         return ans
 
+
+class prostate_PID(wrapper.obj_wrapper):
+
+    def whether_to_override(self, object_key):
+        return False
+
+    @classmethod
+    def get_all_keys(cls, params, self=None):
+        return set()
+
+    @dec
+    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
+        query = 'select PatientID, DateDx from [TR_MASTER.registry].[dbo].[mgh_tumor] where PrimarySite=\'C619\''
+        cursor = helper.get_cursor()
+        cursor.execute(query)
+        ans = []
+        num_ok = 0
+        num_total = 0
+        for row in cursor:
+            try:
+                date_dx = helper.my_date.init_from_num(row.DateDx)
+                num_ok += 1
+                if date_dx.year < 1995 and date_dx.year >= 1992:
+                    ans.append(row.PatientID)
+            except Exception, e:
+                print e
+                pdb.set_trace()
+            num_total += 1
+            print num_ok, num_total
+        return ans
+
+
+
+
+
 class MRN_to_PID_dict(wrapper.obj_wrapper):
 
     def whether_to_override(self, object_key):
@@ -270,6 +305,7 @@ class raw_pathology_text(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
     @dec
     def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
+        pdb.set_trace()
         pid = self.get_param(params, 'pid')
         ans = helper.record_list()
         MRN = helper.PID_to_MRN(pid)
@@ -277,14 +313,16 @@ class raw_pathology_text(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         #query = 'select Report_Date_Time, Report_Text from [RPDR].[dbo].[PathReport] where MRN=' + str(MRN)
         cursor = helper.get_cursor()
         cursor.execute(query)
+        idx = 0
         for row in cursor:
             date_str = row.Report_Date_Time.split()[0]
             from helper import my_date
             date = my_date.init_from_str(date_str)
             raw_text = row.Report_Text
             
-            temp = helper.report_record(pid, date, raw_text)
+            temp = helper.report_record(pid, date, raw_text, idx)
             ans.append(temp)
+            idx += 1
         ans.sort()
         return ans
 

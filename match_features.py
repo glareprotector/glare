@@ -262,19 +262,23 @@ class fragment_getter_by_delim(fragment_getter):
     """
     if text[position] is delimiter, leftwards search will get it, but rightwards won't.
     imagine that the search starts at the gap between position and position + 1
+    position refers to absolute position
     """
     def get_fragment(self, text, position):
         raw_text = text.get_raw_text()
-        local_pos = position - text.get_abs_start()
-        local_end = local_pos + 1
-        local_start = local_pos
         delimiter_m = re.compile('(' + string.join(self.delimiters, sep='|') + ')')
         
 
-        end_match = helper.get_next_match(raw_text, delimiter_m, position+1)
-        start_match = helper.get_last_match(raw_text, delimiter_m, position)
-        local_start = start_match.end()
-        local_end = end_match.start()
+        end_match = helper.get_next_match(raw_text, delimiter_m, position+1 - text.get_abs_start())
+        start_match = helper.get_last_match(raw_text, delimiter_m, position - text.get_abs_start())
+        if start_match == None:
+            local_start = 0
+        else:
+            local_start = start_match.end()
+        if end_match == None:
+            local_end = len(raw_text)
+        else:
+            local_end = end_match.start()
         return fragment(text, text.get_abs_start() + local_start, text.get_abs_start() + local_end)
 
     def __init__(self, delimiters):
