@@ -14,6 +14,7 @@ import global_stuff
 import plotters
 import numpy
 import my_exceptions
+import aggregate_features as af
 from global_stuff import get_tumor_cls
 
 import matplotlib.pyplot as plt
@@ -34,7 +35,51 @@ interval_boundaries = [0,0.5,1,2,5]
 intervals = [my_data_types.ordered_interval(helper.my_timedelta(interval_boundaries[i]*365), helper.my_timedelta(interval_boundaries[i+1]*365)) for i in range(len(interval_boundaries)-1)]
 
 
+
+side_effect_name = 'incontinence'
+
+
 pdb.set_trace()
+
+
+class mean_interval_vals(bf.feature):
+
+    def _generate(self, data_set):
+        # can either assume tumor has the series, or calculate the series using text and report feature/time_course feature. assume the former for now
+        bl = my_data_types.bucketed_ordinal_list.init_empty_bucket_list_with_specified_ordinals(self.intervals)
+        labeler = bf.single_ordinal_single_value_wrapper_feature.generate(af.get_bucket_label_feature())
+        for tumor in data_set:
+            urinary_series = tumor.get_attribute(get_tumor_cls().incontinence_time_series)
+            this_bl = my_data_types.init_from_intervals_and_ordinal_list(self.intervals, urinary_series)
+            # get the interval labels
+            interval_labels = this_bl.apply_feature_always_add(labeler)
+            bl.lay_in_matching_ordinal_list(interval_labels)
+        meaner = bf.single_ordinal_single_value_wrapper_feature.generate(af.get_bucket_mean_feature())
+        bl.apply_feature_always_add(meaner)
+
+    def __init__(self, report_feature, intervals):
+        self.report_feature
+        self.intervals = intervals
+
+class interval_non_zero_counts(bf.feature):
+
+    def _generate(self, data_set):
+        # can either assume tumor has the series, or calculate the series using text and report feature/time_course feature. assume the former for now
+        bl = my_data_types.bucketed_ordinal_list.init_empty_bucket_list_with_specified_ordinals(self.intervals)
+        labeler = bf.single_ordinal_single_value_wrapper_feature.generate(af.get_bucket_label_feature())
+        for tumor in data_set:
+            urinary_series = tumor.get_attribute(get_tumor_cls().incontinence_time_series)
+            this_bl = my_data_types.init_from_intervals_and_ordinal_list(self.intervals, urinary_series)
+            # get the interval labels
+            interval_labels = this_bl.apply_feature_always_add(labeler)
+            bl.lay_in_matching_ordinal_list(interval_labels)
+        counter = bf.single_ordinal_single_value_wrapper_feature.generate(af.get_bucket_count_nonzero_feature())
+        bl.apply_feature_always_add(counter)
+
+    def __init__(self, report_feature, intervals):
+        self.report_feature
+        self.intervals = intervals
+
 
 
 """

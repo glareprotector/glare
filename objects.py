@@ -512,7 +512,29 @@ class erection_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         diagnosis_date = helper.my_date.init_from_num(tt['DateDx'])
         relative_to_diagnosis = self.get_param(params, 'reltd')
         #return features.report_feature_time_course_feature(features.side_effect_report_record_feature(side_effects.erection_side_effect())).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
-        return features.report_feature_time_course_feature(side_effects.erection_side_effect()).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
+        return basic_features.report_feature_time_course_feature(side_effects.erection_side_effect()).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
+
+
+
+class incontinence_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
+    
+
+    @classmethod
+    def get_all_keys(cls, params, self=None):
+        return set(['pid', 'reltd'])
+
+    def whether_to_override(self, object_key):
+        return False
+
+    @dec
+    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
+        tt = self.get_var_or_file(tumor_info, params)
+        tumor_texts = self.get_var_or_file(raw_medical_text_new, params)
+        diagnosis_date = helper.my_date.init_from_num(tt['DateDx'])
+        relative_to_diagnosis = self.get_param(params, 'reltd')
+        #return features.report_feature_time_course_feature(features.side_effect_report_record_feature(side_effects.erection_side_effect())).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
+        return features.report_feature_time_course_feature(side_effects.urinary_incontinence()).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
+
 
 class tumor_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
@@ -538,12 +560,14 @@ class tumor_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         #gleason_primary = tt['CS_SSFactor5'][2]
         #gleason_secondary = tt['CS_SSFactor5'][3]
         ets = self.get_var_or_file(erection_time_series, params)
+        uts = self.get_var_or_file(incontinence_time_series, params)
+
 
         alive_or_not = sdt['C_Vital']
         date_last_contact = helper.my_date.init_from_hyphen_string(sdt['C_DLC'])
         dob = helper.my_date.init_from_slash_string(sdt['C_DOB'])
 
-        return helper.tumor(_pid = pid, _grade = tt['Grade'], _SEERSummStage = tt['SEERSummStage2000'] ,_surgery_code = tt['MstDefSurgPrimSumm'], _radiation_code = tt['MstDefRTSumm'], _date_diagnosed = helper.my_date.init_from_num(tt['DateDx']), _surgery_date = helper.my_date.init_from_num(tt['DtMstDefSurg']), _radiation_date = helper.my_date.init_from_num(tt['MstDefRTDt']), _erection_time_series = ets, _DLC = date_last_contact, _alive = alive_or_not, _DOB = dob, _tt = tt, _pt = pt, _sdt = sdt, _texts = texts)
+        return helper.tumor(_pid = pid, _grade = tt['Grade'], _SEERSummStage = tt['SEERSummStage2000'] ,_surgery_code = tt['MstDefSurgPrimSumm'], _radiation_code = tt['MstDefRTSumm'], _date_diagnosed = helper.my_date.init_from_num(tt['DateDx']), _surgery_date = helper.my_date.init_from_num(tt['DtMstDefSurg']), _radiation_date = helper.my_date.init_from_num(tt['MstDefRTDt']), _erection_time_series = ets, _incontinence_time_series = uts, _DLC = date_last_contact, _alive = alive_or_not, _DOB = dob, _tt = tt, _pt = pt, _sdt = sdt, _texts = texts)
 
 
 
@@ -569,12 +593,13 @@ class tumor_lite_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         #gleason_primary = tt['CS_SSFactor5'][2]
         #gleason_secondary = tt['CS_SSFactor5'][3]
         ets = self.get_var_or_file(erection_time_series, params)
+        uts = self.get_var_or_file(incontinence_time_series, params)
 
         alive_or_not = sdt['C_Vital']
         date_last_contact = helper.my_date.init_from_hyphen_string(sdt['C_DLC'])
         dob = helper.my_date.init_from_slash_string(sdt['C_DOB'])
 
-        return helper.tumor_lite(_pid = pid, _grade = tt['Grade'], _SEERSummStage = tt['SEERSummStage2000'] , _surgery_code = tt['MstDefSurgPrimSumm'], _radiation_code = tt['MstDefRTSumm'], _date_diagnosed = helper.my_date.init_from_num(tt['DateDx']), _surgery_date = helper.my_date.init_from_num(tt['DtMstDefSurg']), _radiation_date = helper.my_date.init_from_num(tt['MstDefRTDt']), _erection_time_series = ets, _DLC = date_last_contact, _alive = alive_or_not, _DOB = dob, _tt = tt, _pt = pt, _sdt = sdt)
+        return helper.tumor_lite(_pid = pid, _grade = tt['Grade'], _SEERSummStage = tt['SEERSummStage2000'] , _surgery_code = tt['MstDefSurgPrimSumm'], _radiation_code = tt['MstDefRTSumm'], _date_diagnosed = helper.my_date.init_from_num(tt['DateDx']), _surgery_date = helper.my_date.init_from_num(tt['DtMstDefSurg']), _radiation_date = helper.my_date.init_from_num(tt['MstDefRTDt']), _erection_time_series = ets, _incontinence_time_series = uts, _DLC = date_last_contact, _alive = alive_or_not, _DOB = dob, _tt = tt, _pt = pt, _sdt = sdt)
 
 
 class tumor_list(wrapper.obj_wrapper):

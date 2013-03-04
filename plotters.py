@@ -25,12 +25,12 @@ def print_filtered_counts(data_set, filtering_f, label):
 
 
 
-def plot_time_series(data_set, filtering_f, label, g, intervals, relative_to_what):
+def plot_time_series(data_set, filtering_f, label, g):
     """
-    given original dataset, filtering function, label, dataset_to_series function, intervals, plots the series
+    given dataset, filtering_f for dataset, and g which takes in only a tumor and outputs a interval series, adds the interval series to the plot
     """
     filtered_data_set = data_set.filter(filtering_f)
-    series = g.generate(filtered_data_set, intervals, relative_to_what)
+    series = g.generate(filtered_data_set)
 
 
     x_boundaries = np.zeros(len(series) + 1)

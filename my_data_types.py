@@ -38,6 +38,9 @@ class my_list(list):
         return ans
 
     def apply_feature_always_add(self, f, cls = None):
+        """
+        has to assume that f.generate will not raise exception, because have no idea what to add otherwise
+        """
         if cls == None:
             cls = self.get_class()
         ans = cls()
