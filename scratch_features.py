@@ -36,7 +36,7 @@ intervals = [my_data_types.ordered_interval(helper.my_timedelta(interval_boundar
 
 
 
-feature_list = [f.treatment_code_f(), f.age_at_diagnosis_f(), f.age_at_LC_f(), f.vital_status_f(), f.age_at_LC_f(), f.follow_up_time_f(), f.grade_f(), f.SEERStage_mine_f(), f.pre_treatment_side_effect_label_f(side_effects.erection_side_effect), bf.two_year_erection_f(), bf.five_year_erection_f()]
+feature_list = [f.treatment_code_f(), f.age_at_diagnosis_f(), f.age_at_LC_f(), f.vital_status_f(), f.age_at_LC_f(), f.follow_up_time_f(), f.grade_f(), f.SEERStage_mine_f(), f.pre_treatment_side_effect_label_f(side_effects.urin_incont_bin()), bf.two_year_erection_f(), bf.five_year_erection_f()]
 
 feature_string = the_data_set.get_csv_string(feature_list)
 print feature_string

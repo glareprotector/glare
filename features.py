@@ -230,12 +230,30 @@ class grade_f(feature):
 
     def _generate(self, tumor):
         raw = tumor.get_attribute(get_tumor_cls().grade)
-        if raw == '2':
+        if raw == '1':
+            return 1
+        elif raw == '2':
             return 2
         elif raw == '3':
             return 3
         else:
+            return my_data_types.no_value_object()
+
+
+class higher_coverage_stage(feature):
+
+    def _generate(self, tumor):
+        raw = tumor.get_attribute(get_tumor_cls().BestStage)
+        if raw[0] == '1':
+            return 1
+        elif raw[0] == '2':
+            return 2
+        elif raw[0] == '3':
+            return 3
+        elif raw[0] == '4':
             return 4
+        else:
+            return my_data_types.no_value_object()
 
 
 class simple_grade_cat_f(generic_categorical_feature):

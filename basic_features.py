@@ -181,9 +181,16 @@ class side_effect_report_record_has_info_feature(side_effect_feature):
             return sv_int(1)
 
 
-
-
-
+class adjust_time_series(feature):
+    """
+    takes in time series subtracts specified value from the ordinal.  since i want to return my own timedelta class, have to do things awkwardly
+    """
+    def _generate(self, series, relative_to):
+        import helper
+        ans = my_data_types.single_ordinal_ordinal_list()
+        for elt in series:
+            ans.append(my_data_types.single_ordinal_single_value_ordered_object(helper.my_timedelta((elt.get_ordinal() - relative_to).days), elt.get_value()))
+        return ans
 
 class report_feature_time_course_feature(feature):
 
@@ -211,6 +218,8 @@ class report_feature_time_course_feature(feature):
                 else:
                     ans.append(my_data_types.single_ordinal_single_value_ordered_object(report.date, temp))
             count += 1
+        
+        #pdb.set_trace()
         return ans
 
     def __init__(self, report_feature):
@@ -246,7 +255,10 @@ class side_effect_intervals_values_f(side_effect_feature):
         import pdb
         if self.get_side_effect() == side_effects.erection_side_effect:
             series = tumor.get_attribute(global_stuff.get_tumor_cls().erection_time_series)
-
+        elif self.get_side_effect().__class__.__name__ == 'urin_incont_bin':
+            series = tumor.get_attribute(global_stuff.get_tumor_cls().incontinence_time_series)
+        elif self.get_side_effect().__class__.__name__ == 'bowel_urgency_bin':
+            series = tumor.get_attribute(global_stuff.get_tumor_cls().bowel_urgency_time_series)
         import copy
         series_copy = copy.deepcopy(series)
         if relative_to_what == 'absolute':

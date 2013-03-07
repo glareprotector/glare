@@ -12,11 +12,12 @@ collection_to_bucket = f.single_ordinal_single_value_wrapper_feature
 
 class plot_struct(object):
 
-    def __init__(self, filtering_f, label, g, intervals):
+    def __init__(self, filtering_f, label, g, color):
         self.filtering_f = filtering_f
         self.label = label
         self.g = g
-        self.intervals = intervals
+        self.color = color
+
 
 
 def print_filtered_counts(data_set, filtering_f, label):
@@ -25,13 +26,57 @@ def print_filtered_counts(data_set, filtering_f, label):
 
 
 
-def plot_time_series(data_set, filtering_f, label, g):
+def plot_time_series(data_set, filtering_f, label, g, color):
+    """
+    given dataset, filtering_f for dataset, and g which takes in only a tumor and outputs a interval series, adds the interval series to the plot
+    """
+    filtered_data_set = data_set.filter(filtering_f)
+
+    series, counts = g.generate(filtered_data_set)
+    print series, counts
+
+    x_boundaries = np.zeros(len(series) + 1)
+    for i in range(len(series)):
+        x_boundaries[i] = series[i].get_ordinal().low.days/365.0
+    x_boundaries[-1] = series[-1].get_ordinal().high.days/365.0
+    y_values = []
+    y_lower = []
+    y_upper = []
+
+    for item, count in zip(series, counts):
+        try:
+            ans = item.get_value()
+        except my_exceptions.NoFxnValueException:
+            ans = 0.0
+            width = 0.0
+        else:
+            num = count.get_value()
+            sd = pow(ans*(1-ans)/float(num), 0.5)
+            width = 1.96 * sd
+        y_values.append(ans)
+        y_upper.append(ans + width)
+        y_lower.append(ans - width)
+        
+    y_values.append(0)
+    y_upper.append(0)
+    y_lower.append(0)
+    line = plt.step(x_boundaries, y_values, label = label, where='post')
+    plt.setp(line, ls='-', lw=3, color = color)
+    line = plt.step(x_boundaries, y_upper, where='post')
+    plt.setp(line, ls='--', lw=1, color = color)
+    line = plt.step(x_boundaries, y_lower, where='post')
+    plt.setp(line, ls='--', lw=1, color = color)
+    #plt.step(x_boundaries, y_values, 'post', {'label':label,'linestyle':'dotted'})
+    print label, len(filtered_data_set.the_data)
+
+
+def plot_time_series_CI(data_set, filtering_f, label, g):
     """
     given dataset, filtering_f for dataset, and g which takes in only a tumor and outputs a interval series, adds the interval series to the plot
     """
     filtered_data_set = data_set.filter(filtering_f)
     series = g.generate(filtered_data_set)
-
+    #print series
 
     x_boundaries = np.zeros(len(series) + 1)
     for i in range(len(series)):
@@ -45,8 +90,13 @@ def plot_time_series(data_set, filtering_f, label, g):
             ans = 0.0
         y_values.append(ans)
     y_values.append(-1)
-    plt.step(x_boundaries, y_values, label = label, where='post')
+    line = plt.step(x_boundaries, y_values, label = label, where='post')
+    plt.setp(line, ls='-', lw=3)
+    #plt.step(x_boundaries, y_values, 'post', {'label':label,'linestyle':'dotted'})
     print label, len(filtered_data_set.the_data)
+
+
+
 
 
 def plot_time_series_by_bins(tumor_list, binner, time_series_intervals, which_attribute, title, file_name):

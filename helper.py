@@ -786,16 +786,16 @@ class excerpt(record):
 
 class tumor_lite(object):
 
-    num_attributes = 16
-    pid, grade, SEERSummStage2000, surgery_code, radiation_code, date_diagnosed, surgery_date, radiation_date, erection_time_series, incontinence_time_series, DLC, alive, DOB , tumor_tuple, patient_tuple, super_tuple= range(num_attributes)
+    num_attributes = 18
+    pid, grade, SEERSummStage2000, BestStage, surgery_code, radiation_code, date_diagnosed, surgery_date, radiation_date, erection_time_series, incontinence_time_series, bowel_urgency_time_series, DLC, alive, DOB , tumor_tuple, patient_tuple, super_tuple= range(num_attributes)
 
 
     """
     pid:int, grade:string, SEERSummStage2000:string, texts:list(string), erection_negation_counts:dict{str:int}, surgery_code:char(2), radiation_code:char(1), psa_value:char(3), prev_psa_level(3). 
     gleason_primary:char(1), gleason_secondary:char(2), erection_ts, date_last_contact, alive_or_not, DOB
     """
-    def __init__(self, _pid, _grade, _SEERSummStage, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series, _incontinence_time_series, _DLC, _alive, _DOB, _tt, _pt, _sdt):
-        self.attributes = [_pid, _grade, _SEERSummStage, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series, _incontinence_time_series, _DLC, _alive, _DOB, _tt, _pt, _sdt]
+    def __init__(self, _pid, _grade, _SEERSummStage, _BestStage, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series, _incontinence_time_series, _bowel_urgency_time_series, _DLC, _alive, _DOB, _tt, _pt, _sdt):
+        self.attributes = [_pid, _grade, _SEERSummStage, _BestStage, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series, _incontinence_time_series, _bowel_urgency_time_series, _DLC, _alive, _DOB, _tt, _pt, _sdt]
 
     def get_attribute(self, attribute):
         return self.attributes[attribute]
@@ -834,8 +834,8 @@ class tumor(tumor_lite):
     pid:int, grade:string, SEERSummStage2000:string, texts:list(string), erection_negation_counts:dict{str:int}, surgery_code:char(2), radiation_code:char(1), psa_value:char(3), prev_psa_level(3). 
     gleason_primary:char(1), gleason_secondary:char(2), erection_ts, date_last_contact, alive_or_not, DOB
     """
-    def __init__(self, _pid, _grade, _SEERSummStage, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series, _incontinence_time_series, _DLC, _alive, _DOB, _tt, _pt, _sdt, _texts):
-        tumor_lite.__init__(self, _pid, _grade, _SEERSummStage, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series, _incontinence_time_series, _DLC, _alive, _DOB, _tt, _pt, _sdt)
+    def __init__(self, _pid, _grade, _SEERSummStage, _BestStage, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series, _incontinence_time_series, _bowel_urgency_time_series, _DLC, _alive, _DOB, _tt, _pt, _sdt, _texts):
+        tumor_lite.__init__(self, _pid, _grade, _SEERSummStage, _BestStage, _surgery_code, _radiation_code, _date_diagnosed, _surgery_date, _radiation_date, _erection_time_series, _incontinence_time_series, _bowel_urgency_time_series, _DLC, _alive, _DOB, _tt, _pt, _sdt)
         self.attributes += [_texts]
 
 
@@ -975,6 +975,9 @@ class data_set(object):
             params.set_param('pid', pid)
             try:
                 a_tumor = wc.get_stuff(get_tumor_w(), params)
+                import features
+                #print 'treatment_date: ', features.treatment_date_f().generate(a_tumor)
+                #pdb.set_trace()
                 #assert len(a_tumor.attributes) == get_tumor_cls().num_attributes
             except my_exceptions.WCFailException:
                 print 'failed to get ', pid

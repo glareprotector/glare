@@ -355,7 +355,10 @@ class ignore_detector(object):
     def to_ignore(self, text, position):
         context = self.fragment_getter.get_fragment(text, position)
         word_matcher = basic_word_matcher()
-        return len(word_matcher.get_matches(context, self.ignore_words)) > 0
+        matched = word_matcher.get_matches(context, self.ignore_words)
+        #if len(matched) > 0:
+        #    print 'ignored: ', matched
+        return len(matched) > 0
 
         
 
@@ -437,7 +440,7 @@ class basic_negation_detector(negation_detector):
 
 
         assert False
-        return num_negations % 2 == 1
+        return nuaam_negations % 2 == 1
 
     def __init__(self, look_at_clause_words = [], negation_words_cls = global_stuff.negation_words_cls):
         self.look_at_clause_words = look_at_clause_words
@@ -484,6 +487,11 @@ class generic_basic_decision_rule(decision_rule):
         matches = self.hard_matcher.get_matches(text)
         for m in matches:
             if not self.ignore_detector.to_ignore(text, m.get_abs_start()):
+                frag = sentence_fragment_getter().get_fragment(text, m.get_abs_start())
+                #print 'frag: ', frag
+                #if 'date' in frag.get_raw_text():
+                #    pdb.set_trace()
+                assert self.sign in [0,1]
                 if self.sign == 0:
                     if self.negation_detector.is_negated(text, m.get_abs_start()) == False:
                         if self.moderating_detector.is_moderated(text, m.get_abs_start()) == False:

@@ -73,7 +73,7 @@ class PID_with_SS_info(wrapper.obj_wrapper):
 class prostate_PID(wrapper.obj_wrapper):
 
     def whether_to_override(self, object_key):
-        return False
+        return True
 
     @classmethod
     def get_all_keys(cls, params, self=None):
@@ -91,11 +91,11 @@ class prostate_PID(wrapper.obj_wrapper):
             try:
                 date_dx = helper.my_date.init_from_num(row.DateDx)
                 num_ok += 1
-                if date_dx.year < 1995 and date_dx.year >= 1992:
-                    ans.append(row.PatientID)
+                #if date_dx.year < 1995 and date_dx.year >= 1992:
+                ans.append(row.PatientID)
             except Exception, e:
                 print e
-                pdb.set_trace()
+                #pdb.set_trace()
             num_total += 1
             print num_ok, num_total
         return ans
@@ -327,6 +327,47 @@ class raw_pathology_text(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         return ans
 
 
+
+class raw_operative_text(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
+
+    def whether_to_override(self, object_key):
+        return False
+
+    @classmethod
+    def get_all_keys(cls, params, self=None):
+        return set(['pid'])
+
+    @classmethod
+    def get_to_filelize(cls):
+        return True
+
+    @dec
+    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
+        pid = self.get_param(params, 'pid')
+        ans = helper.record_list()
+        MRN = helper.PID_to_MRN(pid)
+        query = 'select Report_Date_Time, Report_Text from [RPDR].[dbo].[OperativeReport] where MRN=' + str(MRN)
+        #query = 'select Report_Date_Time, Report_Text from [RPDR].[dbo].[PathReport] where MRN=' + str(MRN)
+        cursor = helper.get_cursor()
+        cursor.execute(query)
+        idx = 0
+        for row in cursor:
+            date_str = row.Report_Date_Time.split()[0]
+            from helper import my_date
+            date = my_date.init_from_str(date_str)
+            raw_text = row.Report_Text
+            
+            temp = helper.report_record(pid, date, raw_text, idx)
+            ans.append(temp)
+            
+            idx += 1
+        ans.sort()
+        return ans
+
+
+
+
+
 class raw_medical_text_new(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
     def whether_to_override(self, object_key):
@@ -472,17 +513,15 @@ class side_effect_human_input_report_labels(wrapper.obj_wrapper, wrapper.by_pid_
 
         return ans
         
-            
+class bowel_urgency_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
-class incontinence_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
-    
 
     @classmethod
     def get_all_keys(cls, params, self=None):
         return set(['pid', 'reltd'])
 
     def whether_to_override(self, object_key):
-        return False
+        return True
 
     @dec
     def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
@@ -491,7 +530,8 @@ class incontinence_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         diagnosis_date = helper.my_date.init_from_num(tt['DateDx'])
         relative_to_diagnosis = self.get_param(params, 'reltd')
         #return features.report_feature_time_course_feature(features.side_effect_report_record_feature(side_effects.erection_side_effect())).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
-        return basic_features.report_feature_time_course_feature(side_effects.urinary_incontinence()).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
+        return basic_features.report_feature_time_course_feature(side_effects.bowel_urgency_bin()).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
+
 
 
 
@@ -533,7 +573,8 @@ class incontinence_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         diagnosis_date = helper.my_date.init_from_num(tt['DateDx'])
         relative_to_diagnosis = self.get_param(params, 'reltd')
         #return features.report_feature_time_course_feature(features.side_effect_report_record_feature(side_effects.erection_side_effect())).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
-        return features.report_feature_time_course_feature(side_effects.urinary_incontinence()).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
+        ans = features.report_feature_time_course_feature(side_effects.urin_incont_bin()).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
+        return ans
 
 
 class tumor_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
@@ -543,7 +584,7 @@ class tumor_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         return set(['pid']) | erection_time_series.get_all_keys(params, self)
 
     def whether_to_override(self, object_key):
-        return False
+        return True
 
     @dec
     def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
@@ -556,18 +597,26 @@ class tumor_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         #self.set_param(params, 'count_words', helper.words_to_coded_words(['erection','erections','erectile dysfunction']))
         #erection_negation_counts = self.get_var_or_file(negation_counts, params)
         pid = self.get_param(params, 'pid')
-        #pdb.set_trace()
+        pdb.set_trace()
         #gleason_primary = tt['CS_SSFactor5'][2]
         #gleason_secondary = tt['CS_SSFactor5'][3]
+        
         ets = self.get_var_or_file(erection_time_series, params)
         uts = self.get_var_or_file(incontinence_time_series, params)
+        buts = self.get_var_or_file(bowel_urgency_time_series, params)
 
+        #ets = None
+        #uts = None
+        #buts = None
+
+
+        #print buts
 
         alive_or_not = sdt['C_Vital']
         date_last_contact = helper.my_date.init_from_hyphen_string(sdt['C_DLC'])
         dob = helper.my_date.init_from_slash_string(sdt['C_DOB'])
 
-        return helper.tumor(_pid = pid, _grade = tt['Grade'], _SEERSummStage = tt['SEERSummStage2000'] ,_surgery_code = tt['MstDefSurgPrimSumm'], _radiation_code = tt['MstDefRTSumm'], _date_diagnosed = helper.my_date.init_from_num(tt['DateDx']), _surgery_date = helper.my_date.init_from_num(tt['DtMstDefSurg']), _radiation_date = helper.my_date.init_from_num(tt['MstDefRTDt']), _erection_time_series = ets, _incontinence_time_series = uts, _DLC = date_last_contact, _alive = alive_or_not, _DOB = dob, _tt = tt, _pt = pt, _sdt = sdt, _texts = texts)
+        return helper.tumor(_pid = pid, _grade = tt['Grade'], _SEERSummStage = tt['SEERSummStage2000'] , _BestStage = tt['BestStage'], _surgery_code = tt['MstDefSurgPrimSumm'], _radiation_code = tt['MstDefRTSumm'], _date_diagnosed = helper.my_date.init_from_num(tt['DateDx']), _surgery_date = helper.my_date.init_from_num(tt['DtMstDefSurg']), _radiation_date = helper.my_date.init_from_num(tt['MstDefRTDt']), _erection_time_series = ets, _incontinence_time_series = uts, _bowel_urgency_time_series = buts, _DLC = date_last_contact, _alive = alive_or_not, _DOB = dob, _tt = tt, _pt = pt, _sdt = sdt, _texts = texts)
 
 
 
@@ -592,14 +641,20 @@ class tumor_lite_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         #pdb.set_trace()
         #gleason_primary = tt['CS_SSFactor5'][2]
         #gleason_secondary = tt['CS_SSFactor5'][3]
-        ets = self.get_var_or_file(erection_time_series, params)
-        uts = self.get_var_or_file(incontinence_time_series, params)
+        
+
+        #ets = self.get_var_or_file(erection_time_series, params)
+        #uts = self.get_var_or_file(incontinence_time_series, params)
+
+        ets = None
+        uts = None
+        buts = None
 
         alive_or_not = sdt['C_Vital']
         date_last_contact = helper.my_date.init_from_hyphen_string(sdt['C_DLC'])
         dob = helper.my_date.init_from_slash_string(sdt['C_DOB'])
 
-        return helper.tumor_lite(_pid = pid, _grade = tt['Grade'], _SEERSummStage = tt['SEERSummStage2000'] , _surgery_code = tt['MstDefSurgPrimSumm'], _radiation_code = tt['MstDefRTSumm'], _date_diagnosed = helper.my_date.init_from_num(tt['DateDx']), _surgery_date = helper.my_date.init_from_num(tt['DtMstDefSurg']), _radiation_date = helper.my_date.init_from_num(tt['MstDefRTDt']), _erection_time_series = ets, _incontinence_time_series = uts, _DLC = date_last_contact, _alive = alive_or_not, _DOB = dob, _tt = tt, _pt = pt, _sdt = sdt)
+        return helper.tumor_lite(_pid = pid, _grade = tt['Grade'], _SEERSummStage = tt['SEERSummStage2000'] , _BestStage = tt['BestStage'], _surgery_code = tt['MstDefSurgPrimSumm'], _radiation_code = tt['MstDefRTSumm'], _date_diagnosed = helper.my_date.init_from_num(tt['DateDx']), _surgery_date = helper.my_date.init_from_num(tt['DtMstDefSurg']), _radiation_date = helper.my_date.init_from_num(tt['MstDefRTDt']), _erection_time_series = ets, _incontinence_time_series = uts, _bowel_urgency_time_series = buts, _DLC = date_last_contact, _alive = alive_or_not, _DOB = dob, _tt = tt, _pt = pt, _sdt = sdt)
 
 
 class tumor_list(wrapper.obj_wrapper):

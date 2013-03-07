@@ -176,8 +176,51 @@ class side_effect_report_feature_by_excerpt_voting(side_effect_report_feature):
         pass
 
 
+
+
+class bowel_urgency_bin(side_effect_report_feature):
+
+    def classify_record(self, report):
+        #pdb.set_trace()
+        ans = bowel_urgency().classify_record(report)
+        #print 'BIN: ', ans.get_value()
+        if ans.get_value() in [1,2]:
+            return sv_int(0)
+        elif ans.get_value() == 0:
+            return sv_int(1)
+
+
+    def use_human_label(self):
+        return False
+
+    def only_use_human_label(self):
+        return False
+
+
+
+
+
+class urin_incont_bin(side_effect_report_feature):
+
+    def classify_record(self, report):
+        #pdb.set_trace()
+        ans = urinary_incontinence().classify_record(report)
+        #print 'BIN: ', ans.get_value()
+        if ans.get_value() in [1,2]:
+            return sv_int(0)
+        elif ans.get_value() == 0:
+            return sv_int(1)
+
+
+    def use_human_label(self):
+        return False
+
+    def only_use_human_label(self):
+        return False
+
+
     
-class urinary_incontinence(side_effect_report_feature):
+class classify_by_rule_list(side_effect_report_feature):
     """
     good should be 1.  so if response in question is 1 or 2, put 1
     """
@@ -191,16 +234,18 @@ class urinary_incontinence(side_effect_report_feature):
 
 
     def classify_record(self, report):
+        #print 'report date: ', report.date
+
         report_text = base_fragment(report.raw_text)
         count = 0
         #pdb.set_trace()
         #print report
         for rule in self.get_report_decision_rules():
             try:
-                
+
                 ans = rule.generate(report_text)
-                #print 'VALUE: ', ans, rule, count
-                #pdb.set_trace()
+
+                #print 'VALUE: ', ans, rule, count, report.pid
                 return ans
             except my_exceptions.NoFxnValueException:
                 #pdb.set_trace()
@@ -210,16 +255,35 @@ class urinary_incontinence(side_effect_report_feature):
 
 
 
+
+
+class bowel_urgency(classify_by_rule_list):
+
+    def get_report_decision_rules(self):
+        test2 = generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), ['bowel','bowels','rectal','stool','stools'], ['urgency','incontinence','incontinent']), basic_negation_detector(global_stuff.moderating_words, global_stuff.negation_words_cls), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
+
+
+        test6 = decision_rule_filter(generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), ['bowel','rectal'], ['symptom','symptoms','issue','issues','problem','problems']), clause_negation_detector(global_stuff.negation_words_cls), compound_ignore_detector(ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), ignore_detector(clause_fragment_getter(), ['sounds','sound'])), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0), [sv_int(0)])
+
+        test7 = decision_rule_filter(generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), ['bowel','bowels'], ['normal','ok','fine']), clause_negation_detector(global_stuff.negation_words_cls), compound_ignore_detector(ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), ignore_detector(clause_fragment_getter(), ['sounds','sound'])), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 1), [sv_int(0)])
+
+
+        return [test2, test6, test7]
+
+
+
+class urinary_incontinence(classify_by_rule_list):
+
     def get_report_decision_rules(self):
 
 
 
-        test1 = generic_basic_decision_rule(hard_coded_basic_word_matcher(['incontinent','incontinence']), basic_negation_detector([], global_stuff.negation_words_cls), compound_ignore_detector(ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), ignore_detector(clause_fragment_getter(), ['bowel','stool','lymph','lymphatic','valsalva','fecal'])), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
+        test1 = generic_basic_decision_rule(hard_coded_basic_word_matcher(['incontinent','incontinence']), basic_negation_detector(global_stuff.moderating_words, global_stuff.negation_words_cls), compound_ignore_detector(ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), ignore_detector(clause_fragment_getter(), ['bowel','stool','stools','lymph','lymphatic','valsalva','fecal','rectal'])), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
         lose_cls = ['lose', 'loses', 'losing','lost','leak', 'leaks', 'leaking', 'leaked','spill', 'spills', 'spilled']
         urine_cls = ['urine']
-        test2 = generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), lose_cls, urine_cls), basic_negation_detector([], global_stuff.negation_words_cls), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
-        test3 = generic_basic_decision_rule(hard_coded_basic_word_matcher(['leak','leaks','leakage','dribble','dribbling']), basic_negation_detector([], global_stuff.negation_words_cls), compound_ignore_detector(ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), ignore_detector(clause_fragment_getter(), ['bowel','stool','lymph','lymphatic','valsalva','fecal'])), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
-        test4 = generic_basic_decision_rule(hard_coded_basic_word_matcher(['continent']), basic_negation_detector([], global_stuff.negation_words_cls), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 1)
+        test2 = generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), lose_cls, urine_cls), basic_negation_detector(global_stuff.moderating_words, global_stuff.negation_words_cls), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
+        test3 = generic_basic_decision_rule(hard_coded_basic_word_matcher(['leak','leaks','leakage','dribble','dribbling']), basic_negation_detector(global_stuff.moderating_words, global_stuff.negation_words_cls), compound_ignore_detector(ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), ignore_detector(clause_fragment_getter(), ['bowel','stool','lymph','lymphatic','valsalva','fecal','anastomotic','bile','troponin','enzyme','valve','air'])), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
+        test4 = generic_basic_decision_rule(hard_coded_basic_word_matcher(['continent','continence']), basic_negation_detector(global_stuff.moderating_words, global_stuff.negation_words_cls), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 1)
         test5 = generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), ['hold','holds','holding'], ['urine']), clause_negation_detector(global_stuff.negation_words_cls + ['problem','problems','difficulty','difficulties']), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 1)
         #test6 = generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), ['urinary'], ['symptom','symptoms','issue','issues','problem','problems']), clause_negation_detector(global_stuff.negation_words_cls), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
         test6 = decision_rule_filter(generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), ['urinary'], ['symptom','symptoms','issue','issues','problem','problems']), clause_negation_detector(global_stuff.negation_words_cls), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0), [sv_int(0)])

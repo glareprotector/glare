@@ -44,37 +44,79 @@ A = set(wc.get_stuff(objects.prostate_PID,p))
 
 B = set(wc.get_stuff(objects.PID_with_shared_MRN, p))
 C = set(wc.get_stuff(objects.PID_with_multiple_tumors, p))
-PID_to_use = list(A - B - C)[:3000]
+PID_to_use = list(A - B - C)
 
-#test_PID_to_use = PID_to_use[2100:2120]
+test_PID_to_use = PID_to_use
+pdb.set_trace()
 
-#the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
-
-
-
+the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
 
 
+pdb.set_trace()
 
+"""
+
+
+has_psa = 0
+count = 0
 for pid in PID_to_use:
 
     p.set_param('pid', pid)
-    texts = wc.get_stuff(objects.raw_pathology_text, p)
-    print texts
-    print 'LENGTH: ', len(texts)
-    pdb.set_trace()
-
-
-
-
-
-
-
+    texts = wc.get_stuff(objects.raw_medical_text_new, p)
+    for text in texts:
+        if len(text.get_excerpts_by_words(['bowel','urgency','stool','stools','rectal','bowels','fecal'])) > 0:
+            print texts
+            print text.get_excerpts_by_words(['bowel','urgency','stool','stools','rectal','bowels','fecal'])
+            pdb.set_trace()
+        #print 'LENGTH: ', len(texts)
+    #pdb.set_trace()
 
 
 
 
 
 """
+
+
+
+
+
+urgency_feature = side_effects.bowel_urgency()
+
+
+
+for pid in PID_to_use:
+
+    p.set_param('pid', pid)
+    texts = wc.get_stuff(objects.raw_medical_text_new, p)
+    for text in texts:
+        try:
+            val = urgency_feature.generate(text)
+            #print 'VAL:', val
+        except my_exceptions.NoFxnValueException:
+            pass
+
+
+
+
+pdb.set_trace()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -84,32 +126,32 @@ treated_data_set = the_data_set.filter(lambda x: f.treatment_code_f().generate(x
 # try to classify 
 
 
-incontinence_feature = side_effects.urinary_incontinence()
+urgency_feature = side_effects.bowel_urgency()
 
 for tumor in treated_data_set.the_data:
     for record in tumor.get_attribute(get_tumor_cls().texts):
         if record.date < f.treatment_date_f().generate(tumor):
             #for excerpt in record.get_excerpts_by_words(['urinary','voiding','urination','leak','leaks','leakage','incontinence','incontinent','continent','continence']):
-            for excerpt in record.get_excerpts_by_words(['urinary']):
-                print excerpt
+            #for excerpt in record.get_excerpts_by_words(['urinary']):
+            #    print excerpt
                 #pdb.set_trace()
             #print record
             #pdb.set_trace()
             try:
-                print '\t\t\t\t\t\t LOLOLOLOLOLOL'
-                val = incontinence_feature.generate(record)
-                print record
+                #print '\t\t\t\t\t\t LOLOLOLOLOLOL'
+                val = urgency_feature.generate(record)
+                #print record
                 print 'val: ', val
                 pdb.set_trace()
             except my_exceptions.NoFxnValueException:
-                print 'FAIL'
+                #print 'FAIL'
                 pass
 
 
 pdb.set_trace()
 
 
-"""
+
 
 
 
@@ -210,7 +252,7 @@ for pid in PID_to_use:
 
 
 
-        
+
         """
         if series_interval_vals[0].get_value() == 1:
             has_something += 1
@@ -236,6 +278,7 @@ for pid in PID_to_use:
         pass
     count += 1
     print treatment_count, count
+    pdb.set_trace()
 
 interval_counts = label_bl.apply_feature(sosv(af.get_bucket_count_feature()))
 interval_values = label_bl.apply_feature(sosv(af.get_bucket_mean_feature()))
