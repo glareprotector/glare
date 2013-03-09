@@ -867,7 +867,7 @@ def interval_val_as_string(series):
 
 
 
-
+# FIX: the_data should now just be a pid list
 class data_set(object):
 
     def __init__(self, the_data):
@@ -876,7 +876,7 @@ class data_set(object):
     def get_num_samples(self):
         return len(self.the_data)
 
-    
+    # FIX: f is now a function that takes in a pid only
     def filter(self, f):
         return data_set(filter(f, self.the_data))
 
@@ -945,6 +945,7 @@ class data_set(object):
         pid_list = self.get_pid_list()
         write_vect_to_string_vert(pid_list, out_file)
 
+
     @classmethod
     def data_set_from_pid_file(cls, pid_file, params):
         f = open(pid_file, 'r')
@@ -958,7 +959,7 @@ class data_set(object):
     def __iter__(self):
         return self.the_data.__iter__()
 
-
+    # FIX: this function now doesn't do much
     # functions here don't know about any objects in objects.py, except for this one
     # this function gets tumor object via wc.  nothing in analysis part should call wc
     # if i want to cache any features, do so upstream of creating tumor class

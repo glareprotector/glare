@@ -56,9 +56,9 @@ class generic_categorical_feature(feature):
         #if self.backing_feature.generate(tumor) not in self.get_possible_values():
         #    raise Exception
 
-    def _generate(self, tumor):
+    def _generate(self, *args):
         import helper
-        ans = [1 if helper.compare_in(self.backing_feature.generate(tumor), val) else 0 for val in self.get_possible_values()]
+        ans = [1 if helper.compare_in(self.backing_feature.generate(*args), val) else 0 for val in self.get_possible_values()]
         return ans
 
     def get_possible_values(self):
@@ -84,6 +84,8 @@ class generic_categorical_feature(feature):
     def get_actual_value(self, tumor):
         return self.backing_feature.generate(tumor)
 
+
+# KILL?
 class single_attribute_feature(feature):
     """
     just returns the specified attribute
@@ -94,7 +96,7 @@ class single_attribute_feature(feature):
     def _generate(self, tumor):
         return tumor.get_attribute(self.which_attribute)
 
-
+# KILL?
 class attribute_categorical_feature(generic_categorical_feature):
     """
     like generic_categorical_feature, except the backing_feature is assumed to just be a single_attribute_feature, so only attribute is specified
@@ -105,7 +107,7 @@ class attribute_categorical_feature(generic_categorical_feature):
         generic_categorical_feature.__init__(self, possible_values, backing_feature, category_descriptions)
 
 
-
+# MARGINAL? made it just so features can refer to self.get_side_effect().  without it, would have to write init for each side effect feature function.
 class side_effect_feature(feature):
     """
     has side_effect attribute
@@ -118,58 +120,12 @@ class side_effect_feature(feature):
 
 
 
-class side_effect_excerpt_feature(side_effect_feature):
-
-    def get_negex_irules(self):
-        import negex
-        f = open(global_stuff.negex_triggers_file, 'r')
-        irules = negex.sortRules(f.readlines())
-        return irules
-
-    
-    # returns 1 if positive(the concept is positive)
-    def _generate(self, excerpt):
-        anchor = excerpt.anchor
-        import helper
-        helper.print_if_verbose('\nEXCERPT:', 1.3)
-        helper.print_if_verbose(excerpt.raw_text, 1.3)
-        helper.print_if_verbose('anchor: ' + anchor, 1.3)
-
-
-        # check if human input labels are there.  if yes, check for key for this side effect.  if not, depending on value in side effect, 
-
-
-        for no_info_match in self.get_side_effect().get_no_info_match_features():
-            if no_info_match.generate(excerpt, anchor) == True:
-                raise my_exceptions.NoFxnValueException(no_info_match.phrase)
-
-        try:
-            ans = my_data_types.sv_int(self.get_side_effect().classify_excerpt(excerpt))
-        except my_exceptions.NoFxnValueException:
-            ans = my_data_types.sv_int(self.basic_classify(excerpt))
-        print excerpt
-        print "label: ", ans
-        import sys
-        sys.stdout.flush()
-        return ans
-        
-
-    def basic_classify(self, excerpt):
-        # find out which word is actually in the excerpt
-        import negex, helper
-        #word, position = helper.get_the_word_and_position(excerpt.raw_text, self.get_side_effect().get_synonyms())
-        anchor = excerpt.anchor
-        tagger = negex.negTagger(sentence=excerpt.raw_text, phrases=[anchor], rules=self.get_negex_irules(), negP=False)
-        helper.print_if_verbose('used NEGEX',1.5)
-        if tagger.getNegationFlag() == 'negated':
-            return 0
-        else:
-            return 1
 
 
 
 
 
+# MARGINAL
 class side_effect_report_record_has_info_feature(side_effect_feature):
     
     def _generate(self, report):
@@ -180,7 +136,7 @@ class side_effect_report_record_has_info_feature(side_effect_feature):
         else:
             return sv_int(1)
 
-
+# MARGINAL
 class adjust_time_series(feature):
     """
     takes in time series subtracts specified value from the ordinal.  since i want to return my own timedelta class, have to do things awkwardly
@@ -192,6 +148,9 @@ class adjust_time_series(feature):
             ans.append(my_data_types.single_ordinal_single_value_ordered_object(helper.my_timedelta((elt.get_ordinal() - relative_to).days), elt.get_value()))
         return ans
 
+
+# FIX to take in tumor (from which it gets reports)
+# will directly fetch relevant texts using wc.get_stuff 
 class report_feature_time_course_feature(feature):
 
     def _generate(self, tumor_texts, relative, relative_date):
@@ -228,7 +187,7 @@ class report_feature_time_course_feature(feature):
 
 
 
-
+# KILL
 class side_effect_time_course_times_only_feature(side_effect_feature):
 
     def _generate(self, tumor, relative_to_diagnosis):
@@ -242,8 +201,9 @@ class side_effect_time_course_times_only_feature(side_effect_feature):
             return my_data_types.ordinal_list([helper.my_timedelta( (x - tumor.get_attribute(tumor.date_diagnosed)).days) for x in excerpts.get_ordinals()])
 
 
-
-
+# FIX - need feature that takes in pid, and relative_to_what option
+# FIX - usage - would specify relative_to_what(treatment, diagnosis, absolute), side effect, pid, intervals
+# KILL - getting rid of side_effect_feature
 class side_effect_intervals_values_f(side_effect_feature):
     """
     given a list of intervals, returns the label of the side effect in that interval as determined by majority, or a NoFxnValueException if no counts there.  return object is a ordinal_list.  refers to side_effect time series of tumor, so have to hard code in the name
@@ -287,6 +247,7 @@ class side_effect_intervals_values_f(side_effect_feature):
         interval_means = bucket_list.apply_feature_always_add(bucket_f)
         return interval_means
 
+# FIX: now, data_set will just be a list of pid's.  intervals and relative_to_what will still be specified, as well as side_effect_feature since there is no longer a side_effect_feature class
 class mean_of_side_effect_intervals_values_f(side_effect_feature):
 
     def _generate(self, data_set, intervals, relative_to_what):
@@ -300,6 +261,7 @@ class mean_of_side_effect_intervals_values_f(side_effect_feature):
         return ans
 
 
+# FIX: same as previous
 class count_of_side_effect_intervals_values_f(side_effect_feature):
 
     def _generate(self, data_set, intervals, relative_to_what):
@@ -313,7 +275,7 @@ class count_of_side_effect_intervals_values_f(side_effect_feature):
         ans = bl.apply_feature_always_add(counter)
         return ans
             
-
+# F
 class side_effect_interval_value_f(side_effect_feature):
 
     def _generate(self, tumor, interval, relative_to_what):

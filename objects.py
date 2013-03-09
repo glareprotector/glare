@@ -535,6 +535,45 @@ class bowel_urgency_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
 
 
+
+
+
+
+
+class side_effect_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
+
+    @classmethod
+    def get_all_keys(cls, params, self=None):
+        return set(['pid'])
+
+    def whether_to_override(self, object_key):
+        return False
+
+
+    @dec
+    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
+
+        tumor_texts = self.get_var_or_file(raw_medical_text_new, params)
+        ans = my_data_types.single_ordinal_ordinal_list()
+        side_effect_feature = self.get_param(params, 'side_effect')
+
+        count = 0
+        for report in tumor_texts:
+            try:
+                temp = self.report_feature.generate(report)
+            except my_exceptions.NoFxnValueException:
+                pass
+            else:
+                ans.append(my_data_types.single_ordinal_single_value_ordered_object(report.date, temp))
+            count += 1
+        return ans
+
+
+
+
+
+
+
 class erection_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
     
 

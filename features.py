@@ -5,6 +5,12 @@ import my_exceptions
 import pdb
 import helper
 
+# these imports may have problems
+import wc
+import objects
+from param import param
+
+
 from global_stuff import get_tumor_cls
 
 from my_data_types import sv_int, sv_float
@@ -12,9 +18,23 @@ from my_data_types import sv_int, sv_float
 from basic_features import *
 
 
+class surgery_code_f(feature):
+
+    def _generate(self, pid):
+        tt = wc.get_stuff(objects.tumor_info, param({'pid':pid}))
+        return tt['MstDefSurgPrimSumm']
+
+
+class radiation_code_f(feature):
+
+    def _generate(self, pid):
+        tt = wc.get_stuff(objects.tumor_info, param({'pid':pid}))
+        return tt['MstDefRTSumm']
+
+# now, all of these tumor features should just take in pid.  get the database row directly.
 class treatment_code_f(feature):
 
-    def _generate(self, tumor):
+    def _generate(self, pid):
         """
         notes: for surgery, 0 means none, 50 means radical prostectomy.  for radiation, 0 means none, 1 means beam, 2 means brachy
         0 for no treatment
@@ -23,8 +43,8 @@ class treatment_code_f(feature):
         3 for brachy
         4 for other
         """
-        surgery_code = tumor.get_attribute(get_tumor_cls().surgery_code)
-        radiation_code = tumor.get_attribute(get_tumor_cls().radiation_code)
+        surgery_code = surgery_code_f().generate(pid)
+        radiation_code = radiation_code_f().generate(pid)
         if surgery_code == '00' and radiation_code == '0':
             ans = 0
         elif surgery_code == '50':
@@ -37,88 +57,87 @@ class treatment_code_f(feature):
             ans = 4
         return ans
 
+
+# HARDCODED
 class treatment_code_cat_f(generic_categorical_feature):
 
     def __init__(self):
         possible_values = [[0],[1],[2],[3],[4]]
-        backing_feature = treatment_code_feature()
+        backing_feature = treatment_code_f()
         category_descriptions = ['ww','rp','beam','brachy', 'other']
         generic_categorical_feature.__init__(self, possible_values, backing_feature, category_descriptions)
 
         
 
 
+class date_diagnosed_f(feature):
 
-class text_label_f(feature):
+    def _generate(self, pid):
+        tt = wc.get_stuff(objects.tumor_info, param({'pid':pid}))
+        return helper.my_date.init_from_num(tt['DateDx'])
 
-    def get_words_to_search_for(self):
-        return self.which_words
+class DOB_f(feature):
 
-    def _generate(self, tumor):
-        texts = tumor.get_attribute(get_tumor_cls().texts)
-        assert len(texts) > 0
-        present = False
-        for text in texts:
-            for word in self.get_words_to_search_for():
-                if word.lower() in text.lower():
-                    present = True
-        
-        if present:
-            return 1
-        else:
-            return 0
+    def _generate(self, pid):
+        sdt = wc.get_stuff(objects.super_db_info, param({'pid':pid}))
+        return helper.my_date.init_from_slash_string(sdt['C_DOB'])
 
-
-class erectile_text_label_f(feature):
-    """
-    1 means you have erectile dysfunction
-    """
-    def _generate(self, tumor):
-        counts = tumor.get_attribute(get_tumor_cls().erection_negation_counts)
-        erection = counts['erection']
-        erections = counts['erections']
-        eds = counts['erectile dysfunction']
-        support = erection[0] + erections[0] + (eds[1]-eds[0])
-        against = (erection[1]-erection[0]) + (erections[1]-erections[0]) + eds[0]
-        if support + against == 0:
-            raise Exception
-        return int(support > against)
-
-
+# HARDCODED
 class age_at_diagnosis_f(range_checked_feature):
     """
     returns age at diagnosis in years
     """
 
-    def _generate(self, tumor):
-        return (tumor.get_attribute(get_tumor_cls().date_diagnosed) - tumor.get_attribute(get_tumor_cls().DOB)).days / 365.0
+    def _generate(self, pid):
+        return (date_diagnosed_f().generate(pid) - DOB_f.generate(pid)).days / 365.0
 
     def __init__(self):
         range_checked_feature.__init__(self, 0.0, 120.0)
 
+
+class DLC_f(feature):
+
+    def _generate(self, pid):
+        sdt = wc.get_stuff(objects.super_db_info, param({'pid':pid}))
+        return helper.my_date.init_from_hyphen_string(sdt['C_DLC'])
+
+
+# HARDCODED
 class age_at_LC_f(range_checked_feature):
     """
     returns age at date of last contact in years
     """
-    def _generate(self, tumor):
-        return (tumor.get_attribute(get_tumor_cls().DLC) - tumor.get_attribute(get_tumor_cls().DOB)).days / 365.0
+    def _generate(self, pid):
+        return (DLC_f.generate(pid) - DOB_f.generate(pid)).days / 365.0
 
     def __init__(self):
         range_checked_feature.__init__(self, 0.0, 120.0)
 
 
+# FIX - no more tumor class.  work with extracted row directly
+class vital_status_f(feature):
+    """
+    1 if patient is alive, 0 is dead
+    """
+    def _generate(self, pid):
+        sdt = wc.get_stuff(objects.super_db_info, param({'pid':pid}))
+        return sdt['C_Vital']
+
+
+
+# refers to other features.  that is fine
 class follow_up_time_f(feature):
     """
     a person is followed until end of study or death.  if vital status is 0(dead), then this is DLC - diagnosis date
     if vital status is 1(alive), this is the listed vital status
     returns in units of years
     """
-    def _generate(self, tumor):
-        vital_status = vital_status_f().generate(tumor)
-        DLC = tumor.get_attribute(get_tumor_cls().DLC)
-        date_diagnosed = tumor.get_attribute(get_tumor_cls().date_diagnosed)
+    def _generate(self, pid):
+        DLC = DLC_f().generate(pid)
+        date_diagnosed = date_diagnosed_f().generate(pid)
         return (DLC - date_diagnosed).days / 365.0
 
+# returns no_value_object at times
 class treatment_date_f(feature):
     """
     if patient has undergone treatment, this is treatment date.  value is no_value_object otherwise
@@ -135,14 +154,9 @@ class treatment_date_f(feature):
             
 
 
-class vital_status_f(single_attribute_feature):
-    """
-    1 if patient is alive, 0 is dead
-    """
-    def __init__(self):
-        single_attribute_feature.__init__(self, get_tumor_cls().alive)
 
 
+# FIX - get directly from database row
 class gleason_primary_f(feature):
     """
     value of 3 4 5 or 9 for NA
@@ -161,6 +175,7 @@ class gleason_primary_f(feature):
             return 9
             
 
+# FIX LATER - don't worry about categoricals for now
 class gleason_primary_cat_f(attribute_categorical_feature):
     """
     primary and secondary come from CS_SSFactor5, which codes both primary and secondary gleason scores
@@ -173,6 +188,7 @@ class gleason_primary_cat_f(attribute_categorical_feature):
         atribute_categorical_feature.__init__(self, possible_values, which_attribute)
 
 
+# FIX.  get directly
 class gleason_secondary(attribute_categorical_feature):
 
     def _g_init__(self):
@@ -181,6 +197,7 @@ class gleason_secondary(attribute_categorical_feature):
         attribute_categorical_feature.__init__(self, possible_values, which_attribute)
 
 
+# FIX.  shoud only take in pid
 class pre_treatment_side_effect_label_f(side_effect_feature):
     """
     returns no_value_object if there is no treatment
