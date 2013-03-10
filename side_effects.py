@@ -54,186 +54,6 @@ class side_effect_report_feature(feature):
 
 
 
-class side_effect_report_feature_by_excerpt_voting(side_effect_report_feature):
-
-
-    def get_synonyms(self):
-        pass
-
-    def get_display_words(self):
-        return self.get_synonyms()
-
-
-    def classify_record(self, report):
-        
-        side_effect_excerpts = report.get_excerpts_by_side_effect(self.get_side_effect())
-        excerpt_scores = side_effect_excerpts.apply_feature(side_effect_excerpt_feature(self), my_data_types.my_list)
-        
-        if len(excerpt_scores) == 0:
-            raise my_exceptions.NoFxnValueException
-
-        total = sv_float(0.0)
-        count = sv_int(0)
-        for score in excerpt_scores:
-            try:
-                total += score
-            except:
-                pass
-            else:
-                count += 1
-
-        if total > count / 2.0:
-            return sv_int(1)
-        else:
-            return sv_int(0)
-
-
-
-
-
-
-    def get_absolute_good_match_features(self):
-        pass
-
-    def get_absolute_bad_match_features(self):
-        pass
-
-    def get_semi_good_match_features(self):
-        pass
-
-    def get_semi_bad_match_features(self):
-        pass
-
-    def get_no_info_match_features(self):
-        pass
-
-
-
-class side_effect_excerpt_feature(feature):
-
-    def get_negex_irules(self):
-        import negex
-        f = open(global_stuff.negex_triggers_file, 'r')
-        irules = negex.sortRules(f.readlines())
-        return irules
-
-    
-    # returns 1 if positive(the concept is positive)
-    def _generate(self, excerpt):
-        anchor = excerpt.anchor
-        import helper
-        helper.print_if_verbose('\nEXCERPT:', 1.3)
-        helper.print_if_verbose(excerpt.raw_text, 1.3)
-        helper.print_if_verbose('anchor: ' + anchor, 1.3)
-
-
-        # check if human input labels are there.  if yes, check for key for this side effect.  if not, depending on value in side effect, 
-
-
-        for no_info_match in self.get_side_effect().get_no_info_match_features():
-            if no_info_match.generate(excerpt, anchor) == True:
-                raise my_exceptions.NoFxnValueException(no_info_match.phrase)
-
-        try:
-            ans = my_data_types.sv_int(self.get_side_effect().classify_excerpt(excerpt))
-        except my_exceptions.NoFxnValueException:
-            ans = my_data_types.sv_int(self.basic_classify(excerpt))
-        print excerpt
-        print "label: ", ans
-        import sys
-        sys.stdout.flush()
-        return ans
-        
-
-    def basic_classify(self, excerpt):
-        # find out which word is actually in the excerpt
-        import negex, helper
-        #word, position = helper.get_the_word_and_position(excerpt.raw_text, self.get_side_effect().get_synonyms())
-        anchor = excerpt.anchor
-        tagger = negex.negTagger(sentence=excerpt.raw_text, phrases=[anchor], rules=self.get_negex_irules(), negP=False)
-        helper.print_if_verbose('used NEGEX',1.5)
-        if tagger.getNegationFlag() == 'negated':
-            return 0
-        else:
-            return 1
-
-
-    def classify_excerpt(self, excerpt):
-
-        # anchor of excerpt is guaranteed to be the one and only synonym of side effect that is in the excerpt
-        anchor = excerpt.anchor
-
-        helper.print_if_verbose('SPECIFIC_CLASSIFY',2)
-        absolute_good = False
-        for absolute_good_match in self.parent_report_feature.get_absolute_good_match_features():
-            if absolute_good_match.generate(excerpt, anchor) == True:
-                helper.print_if_verbose('absolute good with phrase:',2) 
-                helper.print_if_verbose(str(absolute_good_match.phrase),2)
-                absolute_good = True
-                break
-
-        absolute_bad = False
-        for absolute_bad_match in self.parent_report_feature.get_absolute_bad_match_features():
-            if absolute_bad_match.generate(excerpt, anchor) == True:
-                helper.print_if_verbose('absolute bad with phrase:',2) 
-                helper.print_if_verbose(str(absolute_bad_match.phrase),2)
-                absolute_bad = True
-                break
-
-
-        helper.print_if_verbose('absolute_good: ' + str(absolute_good) + ' absolute_bad: ' + str(absolute_bad), 1.5)
-
-        if absolute_good and absolute_bad:
-            raise my_exceptions.NoFxnValueException
-        
-        if absolute_good:
-            return sv_int(1)
-        
-        if absolute_bad:
-            return sv_int(0)
-
-        num_semi_good = 0
-        for semi_good_match in self.parent_report_feature.get_semi_good_match_features():
-            try:
-                ans = semi_good_match.generate(excerpt, anchor)
-                ans.get_value()
-            except my_exceptions.NoFxnValueException:
-                pass
-            else:
-                if ans.get_value():
-                    helper.print_if_verbose('semi good with phrase: ' + semi_good_match.phrase, 1.5)
-                num_semi_good += ans.get_value()
-        
-        num_semi_bad = 0
-        for semi_bad_match in self.parent_report_feature.get_semi_bad_match_features():
-            try:
-                ans = semi_bad_match.generate(excerpt, anchor)
-                ans.get_value()
-            except my_exceptions.NoFxnValueException:
-                pass
-            else:
-                if ans.get_value():
-                    helper.print_if_verbose('semi bad with phrase: ' + semi_bad_match.phrase, 1.5)
-                num_semi_bad += ans.get_value()
-
-
-        helper.print_if_verbose('num_semi_good: ' + str(num_semi_good) + ' num_semi_bad: ' + str(num_semi_bad), 1.5)
-
-        if num_semi_good + num_semi_bad == 0:
-            raise my_exceptions.NoFxnValueException
-        else:
-            if num_semi_bad % 2 == 0:
-                return sv_int(1)
-            else:
-                return sv_int(0)
-
-
-
-    def __init__(self, parent_report_feature):
-        self.parent_report_feature = parent_report_feature
-
-
-
 
 
 class bowel_urgency_bin(side_effect_report_feature):
@@ -276,7 +96,8 @@ class urin_incont_bin(side_effect_report_feature):
     def only_use_human_label(self):
         return False
 
-
+    def __repr__(self):
+        return 'urinary_incontinence_binary'
     
 class classify_by_rule_list(side_effect_report_feature):
     """
@@ -317,6 +138,9 @@ class classify_by_rule_list(side_effect_report_feature):
 
 class bowel_urgency(classify_by_rule_list):
 
+    def __repr__(self):
+        return 'bowel_urgency'
+
     def get_report_decision_rules(self):
         test2 = generic_basic_decision_rule(hard_coded_multiple_word_in_same_fragment_matcher(clause_fragment_getter(), ['bowel','bowels','rectal','stool','stools'], ['urgency','incontinence','incontinent']), basic_negation_detector(global_stuff.moderating_words, global_stuff.negation_words_cls), ignore_detector(sentence_fragment_getter(), global_stuff.ignore_words), moderating_detector(sentence_fragment_getter(), global_stuff.moderating_words), 0)
 
@@ -331,6 +155,9 @@ class bowel_urgency(classify_by_rule_list):
 
 
 class urinary_incontinence(classify_by_rule_list):
+
+    def __repr__(self):
+        return 'urinary_incontinence'
 
     def get_report_decision_rules(self):
 
@@ -479,13 +306,194 @@ class urinary_incontinence(classify_by_rule_list):
 
 
 
+class side_effect_report_feature_by_excerpt_voting(side_effect_report_feature):
+
+
+    def get_synonyms(self):
+        pass
+
+    def get_display_words(self):
+        return self.get_synonyms()
+
+
+    def classify_record(self, report):
+        
+        side_effect_excerpts = report.get_excerpts_by_side_effect(self.get_side_effect())
+        excerpt_scores = side_effect_excerpts.apply_feature(side_effect_excerpt_feature(self), my_data_types.my_list)
+        
+        if len(excerpt_scores) == 0:
+            raise my_exceptions.NoFxnValueException
+
+        total = sv_float(0.0)
+        count = sv_int(0)
+        for score in excerpt_scores:
+            try:
+                total += score
+            except:
+                pass
+            else:
+                count += 1
+
+        if total > count / 2.0:
+            return sv_int(1)
+        else:
+            return sv_int(0)
+
+
+
+
+
+
+    def get_absolute_good_match_features(self):
+        pass
+
+    def get_absolute_bad_match_features(self):
+        pass
+
+    def get_semi_good_match_features(self):
+        pass
+
+    def get_semi_bad_match_features(self):
+        pass
+
+    def get_no_info_match_features(self):
+        pass
+
+
+# this is a pretty bad class.  only exists because of side_effect_by_voting class
+class side_effect_excerpt_feature(feature):
+
+    def get_negex_irules(self):
+        import negex
+        f = open(global_stuff.negex_triggers_file, 'r')
+        irules = negex.sortRules(f.readlines())
+        return irules
+
+    
+    # returns 1 if positive(the concept is positive)
+    def _generate(self, excerpt):
+        anchor = excerpt.anchor
+        import helper
+        helper.print_if_verbose('\nEXCERPT:', 1.3)
+        helper.print_if_verbose(excerpt.raw_text, 1.3)
+        helper.print_if_verbose('anchor: ' + anchor, 1.3)
+
+
+        # check if human input labels are there.  if yes, check for key for this side effect.  if not, depending on value in side effect, 
+
+
+        for no_info_match in self.get_side_effect().get_no_info_match_features():
+            if no_info_match.generate(excerpt, anchor) == True:
+                raise my_exceptions.NoFxnValueException(no_info_match.phrase)
+
+        try:
+            ans = my_data_types.sv_int(self.get_side_effect().classify_excerpt(excerpt))
+        except my_exceptions.NoFxnValueException:
+            ans = my_data_types.sv_int(self.basic_classify(excerpt))
+        print excerpt
+        print "label: ", ans
+        import sys
+        sys.stdout.flush()
+        return ans
+        
+
+    def basic_classify(self, excerpt):
+        # find out which word is actually in the excerpt
+        import negex, helper
+        #word, position = helper.get_the_word_and_position(excerpt.raw_text, self.get_side_effect().get_synonyms())
+        anchor = excerpt.anchor
+        tagger = negex.negTagger(sentence=excerpt.raw_text, phrases=[anchor], rules=self.get_negex_irules(), negP=False)
+        helper.print_if_verbose('used NEGEX',1.5)
+        if tagger.getNegationFlag() == 'negated':
+            return 0
+        else:
+            return 1
+
+
+    def classify_excerpt(self, excerpt):
+
+        # anchor of excerpt is guaranteed to be the one and only synonym of side effect that is in the excerpt
+        anchor = excerpt.anchor
+
+        helper.print_if_verbose('SPECIFIC_CLASSIFY',2)
+        absolute_good = False
+        for absolute_good_match in self.parent_report_feature.get_absolute_good_match_features():
+            if absolute_good_match.generate(excerpt, anchor) == True:
+                helper.print_if_verbose('absolute good with phrase:',2) 
+                helper.print_if_verbose(str(absolute_good_match.phrase),2)
+                absolute_good = True
+                break
+
+        absolute_bad = False
+        for absolute_bad_match in self.parent_report_feature.get_absolute_bad_match_features():
+            if absolute_bad_match.generate(excerpt, anchor) == True:
+                helper.print_if_verbose('absolute bad with phrase:',2) 
+                helper.print_if_verbose(str(absolute_bad_match.phrase),2)
+                absolute_bad = True
+                break
+
+
+        helper.print_if_verbose('absolute_good: ' + str(absolute_good) + ' absolute_bad: ' + str(absolute_bad), 1.5)
+
+        if absolute_good and absolute_bad:
+            raise my_exceptions.NoFxnValueException
+        
+        if absolute_good:
+            return sv_int(1)
+        
+        if absolute_bad:
+            return sv_int(0)
+
+        num_semi_good = 0
+        for semi_good_match in self.parent_report_feature.get_semi_good_match_features():
+            try:
+                ans = semi_good_match.generate(excerpt, anchor)
+                ans.get_value()
+            except my_exceptions.NoFxnValueException:
+                pass
+            else:
+                if ans.get_value():
+                    helper.print_if_verbose('semi good with phrase: ' + semi_good_match.phrase, 1.5)
+                num_semi_good += ans.get_value()
+        
+        num_semi_bad = 0
+        for semi_bad_match in self.parent_report_feature.get_semi_bad_match_features():
+            try:
+                ans = semi_bad_match.generate(excerpt, anchor)
+                ans.get_value()
+            except my_exceptions.NoFxnValueException:
+                pass
+            else:
+                if ans.get_value():
+                    helper.print_if_verbose('semi bad with phrase: ' + semi_bad_match.phrase, 1.5)
+                num_semi_bad += ans.get_value()
+
+
+        helper.print_if_verbose('num_semi_good: ' + str(num_semi_good) + ' num_semi_bad: ' + str(num_semi_bad), 1.5)
+
+        if num_semi_good + num_semi_bad == 0:
+            raise my_exceptions.NoFxnValueException
+        else:
+            if num_semi_bad % 2 == 0:
+                return sv_int(1)
+            else:
+                return sv_int(0)
+
+
+
+    def __init__(self, parent_report_feature):
+        self.parent_report_feature = parent_report_feature
+
+
+
 
 
 
 class erection_side_effect(side_effect_report_feature_by_excerpt_voting):
 
 
-    
+    def __repr__(self):
+        return 'ED'
 
 
 

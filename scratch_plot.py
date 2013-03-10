@@ -66,8 +66,8 @@ class mean_interval_vals(bf.feature):
         counter = bf.single_ordinal_single_value_wrapper_feature(af.get_bucket_sum_feature())
         return bl.apply_feature_always_add(meaner), count_bl.apply_feature_always_add(counter)
 
-    def __init__(self, series_attribute, intervals):
-        self.series_attribute = series_attribute
+    def __init__(self, side_effect, intervals):
+        self.side_effect = side_effect
         self.intervals = intervals
 
 class interval_non_zero_counts(bf.feature):

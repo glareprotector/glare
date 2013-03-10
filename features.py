@@ -57,8 +57,6 @@ class treatment_code_f(feature):
             ans = 4
         return ans
 
-
-# HARDCODED
 class treatment_code_cat_f(generic_categorical_feature):
 
     def __init__(self):
@@ -82,7 +80,7 @@ class DOB_f(feature):
         sdt = wc.get_stuff(objects.super_db_info, param({'pid':pid}))
         return helper.my_date.init_from_slash_string(sdt['C_DOB'])
 
-# HARDCODED
+
 class age_at_diagnosis_f(range_checked_feature):
     """
     returns age at diagnosis in years
@@ -108,7 +106,7 @@ class age_at_LC_f(range_checked_feature):
     returns age at date of last contact in years
     """
     def _generate(self, pid):
-        return (DLC_f.generate(pid) - DOB_f.generate(pid)).days / 365.0
+        return (DLC_f().generate(pid) - DOB_f().generate(pid)).days / 365.0
 
     def __init__(self):
         range_checked_feature.__init__(self, 0.0, 120.0)
@@ -137,67 +135,64 @@ class follow_up_time_f(feature):
         date_diagnosed = date_diagnosed_f().generate(pid)
         return (DLC - date_diagnosed).days / 365.0
 
-# returns no_value_object at times
+# ideally, when i try to do anything with no value object, it either raises exception or returns no value object
+# ideally, no value object you can't do any operations with it
+# what is the benefit of having a no_value_object? so that i know 
+class surgery_date_f(feature):
+    
+    def _generate(self, pid):
+        tt = wc.get_stuff(objects.tumor_info, param({'pid':pid}))
+        return helper.my_date.init_from_num(tt['DtMstDefSurg'])
+
+class radiation_date_f(feature):
+    
+    def _generate(self, pid):
+        tt = wc.get_stuff(objects.tumor_info, param({'pid':pid}))
+        return helper.my_date.init_from_num(tt['MstDefRTDt'])
+
+
+# now, raise exception instead of returning no_value_object
 class treatment_date_f(feature):
     """
     if patient has undergone treatment, this is treatment date.  value is no_value_object otherwise
     does not return a date for brachytherapy - ignoring that for now
     """
-    def _generate(self, tumor):
-        treatment_code = treatment_code_f().generate(tumor)
+    def _generate(self, pid):
+        treatment_code = treatment_code_f().generate(pid)
         if treatment_code in [0,4]:
-            return my_data_types.no_value_object()
+            raise my_exceptions.NoFxnValueException
         elif treatment_code == 1:
-            return single_attribute_feature(get_tumor_cls().surgery_date)(tumor)
+            return surgery_date_f().generate(pid)
         elif treatment_code == 2:
-            return single_attribute_feature(get_tumor_cls().radiation_date)(tumor)
+            return radiation_date_f().generate(pid)
             
 
-
-
-
-# FIX - get directly from database row
-class gleason_primary_f(feature):
+class psa_value_f(range_checked_feature):
     """
-    value of 3 4 5 or 9 for NA
-    most values are either 3 or 4 (3:1 ratio) but only ~20% of values are known
+    field name: CS_SSFactor1
+    psa level
+    goes from 1 to 999 in units of 0.1 ng/mL
+    available for 3/4 of the 4297
     """
-
-    def _generate(self, tumor):
-        raw = tumor.get_attribute(get_tumor_cls().tumor_tuple)['CS_SSFactor5'][2]
-        if raw == '3':
-            return 3
-        elif raw == '4':
-            return 4
-        elif raw == '5':
-            return 5
-        else:
-            return 9
-            
-
-# FIX LATER - don't worry about categoricals for now
-class gleason_primary_cat_f(attribute_categorical_feature):
-    """
-    primary and secondary come from CS_SSFactor5, which codes both primary and secondary gleason scores
-    might be the same as grade_f, not sure
-    """
-
-    def __init__(self):
-        possible_values = [['3'],['4'],['5'],['8','9']]
-        which_attribute = get_tumor_cls().gleason_primary
-        atribute_categorical_feature.__init__(self, possible_values, which_attribute)
+    def _generate(self, pid):
+        tt = wc.get_stuff(objects.tumor_info, param({'pid':pid}))
+        return int(tt['CS_SSFactor1'])
 
 
-# FIX.  get directly
-class gleason_secondary(attribute_categorical_feature):
-
-    def _g_init__(self):
-        possible_values = [['3'],['4'],['5'],['8','9']]
-        which_attribute = get_tumor_cls().gleason_secondary
-        attribute_categorical_feature.__init__(self, possible_values, which_attribute)
 
 
-# FIX.  shoud only take in pid
+
+
+
+
+
+
+
+
+
+
+
+# FIX after i fix basic side effect time course feature
 class pre_treatment_side_effect_label_f(side_effect_feature):
     """
     returns no_value_object if there is no treatment
@@ -223,25 +218,81 @@ class pre_treatment_side_effect_label_f(side_effect_feature):
 
 
 
-class prev_psa_level_f(attribute_categorical_feature):
-
-    def __init__(self):
-        which_attribute = get_tumor_cls().prev_psa_level
-        possible_values = [['000'], ['010'], ['030'], ['999']]
-        attribute_categorical_feature.__init__(self, possible_values, which_attribute)
 
 
-class psa_value_f(single_attribute_feature, range_checked_feature):
+
+# FIX: PSA levels from pathology reports.  didn't work.  might need to extract PSA's eventually though
+
+class psa_series_feature_factor(feature):
+
+    def _generate(self, tumor):
+        raw_records = tumor.get_attribute(get_tumor_cls().texts)
+        psa_filtered_records = raw_records.filter_excerpt_by_word('psa')
+        import re
+        #num_searcher = re.compile('\s\d{1,2}(\.\d+)+\s')
+        num_searcher = re.compile('\s\d{1,2}(\.\d+)*')
+
+        psa_searcher = re.compile('psa')
+        ans = []
+        seen_dates = set()
+        for record in psa_filtered_records:
+            raw_text = record.raw_text.lower()
+            psa_positions = [m.start() for m in psa_searcher.finditer(raw_text)]
+            closest = None
+            best_val = None
+            window_size = 30
+            for psa_pos in psa_positions:
+                right_matches = [m for m in num_searcher.finditer(raw_text, psa_pos, min(psa_pos + window_size, len(raw_text)))]
+               
+                if len(right_matches) > 0:
+                    dist = right_matches[0].start() - psa_pos
+                    if closest == None or dist < closest:
+                        try:
+                            best_val = float(right_matches[0].group())
+                        except:
+                            pass
+                        else:
+                            closest = dist
+                        
+                left_matches = [m for m in num_searcher.finditer(raw_text, max(psa_pos - window_size, 0), psa_pos)]
+                if len(left_matches) > 0:
+                    dist = psa_pos = left_matches[-1].start()
+                    if closest == None or dist < closest:
+                        try:
+                            best_val = float(left_matches[-1].group())
+                        except:
+                            pass
+                        else:
+                            closest = dist
+
+            if best_val != None:
+                if record.date not in seen_dates:
+                    ans.append([record.date, best_val])
+                    seen_dates.add(record.date)
+        ans.sort(key = lambda x: x[0])
+        return ans
+
+
+# FIX: various grade/stages.  figure them out later 
+
+class gleason_primary_f(feature):
     """
-    field name: CS_SSFactor1
-    psa level
-    goes from 1 to 999 in units of 0.1 ng/mL
-    available for 3/4 of the 4297
+    value of 3 4 5 or 9 for NA
+    most values are either 3 or 4 (3:1 ratio) but only ~20% of values are known
     """
-    def __init__(self):
-        single_attribute_feature.__init__(self, get_tumor_cls().psa_level)
-        range_checked_feature.__init__(self, 1, 989)
 
+    def _generate(self, tumor):
+        tt = wc.get_stuff(objects.tumor_info, param({'pid':pid}))
+        raw = tt['CS_SSFactor5'][2]
+        if raw == '3':
+            return 3
+        elif raw == '4':
+            return 4
+        elif raw == '5':
+            return 5
+        else:
+            return 9
+            
 
 class grade_f(feature):
 
@@ -339,52 +390,3 @@ class BestStage_f(attribute_categorical_feature):
         possible_values = [['1'],['2'],['2A'],['2B'],['3'],['4']]
         which_attribute = get_tumor_cls().SEERSummStage2000
         attribute_categorical_feature.__init__(posible_values, which_attribute)
-
-class psa_series_feature_factor(feature):
-
-    def _generate(self, tumor):
-        raw_records = tumor.get_attribute(get_tumor_cls().texts)
-        psa_filtered_records = raw_records.filter_excerpt_by_word('psa')
-        import re
-        #num_searcher = re.compile('\s\d{1,2}(\.\d+)+\s')
-        num_searcher = re.compile('\s\d{1,2}(\.\d+)*')
-
-        psa_searcher = re.compile('psa')
-        ans = []
-        seen_dates = set()
-        for record in psa_filtered_records:
-            raw_text = record.raw_text.lower()
-            psa_positions = [m.start() for m in psa_searcher.finditer(raw_text)]
-            closest = None
-            best_val = None
-            window_size = 30
-            for psa_pos in psa_positions:
-                right_matches = [m for m in num_searcher.finditer(raw_text, psa_pos, min(psa_pos + window_size, len(raw_text)))]
-               
-                if len(right_matches) > 0:
-                    dist = right_matches[0].start() - psa_pos
-                    if closest == None or dist < closest:
-                        try:
-                            best_val = float(right_matches[0].group())
-                        except:
-                            pass
-                        else:
-                            closest = dist
-                        
-                left_matches = [m for m in num_searcher.finditer(raw_text, max(psa_pos - window_size, 0), psa_pos)]
-                if len(left_matches) > 0:
-                    dist = psa_pos = left_matches[-1].start()
-                    if closest == None or dist < closest:
-                        try:
-                            best_val = float(left_matches[-1].group())
-                        except:
-                            pass
-                        else:
-                            closest = dist
-
-            if best_val != None:
-                if record.date not in seen_dates:
-                    ans.append([record.date, best_val])
-                    seen_dates.add(record.date)
-        ans.sort(key = lambda x: x[0])
-        return ans

@@ -870,15 +870,33 @@ def interval_val_as_string(series):
 # FIX: the_data should now just be a pid list
 class data_set(object):
 
-    def __init__(self, the_data):
-        self.the_data = the_data
+    def __init__(self, pid_list):
+        self.pid_list = pid_list
 
     def get_num_samples(self):
-        return len(self.the_data)
+        return len(self.pid_list)
 
-    # FIX: f is now a function that takes in a pid only
+    # f is now a function that takes in a pid only
     def filter(self, f):
         return data_set(filter(f, self.the_data))
+
+    def get_pid_feature_vector(self, pid, feature_list):
+        """
+        creates feature vector given list of features.  if features are categorical and thus a list, flattens them
+        """
+        vector = []
+        for feature in feature_list:
+            to_add = feature.generate(pid)
+            try:
+                vector = vector + to_add
+            except TypeError:
+                vector.append(to_add)
+        return vector
+
+    def get_pid_csv_string(self, pid, feature_list):
+        feature_vector = self.get_pid_feature_vector(feature_list)
+        import string
+        return string.join([str(x) for x in feature_vector],sep=',')
 
     def get_csv_string(self, feature_list):
         header_strings = []
@@ -895,8 +913,8 @@ class data_set(object):
     def get_feature_matrix(self, feature_list):
         import numpy
         temp = []
-        for data in self.the_data:
-            temp.append(data.get_feature_vector(feature_list))
+        for pid in self.pid_list:
+            temp.append(data.get_pid_feature_vector(pid, feature_list))
 
         return numpy.array(temp)
 
@@ -939,7 +957,7 @@ class data_set(object):
         return data_set(new_data)
 
     def get_pid_list(self):
-        return [tumor.get_attribute(tumor.pid) for tumor in self.the_data]
+        return self.pid_list
 
     def write_pid_list_to_file(self, out_file):
         pid_list = self.get_pid_list()
@@ -957,38 +975,9 @@ class data_set(object):
 
     
     def __iter__(self):
-        return self.the_data.__iter__()
+        return self.pid_list.__iter__()
 
-    # FIX: this function now doesn't do much
-    # functions here don't know about any objects in objects.py, except for this one
-    # this function gets tumor object via wc.  nothing in analysis part should call wc
-    # if i want to cache any features, do so upstream of creating tumor class
-    @classmethod
-    def data_set_from_pid_list(cls, pid_list, params):
-        import wc
-        import objects
-        from global_stuff import get_tumor_cls, get_tumor_w
-        the_data = []
-        i = 0
-        for pid in pid_list:
-            print i, pid
-            i += 1
-            params.set_param('pid', pid)
-            try:
-                a_tumor = wc.get_stuff(get_tumor_w(), params)
-                import features
-                #print 'treatment_date: ', features.treatment_date_f().generate(a_tumor)
-                #pdb.set_trace()
-                #assert len(a_tumor.attributes) == get_tumor_cls().num_attributes
-            except my_exceptions.WCFailException:
-                print 'failed to get ', pid
-            except AssertionError:
-                print 'failed to get ', pid, ' number of attributes was incorrect'
-            except Exception:
-                print 'failed to get ', pid, ' not sure of error'
-            else:
-                the_data.append(a_tumor)
-        return cls(the_data)
+
 
 
 

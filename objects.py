@@ -544,7 +544,7 @@ class side_effect_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
     @classmethod
     def get_all_keys(cls, params, self=None):
-        return set(['pid'])
+        return set(['pid', 'side_effect'])
 
     def whether_to_override(self, object_key):
         return False
