@@ -137,13 +137,21 @@ q = max(aa_to_num.values())+1
 MIP_wild_char = 'Z'
 
 
-clause_delimiters = ['\.',',','and','\r','\n','\t','though','but']
+#clause_delimiters = ['\.',',','and','\r','\n','\t','though','but']
+clause_delimiters = ['.',',','\r','\n','\t']
+clause_word_delimiters = ['and','though','but']
 newline_delimiters = ['\r','\n']
-sentence_delimiters = ['\.','\r','\n','\t']
-negation_words_cls = ['no','not','denies','none','without']
+newline_word_delimiters = []
+#sentence_delimiters = ['\.','\r','\n','\t']
+sentence_delimiters = ['.','\r','\n','\t']
+sentence_word_delimiters = []
+negation_words_cls = ['no','not','denies','none']
 
+# CHANGE removed without from negation words
 
-ignore_words = ['risk', 'risks', 'chance','informed', 'possibility','possibilities','possible','possibly','prior','may','expect','can','expect','important','likely','probability','suggested','suggest','discuss','will','improve','less','more', 'issue', 'issues','inquire','inquired','rate','rates','likelihood','discuss','dicussed']
+delimiters = ['\.',',','and','\r','\n','\t']
+
+ignore_words = ['risk', 'risks', 'chance','informed', 'possibility','possibilities','possible','possibly','prior','may','expect','can','expect','important','likely','probability','suggested','suggest','discuss','will','improve','less','more', 'issue', 'issues','inquire','inquired','rate','rates','likelihood','discuss','dicussed','stable','ask','asked','call','called','would','history']
 
 # deleted continues from ignore_words
 

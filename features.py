@@ -43,6 +43,7 @@ class treatment_code_f(feature):
         3 for brachy
         4 for other
         """
+
         surgery_code = surgery_code_f().generate(pid)
         radiation_code = radiation_code_f().generate(pid)
         if surgery_code == '00' and radiation_code == '0':
@@ -87,11 +88,28 @@ class age_at_diagnosis_f(range_checked_feature):
     """
 
     def _generate(self, pid):
-        return (date_diagnosed_f().generate(pid) - DOB_f.generate(pid)).days / 365.0
+        ans = (date_diagnosed_f().generate(pid) - DOB_f().generate(pid)).days / 365.0
+        if ans < 20:
+            import my_data_types
+            return my_data_types.no_value_object()
+        else:
+            return ans
 
     def __init__(self):
         range_checked_feature.__init__(self, 0.0, 120.0)
 
+
+class BMI_f(range_checked_feature):
+    """
+    BMI.  range checked to account for recording error
+    """
+    def _generate(self, pid):
+        p = param({'pid':pid})
+        BMI = wc.get_stuff(objects.BMI_w, p)
+        return BMI
+
+    def __init__(self):
+        range_checked_feature.__init__(self, 1.0, 500.0)
 
 class DLC_f(feature):
 
@@ -176,10 +194,21 @@ class psa_value_f(range_checked_feature):
     """
     def _generate(self, pid):
         tt = wc.get_stuff(objects.tumor_info, param({'pid':pid}))
-        return int(tt['CS_SSFactor1'])
+        import my_data_types
+        try:
+            ans = int(tt['CS_SSFactor1'])
+        except:
+            
+            import my_data_types
+            ans = my_data_types.no_value_object()
+            return ans
+        if ans > 970:
+            return my_data_types.no_value_object()
+        return ans
 
 
-
+    def __init__(self):
+        range_checked_feature.__init__(self, -0.001, 977.0)
 
 
 
@@ -193,26 +222,87 @@ class psa_value_f(range_checked_feature):
 
 
 # FIX after i fix basic side effect time course feature
-class pre_treatment_side_effect_label_f(side_effect_feature):
+class pre_treatment_side_effect_label_f(feature):
     """
-    returns no_value_object if there is no treatment
+    returns no_value_object if there is no treatment, int otherwise
     """
 
-    def _generate(self, tumor):
+    def _generate(self, pid, side_effect):
         import helper, my_data_types
-        treatment_date = treatment_date_f().generate(tumor)
         interval = my_data_types.ordered_interval(helper.my_timedelta(-99999), helper.my_timedelta(0))
         import basic_features
+
         try:
-            interval_label = basic_features.side_effect_interval_value_f(self.get_side_effect()).generate(tumor, interval, 'treatment')
-        except:
+            interval_label = basic_features.side_effect_interval_value_f().generate(pid, side_effect, 'treatment', interval)
+        except Exception, e:
+            print e
+            
+        else:
+            return interval_label
+
+        """
+
+        try:
+            pdb.set_trace()
+            interval_label = basic_features.side_effect_interval_value_f().generate(pid, side_effect, 'treatment', interval)
+            
+        except my_exceptions.NoFxnValueException:
+
+
             return my_data_types.no_value_object()
+
         try:
             ans = interval_label.get_value()
         except my_exceptions.NoFxnValueException:
             return my_data_types.no_value_object()
         else:
             return ans
+        """
+
+
+class grade_f(feature):
+    """
+    distribution: 1:577(well), 2:7766(moderate), 3:4893(poor)
+    """
+    def _generate(self, pid):
+        tt = wc.get_stuff(objects.tumor_info, param({'pid':pid}))
+        raw = tt['Grade']
+        if raw == '1':
+            return 1
+        elif raw == '2':
+            return 2
+        elif raw == '3':
+            return 3
+        else:
+            return my_data_types.no_value_object()
+
+
+class higher_coverage_stage(feature):
+    """
+    distribution: 1:1240, 2: ~9000, 3: 2164, 4:1160
+    1 and 2 are localized
+    http://medical-dictionary.thefreedictionary.com/Prostate+cancer+stages
+    """
+
+    def _generate(self, pid):
+        tt = wc.get_stuff(objects.tumor_info, param({'pid':pid}))
+        raw = tt['BestStage']
+        if raw[0] == '1':
+            return 1
+        elif raw[0] == '2':
+            return 2
+        elif raw[0] == '3':
+            return 3
+        elif raw[0] == '4':
+            return 4
+        else:
+            return my_data_types.no_value_object()
+
+
+
+
+
+
 
 
 
@@ -294,34 +384,6 @@ class gleason_primary_f(feature):
             return 9
             
 
-class grade_f(feature):
-
-    def _generate(self, tumor):
-        raw = tumor.get_attribute(get_tumor_cls().grade)
-        if raw == '1':
-            return 1
-        elif raw == '2':
-            return 2
-        elif raw == '3':
-            return 3
-        else:
-            return my_data_types.no_value_object()
-
-
-class higher_coverage_stage(feature):
-
-    def _generate(self, tumor):
-        raw = tumor.get_attribute(get_tumor_cls().BestStage)
-        if raw[0] == '1':
-            return 1
-        elif raw[0] == '2':
-            return 2
-        elif raw[0] == '3':
-            return 3
-        elif raw[0] == '4':
-            return 4
-        else:
-            return my_data_types.no_value_object()
 
 
 class simple_grade_cat_f(generic_categorical_feature):
@@ -330,20 +392,20 @@ class simple_grade_cat_f(generic_categorical_feature):
         generic_categorical_feature.__init__(self, [[2],[3]], grade_f())
 
 
+"""
+class grade_cat_f(generic_categorical_feature):
 
-class grade_cat_f(attribute_categorical_feature):
-    """
     field name: Grade
     http://www.upmccancercenter.com/cancer/prostate/gradingsystems.html 
     refers to physical appearance
     1:21, 2:2305, 3:2225, 4:11, 9:103
-    """
+
 
     def __init__(self):
         possible_values = [['1'],['2'],['3'],['4'],['9']]
         which_attribute = get_tumor_cls().grade
         attribute_categorical_feature.__init__(self, possible_values, which_attribute)
-
+"""
 
 class SEERStage_mine_f(feature):
     """
@@ -367,26 +429,29 @@ class SEERStage_mine_cat_f(generic_categorical_feature):
     def __init__(self):
         generic_categorical_feature.__init__(self, [[1],[2]], SEERStage_mine_f())
         
-
+"""
 class SEERStage_f(attribute_categorical_feature):
-    """
+
     field name: SEERSummStage2000
     how far the cancer has spread
     this is a system SEER created themselves, so has less resolution.  more info in TNM staging.
     http://seer.cancer.gov/tools/ssm/malegen.pdf
     same terminology for every site, but terms like regional and distant vary depending on the site
-    """
+
     def __init__(self):
         possible_values = [['1'],['2'],['3'],['4'],['9']]
         which_attribute = get_tumor_cls().SEERSummStage2000
         attribute_categorical_feature.__init__(posible_values, which_attribute)
-
+"""
+"""
 class BestStage_f(attribute_categorical_feature):
-    """
+    
     BestStage
     ???
-    """
+    
     def __init__(self):
         possible_values = [['1'],['2'],['2A'],['2B'],['3'],['4']]
         which_attribute = get_tumor_cls().SEERSummStage2000
         attribute_categorical_feature.__init__(posible_values, which_attribute)
+
+"""

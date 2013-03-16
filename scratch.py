@@ -15,6 +15,7 @@ import global_stuff
 import plotters
 import numpy
 import my_exceptions
+import match_features
 from global_stuff import get_tumor_cls
 
 import matplotlib.pyplot as plt
@@ -38,9 +39,9 @@ sosv = bf.single_ordinal_single_value_wrapper_feature
 
 p = global_stuff.get_param()
 
-#A = set(wc.get_stuff(objects.PID_with_SS_info, p))
+A = set(wc.get_stuff(objects.PID_with_SS_info, p))
 
-A = set(wc.get_stuff(objects.prostate_PID,p))
+#A = set(wc.get_stuff(objects.prostate_PID,p))
 
 B = set(wc.get_stuff(objects.PID_with_shared_MRN, p))
 C = set(wc.get_stuff(objects.PID_with_multiple_tumors, p))
@@ -49,12 +50,105 @@ PID_to_use = list(A - B - C)
 test_PID_to_use = PID_to_use
 pdb.set_trace()
 
-the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
+#the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
+
+
+#pdb.set_trace()
+
+
+f = open('radiology_report_lengths.txt','w')
+count = 0
+for pid in PID_to_use:
+    p.set_param('pid', pid)
+    texts = wc.get_stuff(objects.raw_radiology_text, p)
+    f.write(str(len(texts))+'\n')
+    f.flush()
+    print count
+    count += 1
+f.close()
+assert False
+
+#side_effect_instance = side_effects.urinary_frequency_bin()
+side_effect_instance = side_effects.diarrhea_bin()
+
+count = 0
+something_count = 0
+since_last = 0
+input_fragment_getter = match_features.window_fragment_getter(match_features.sentence_fragment_getter(),10,10)
+multiple_matcher = match_features.multiple_word_in_same_fragment_matcher(input_fragment_getter)
+for pid in PID_to_use:
+    #print pid, count, len(PID_to_use)
+    #ans = bf.report_feature_absolute_time_course_feature().generate(pid, side_effect_instance)
+    count += 1
+
+    p.set_param('pid', pid)
+    texts = wc.get_stuff(objects.raw_radiology_text, p)
+    something = False
+    for text in texts:
+        text_fragment = match_features.base_fragment(text.raw_text)
+        asdf = multiple_matcher.get_matches(text_fragment,['prostate','prostatic'],['ml','cc','cm'])
+        if len(asdf) > 0:
+            something = True
+        """
+        asdf = match_features.basic_word_matcher().get_matches(text_fragment, ['prostate'])
+        if len(asdf) > 0:
+            cm_matches = match_features.basic_word_matcher().get_matches(text_fragment, ['cc','ml'])
+            if len(cm_matches) > 0:
+                for m in cm_matches:
+                    print match_features.window_fragment_getter(match_features.sentence_fragment_getter(),3,3).get_fragment(text_fragment, m.get_abs_start())
+                    pdb.set_trace()
+        """
+        
+        if len(asdf) > 0:
+            print text
+            print '_____________________________________'
+            for m in asdf:
+                print input_fragment_getter.get_fragment(text_fragment, m.get_abs_start())
+            print something_count, count
+            pdb.set_trace()
+            since_last = 0
+        
+        #try:
+        #    val = urgency_feature.generate(text)
+        #    #print 'VAL:', val
+        #except my_exceptions.NoFxnValueException:
+        #    pass
+        
+    if something:
+        something_count += 1
+    since_last += 1
+    print something_count, count
+
 
 
 pdb.set_trace()
 
+
+
+
+
+
+#for pid in PID_to_use:
+#    if f.treatment_code_f().generate(pid) != 0:
+#        print f.pre_treatment_side_effect_label_f().generate(pid, side_effects.urin_incont_bin())
+
 """
+
+count = 0
+good = 0
+for pid in test_PID_to_use:
+    ans = f.BMI_f().generate(pid)
+    if str(ans) != 'NA':
+        good += 1
+    count += 1
+    if count % 10 == 0:
+        print float(good) / count, count
+"""
+
+
+
+
+words = ['diarrhea','stool','stools','bowel','bowels']
 
 
 has_psa = 0
@@ -64,9 +158,9 @@ for pid in PID_to_use:
     p.set_param('pid', pid)
     texts = wc.get_stuff(objects.raw_medical_text_new, p)
     for text in texts:
-        if len(text.get_excerpts_by_words(['bowel','urgency','stool','stools','rectal','bowels','fecal'])) > 0:
+        if len(text.get_excerpts_by_words(words)) > 0:
             print texts
-            print text.get_excerpts_by_words(['bowel','urgency','stool','stools','rectal','bowels','fecal'])
+            print text.get_excerpts_by_words(words)
             pdb.set_trace()
         #print 'LENGTH: ', len(texts)
     #pdb.set_trace()
@@ -75,31 +169,25 @@ for pid in PID_to_use:
 
 
 
+
+
+feature_list = [f.treatment_code_f(), f.age_at_diagnosis_f(), f.age_at_LC_f(), f.vital_status_f(), f.age_at_LC_f(), f.follow_up_time_f(), f.grade_f(), f.higher_coverage_stage()]
+
+"""
+
+data_set = helper.data_set(PID_to_use)
+csv_string = data_set.get_csv_string(feature_list)
+f = open('expanded_survival_data.csv','w')
+f.write(csv_string)
+f.close()
+pdb.set_trace()
+
+urgency_feature = side_effects.bowel_urgency()
+
 """
 
 
 
-
-
-urgency_feature = side_effects.bowel_urgency()
-
-
-
-for pid in PID_to_use:
-
-    p.set_param('pid', pid)
-    texts = wc.get_stuff(objects.raw_medical_text_new, p)
-    for text in texts:
-        try:
-            val = urgency_feature.generate(text)
-            #print 'VAL:', val
-        except my_exceptions.NoFxnValueException:
-            pass
-
-
-
-
-pdb.set_trace()
 
 
 

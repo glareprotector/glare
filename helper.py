@@ -11,7 +11,7 @@ import param
 import random
 import sys
 import my_exceptions
-from my_data_types import sv_int, sv_float
+from my_data_types import sv_int, sv_float, no_value_object
 
 
 def print_traceback():
@@ -459,7 +459,7 @@ def parse_p_input(p, arg_string):
 
 def get_cursor():
     import pyodbc
-    connection = pyodbc.connect('DRIVER={SQL Server};SERVER=REDPANDA\REDPANDA;UID=DBA;PWD=tdie4u@tLQM')
+    connection = pyodbc.connect('DRIVER={SQL Server};SERVER=REDPANDA\REDPANDA;UID=DBA;PWD=tdie4u@tLQM!')
     cursor = connection.cursor()
     return cursor
 
@@ -506,22 +506,22 @@ def clean_text(text, delimiters):
     """
 
     def is_word(s):
-        return len(s) > 1
+        return len(s) > 2
 
 
-
+    #pdb.set_trace()
 
     import re, string
 
 
     # replace each delimiter with gsw.  
     # if delimiter is a word, require white space or period/comma around it
-    for delimiter in self.delimiters:
+    for delimiter in delimiters:
         if not is_word(delimiter):
             s = re.compile(delimiter)
         else:
             s = re.compile('(^|[\s.,|])'+delimiter+'($|[\s.,|])')
-        raw_text = s.sub(' gsw ', raw_text)
+        text = s.sub(' gsw ', text)
 
     regex = re.compile('[%s]' % re.escape(string.punctuation))
     text = regex.sub(' ', text)
@@ -538,7 +538,7 @@ verbose = 1.2
 def match_phrase(excerpt, phrase):
     import re
     searcher = re.compile('(^|\s|\|)'+phrase+'($|\s|\|)')
-    matches = [mx for m in searcher.finditer(excerpt)]
+    matches = [m for m in searcher.finditer(excerpt)]
     if len(matches) > 0:
         return True
     else:
@@ -550,31 +550,36 @@ def match_phrase(excerpt, phrase):
 
 def get_last_match(s, searcher, pos):
     """
-    returns the last match that ends on or before pos
+    returns the last match that ends strictly before pos
     """
     all_matches = [m for m in searcher.finditer(s)]
     for i in range(len(all_matches)-1,-1,-1):
         m = all_matches[i]
-        if m.end()+1 <= pos:
+        if m.end() <= pos:
             return m
 
 
 def get_next_match(s, searcher, pos):
     """
-    returns the next match that starts on or before pos
+    returns the next match that ends on or after position (so match.end() > pos)
     """
-    return searcher.search(s, pos)
+    all_matches = [m for m in searcher.finditer(s)]
+    for i in range(len(all_matches)):
+        m = all_matches[i]
+        if m.end() > pos:
+            return m
 
 
 
-def get_spanning_match(m1, m2):
+
+def get_spanning_match(text, *args):
     """
     assumes m1 and m2 are matches of the same text
     """
     import match_features
-    abs_start = min(m1.get_abs_start(), m2.get_abs_start())
-    abs_end = max(m1.get_abs_end(), m2.get_abs_end())
-    return match_features.match(m1.text, abs_start, abs_end)
+    abs_start = min([m.get_abs_start() for m in args])
+    abs_end = max([m.get_abs_end() for m in args])
+    return match_features.match(text, abs_start, abs_end)
 
 
 # assumes that exactly 1 of the words is present in the excerpt
@@ -735,10 +740,16 @@ class report_record(record):
                 return self.pos.__hash__()
         for word in words:
             searchers.append(re.compile('[\s.,]'+word+'[\s.,]'))
+            #searchers.append(re.compile(word))
         for searcher in searchers:
-            this_matches = [pos_word_tuple(m.start(), m.group()) for m in searcher.finditer(cleaned_text)]
-            for match in this_matches:
-                matches.add(match)
+            for m in searcher.finditer(cleaned_text):
+                
+                unprocessed_word = m.group()
+                for delimiter in global_stuff.delimiters:
+                    r = re.compile(delimiter)
+                    unprocessed_word = r.sub('', unprocessed_word)
+                matches.add(pos_word_tuple(m.start(), unprocessed_word))
+
                 
         match_list = list(matches)
         match_list.sort(key = lambda x:x.pos)
@@ -876,17 +887,79 @@ class data_set(object):
     def get_num_samples(self):
         return len(self.pid_list)
 
+
+
+    def apply_feature(self, f):
+        """
+        takes in a function
+        """
+        ans = []
+
+        for pid in self:
+            try:
+                val = f(pid)
+            except my_exceptions.NoFxnValueException:
+                pass
+            except Exception, e:
+                print e
+                import traceback, sys
+
+                for frame in traceback.extract_tb(sys.exc_info()[2]):
+                    fname, lineno,fn,text = frame
+                    print "Error in %s on line %d" % (fname, lineno)
+                print sys.exc_traceback.tb_lineno
+                pass
+                #pdb.set_trace()
+            else:
+                ans.append(val)
+        return ans
+            
+
+
+
     # f is now a function that takes in a pid only
     def filter(self, f):
-        return data_set(filter(f, self.the_data))
+        filtered_pid_list = []
+        count = 0
+        for pid in self.pid_list:
+            if count % 100 == 0:
+                
+                print count
+            try:
+                to_keep = f(pid)
+            except my_exceptions.NoFxnValueException:
+                #print 'doh '
+                pass
+            except Exception, error:
+                to_keep = False
+                print error
+                import traceback, sys
+
+                for frame in traceback.extract_tb(sys.exc_info()[2]):
+                    fname, lineno,fn,text = frame
+                    print "Error in %s on line %d" % (fname, lineno)
+                print sys.exc_traceback.tb_lineno
+                #pdb.set_trace()
+            else:
+                if to_keep:
+                    filtered_pid_list.append(pid)
+            count += 1
+        return data_set(filtered_pid_list)
 
     def get_pid_feature_vector(self, pid, feature_list):
         """
         creates feature vector given list of features.  if features are categorical and thus a list, flattens them
         """
         vector = []
+
         for feature in feature_list:
-            to_add = feature.generate(pid)
+            try:
+                to_add = feature.generate(pid)
+            except my_exceptions.NoFxnValueException:
+                to_add = no_value_object()
+            except Exception, error:
+                pass
+                #print error
             try:
                 vector = vector + to_add
             except TypeError:
@@ -894,11 +967,13 @@ class data_set(object):
         return vector
 
     def get_pid_csv_string(self, pid, feature_list):
-        feature_vector = self.get_pid_feature_vector(feature_list)
+        feature_vector = self.get_pid_feature_vector(pid, feature_list)
+        print feature_vector
         import string
         return string.join([str(x) for x in feature_vector],sep=',')
 
     def get_csv_string(self, feature_list):
+        pdb.set_trace()
         header_strings = []
         for feature in feature_list:
             for i in range(len(feature)):
@@ -906,15 +981,18 @@ class data_set(object):
         import string
         header_string = string.join(header_strings, sep = ',')
         ans = ''
-        for tumor in self.the_data:
-            ans += tumor.get_csv_string(feature_list) + '\n'
+        count = 0
+        for pid in self.pid_list:
+            print count, len(self.pid_list)
+            ans += self.get_pid_csv_string(pid, feature_list) + '\n'
+            count += 1
         return header_string + '\n' + ans
 
     def get_feature_matrix(self, feature_list):
         import numpy
         temp = []
         for pid in self.pid_list:
-            temp.append(data.get_pid_feature_vector(pid, feature_list))
+            temp.append(self.get_pid_feature_vector(pid, feature_list))
 
         return numpy.array(temp)
 
@@ -963,6 +1041,8 @@ class data_set(object):
         pid_list = self.get_pid_list()
         write_vect_to_string_vert(pid_list, out_file)
 
+    def __len__(self):
+        return len(self.pid_list)
 
     @classmethod
     def data_set_from_pid_file(cls, pid_file, params):

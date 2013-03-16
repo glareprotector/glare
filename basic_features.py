@@ -5,7 +5,7 @@ import pdb
 from param import param
 
 # import might cause problems
-from wc import wc
+import wc
 import objects
 
 from my_data_types import sv_int, sv_float
@@ -37,6 +37,8 @@ class range_checked_feature(feature):
     def error_check(self, *args, **kwargs):
         pass
         #lower, upper = self.get_valid_range()
+        #x = args[0]
+        #if x < lower or x
         #if self.get_code(tumor) < lower or self.get_code(tumor) > upper:
         #    raise my_exceptions.ScalarFeatureOutOfRange
 
@@ -135,12 +137,12 @@ class report_feature_time_course_feature_relative(feature):
 
 
 
-class side_effect_intervals_values_f(side_effect_feature):
+class side_effect_intervals_values_f(feature):
     """
     should never raise exception.  return list of NA's if necessary
     """
     def _generate(self, pid, side_effect, relative_to_what, intervals):
-        series = report_feature_time_course_feature_relative.generate(pid, side_effect, relative_to_what)
+        series = report_feature_time_course_feature_relative().generate(pid, side_effect, relative_to_what)
         # put the time series into bucket list by intervals
         import my_data_types
         import aggregate_features as af
@@ -150,7 +152,7 @@ class side_effect_intervals_values_f(side_effect_feature):
         return interval_labels
 
 # FIX: now, data_set will just be a list of pid's.  intervals and relative_to_what will still be specified, as well as side_effect_feature since there is no longer a side_effect_feature class
-class mean_of_side_effect_intervals_values_f(side_effect_feature):
+class mean_of_side_effect_intervals_values_f(feature):
 
     def _generate(self, pid_list, side_effect, relative_to_what, intervals):
         import my_data_types, aggregate_features
@@ -164,7 +166,7 @@ class mean_of_side_effect_intervals_values_f(side_effect_feature):
 
 
 # FIX: same as previous
-class count_of_side_effect_intervals_values_f(side_effect_feature):
+class count_of_side_effect_intervals_values_f(feature):
 
     def _generate(self, pid_list, side_effect, relative_to_what, intervals):
 
@@ -178,12 +180,22 @@ class count_of_side_effect_intervals_values_f(side_effect_feature):
         return ans
             
 
-class side_effect_interval_value_f(side_effect_feature):
-
+class side_effect_interval_value_f(feature):
+    """
+    returns a int or a no_value_object
+    """
     def _generate(self, pid, side_effect, relative_to_what, interval):
         intervals = [interval]
-        return side_effect_intervals_values_f().generate(pid, side_effect, relative_to_what, intervals)
 
+        ans = side_effect_intervals_values_f().generate(pid, side_effect, relative_to_what, intervals)
+        return ans[0].val
+        import my_data_types
+        #pdb.set_trace()
+        if type(ans[0]) == my_data_types.no_value_object:
+            return ans
+        else:
+            return ans[0].get_value()
+        return ans[0].get_value()
 
 
 

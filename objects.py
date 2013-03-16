@@ -13,7 +13,7 @@ import basic_features
 class PID_to_MRN_dict(wrapper.obj_wrapper):
 
     def whether_to_override(self, object_key):
-        return True
+        return False
 
     @classmethod
     def get_all_keys(cls, params, self=None):
@@ -73,7 +73,7 @@ class PID_with_SS_info(wrapper.obj_wrapper):
 class prostate_PID(wrapper.obj_wrapper):
 
     def whether_to_override(self, object_key):
-        return True
+        return False
 
     @classmethod
     def get_all_keys(cls, params, self=None):
@@ -97,7 +97,7 @@ class prostate_PID(wrapper.obj_wrapper):
                 print e
                 #pdb.set_trace()
             num_total += 1
-            print num_ok, num_total
+            #print num_ok, num_total
         return ans
 
 
@@ -107,7 +107,7 @@ class prostate_PID(wrapper.obj_wrapper):
 class MRN_to_PID_dict(wrapper.obj_wrapper):
 
     def whether_to_override(self, object_key):
-        return True
+        return False
 
     @classmethod
     def get_all_keys(cls, params, self=None):
@@ -152,7 +152,7 @@ class PID_to_TID_dict(wrapper.obj_wrapper):
 class TID_to_PID_dict(wrapper.obj_wrapper):
 
     def whether_to_override(self, object_key):
-        return True
+        return False
 
     @classmethod
     def get_all_keys(cls, params, self=None):
@@ -188,6 +188,10 @@ class PID_with_multiple_tumors(wrapper.vect_int_wrapper):
 
 class tumor_info(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
+
+    def get_max_cache_size(self):
+        return 17000
+
     def get_to_pickle(self):
         return True
 
@@ -212,6 +216,9 @@ class tumor_info(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         return ans
 
 class patient_info(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
+
+    def get_max_cache_size(self):
+        return 17000
 
     def get_to_pickle(self):
         return True
@@ -238,6 +245,9 @@ class patient_info(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         return helper.row_to_dict(ans[0])
 
 class super_db_info(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
+
+    def get_max_cache_size(self):
+        return 17000
 
     def get_to_pickle(self):
         return True
@@ -293,7 +303,7 @@ class raw_medical_text(wrapper.vect_string_wrapper, wrapper.by_pid_wrapper):
 class raw_pathology_text(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
     def whether_to_override(self, object_key):
-        return True
+        return False
 
     @classmethod
     def get_all_keys(cls, params, self=None):
@@ -326,7 +336,40 @@ class raw_pathology_text(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         ans.sort()
         return ans
 
+class raw_radiology_text(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
+    def whether_to_override(self, object_key):
+        return False
+
+    @classmethod
+    def get_all_keys(cls, params, self=None):
+        return set(['pid'])
+
+    @classmethod
+    def get_to_filelize(cls):
+        return True
+
+    @dec
+    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
+        pid = self.get_param(params, 'pid')
+        ans = helper.record_list()
+        MRN = helper.PID_to_MRN(pid)
+        query = 'select Report_Date_Time, Report_Text, Report_Desc from [RPDR].[dbo].[RadiologyReport] where MRN=' + str(MRN)
+        #query = 'select Report_Date_Time, Report_Text from [RPDR].[dbo].[PathReport] where MRN=' + str(MRN)
+        cursor = helper.get_cursor()
+        cursor.execute(query)
+        idx = 0
+        for row in cursor:
+            date_str = row.Report_Date_Time.split()[0]
+            from helper import my_date
+            date = my_date.init_from_str(date_str)
+            raw_text = row.Report_Text
+            
+            temp = helper.report_record(pid, date, raw_text, idx)
+            ans.append(temp)
+            idx += 1
+        ans.sort()
+        return ans
 
 class raw_operative_text(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
@@ -542,6 +585,10 @@ class bowel_urgency_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
 class side_effect_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
+
+    def get_max_cache_size(self):
+        return 17000
+
     @classmethod
     def get_all_keys(cls, params, self=None):
         return set(['pid', 'side_effect'])
@@ -554,22 +601,117 @@ class side_effect_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
     def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
 
         tumor_texts = self.get_var_or_file(raw_medical_text_new, params)
+        import my_data_types, my_exceptions
         ans = my_data_types.single_ordinal_ordinal_list()
         side_effect_feature = self.get_param(params, 'side_effect')
 
         count = 0
         for report in tumor_texts:
+            #print count
             try:
-                temp = self.report_feature.generate(report)
+                temp = side_effect_feature.generate(report)
             except my_exceptions.NoFxnValueException:
                 pass
             else:
                 ans.append(my_data_types.single_ordinal_single_value_ordered_object(report.date, temp))
             count += 1
+            #print ans
         return ans
 
 
+class BMI_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
+
+    @classmethod
+    def get_all_keys(cls, params, self=None):
+        return set(['pid'])
+
+    def whether_to_override(self, object_key):
+        return False
+
+    @dec
+    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
+        P_to_M = self.get_var_or_file(PID_to_MRN_dict, params)
+        MRN = P_to_M[self.get_param(params,'pid')]
+        import my_data_types, my_exceptions
+        try:
+            tt = self.get_var_or_file(tumor_info, params)
+            treatment_date = helper.my_date.init_from_num(tt['DateDx'])
+        except Exception, error:
+
+            print error
+            return my_data_types.no_value_object()
+            
+        # find all the height rows corresponding to height and the MRN, keep one closest to diagnosis date
+        closest_height_datediff = 9999999
+        closest_height = None
+        query = 'SELECT MRN, LMR_Vital_Date_Time, Result, Units from [RPDR].[dbo].[LMRVital] where LMR_Text_Type in (\'HEIGHT\',\'HT.\') and MRN=' + '\'' + MRN + '\''
+        cursor = helper.get_cursor()
+        cursor.execute(query)
+        for row in cursor:
+            try:
+                if row.Units == 'Centimeters':
+                    meter_height = float(row.Result) / 100.0
+                    #print 'centimeters', row.Result
+                elif row.Units == 'Inches':
+                    meter_height = float(row.Result) / 39.37
+                    #print 'inches', row.Result
+                else:
+                    raise my_exceptions.NoFxnValueException
+            except my_exceptions.NoFxnValueException:
+                pass
+            except Exception:
+                pass
+            else:
+                try:
+                    height_date_str = row.LMR_Vital_Date_Time.split()[0].strip()
+                    height_date = helper.my_date.init_from_slash_string(height_date_str)
+                    datediff = abs((height_date - treatment_date).days)
+                    if datediff < closest_height_datediff:
+                        closest_height = meter_height
+                        closest_height_datediff = datediff
+                except:
+                    pass
+
+        # now do the exact same for weight rows.  weights come in Kilograms and Pounds.  need to convert to Kilograms
+        closest_weight_datediff = 9999999
+        closest_weight = None
+        query = 'SELECT MRN, LMR_Vital_Date_Time, Result, Units from [RPDR].[dbo].[LMRVital] where LMR_Text_Type=\'WEIGHT\' and MRN=' + '\'' + MRN + '\''
+        cursor = helper.get_cursor()
+        cursor.execute(query)
+        for row in cursor:
+            try:
+                if row.Units == 'Kilograms':
+                    #print 'kilogram', row.Result
+                    kg_weight = float(row.Result)
+                elif row.Units == 'Pounds':
+                    #print 'pounds', row.Result
+                    kg_weight = float(row.Result) / 2.204
+                else:
+                    raise my_exceptions.NoFxnValueException
+            except my_exceptions.NoFxnValueException:
+                pass
+            except Exception:
+                pass
+            else:
+                try:
+                    weight_date_str = row.LMR_Vital_Date_Time.split()[0].strip()
+                    weight_date = helper.my_date.init_from_slash_string(weight_date_str)
+                    datediff = abs((weight_date - treatment_date).days)
+                    if datediff < closest_weight_datediff:
+                        closest_weight = kg_weight
+                        closest_weight_datediff = datediff
+                except:
+                    pass
+
+        # do the actual calculation
+        if closest_height != None and closest_weight != None:
+            try:
+                return closest_weight / (closest_height * closest_height)
+            except:
+                return my_data_types.no_value_object()
+        else:
+            return my_data_types.no_value_object()
 
 
 

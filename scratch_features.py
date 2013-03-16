@@ -28,6 +28,24 @@ PID_to_use = list(A - B - C)
 test_PID_to_use = PID_to_use
 
 
+
+
+feature_list = [f.treatment_code_f(), f.age_at_diagnosis_f(), f.age_at_LC_f(), f.vital_status_f(), f.age_at_LC_f(), f.follow_up_time_f(), f.grade_f(), f.higher_coverage_stage(), f.BMI_f(), f.psa_value_f()]
+
+
+
+data_set = helper.data_set(PID_to_use)
+csv_string = data_set.get_csv_string(feature_list)
+f = open('expanded_data.csv','w')
+f.write(csv_string)
+f.close()
+pdb.set_trace()
+
+"""
+
+
+
+
 the_data_set = helper.data_set.data_set_from_pid_list(test_PID_to_use, p)
 treated_data_set = the_data_set.filter(lambda x: f.treatment_code_f().generate(x) in [1,2])
 interval_boundaries = [0,0.5,1,2,5]
@@ -43,3 +61,4 @@ print feature_string
 
 f = open('test_features.csv', 'w')
 f.write(feature_string)
+"""

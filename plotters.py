@@ -26,6 +26,11 @@ def print_filtered_counts(data_set, filtering_f, label):
 
 
 
+
+
+
+
+
 def plot_time_series(data_set, filtering_f, label, g, color):
     """
     given dataset, filtering_f for dataset, and g which takes in only a tumor and outputs a interval series, adds the interval series to the plot
@@ -67,7 +72,7 @@ def plot_time_series(data_set, filtering_f, label, g, color):
     line = plt.step(x_boundaries, y_lower, where='post')
     plt.setp(line, ls='--', lw=1, color = color)
     #plt.step(x_boundaries, y_values, 'post', {'label':label,'linestyle':'dotted'})
-    print label, len(filtered_data_set.the_data)
+    print label, len(filtered_data_set)
 
 
 def plot_time_series_CI(data_set, filtering_f, label, g):

@@ -136,3 +136,26 @@ class get_bucket_label_feature(feature):
             return sv_int(1)
         else:
             return sv_int(0)
+
+class get_bucket_label_feature_justone(feature):
+
+    def _generate(self, bucket):
+
+        num_0 = 0
+        num_1 = 0
+        for item in bucket:
+            try:
+                val = item.get_value()
+            except my_exceptions.NoFxnValueException:
+                pass
+            else:
+                if val == 0:
+                    num_0 += 1
+                else:
+                    num_1 += 1
+        if num_0 + num_1 == 0:
+            return my_data_types.no_value_object()
+        if num_1 > 0:
+            return sv_int(1)
+        else:
+            return sv_int(0)

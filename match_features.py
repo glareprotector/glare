@@ -60,7 +60,13 @@ class position_phrase_matcher(phrase_matcher):
 
         anchor = excerpt.anchor
         words = cleaned_text.split()
-        idx = words.index(anchor)
+        #pdb.set_trace()
+        try:
+            idx = words.index(anchor)
+        except:
+            print anchor
+            print words
+            pdb.set_trace()
         low_idx = max(idx - self.word_window, 0)
         high_idx = min(len(words), idx + self.word_window)
 
@@ -106,8 +112,8 @@ class position_phrase_matcher(phrase_matcher):
     def __init__(self, phrase, word_window, delimiters, ignore_phrases = []):
         self.word_window = word_window
         self.delimiters = delimiters
-        if '|' not in self.delimiters:
-            self.delimiters.append('|')
+        #if '\|' not in self.delimiters:
+        #    self.delimiters.append('\|')
         phrase_matcher.__init__(self, phrase, ignore_phrases)
 
 
@@ -170,28 +176,29 @@ class basic_word_matcher(object):
         #try finding each word one at a time
         ans = []
         for word in word_cls:
-            searcher = re.compile('('+string.join(self.word_seps, sep='|') +')' + word + '('+string.join(self.word_seps, sep='|') +')')
+            searcher = re.compile(r'\b'+word+r'\b')
+            #searcher = re.compile('('+string.join(self.word_seps, sep='|') +')' + word + '('+string.join(self.word_seps, sep='|') +')')
             matches = [m for m in searcher.finditer(raw_text)]
 
             for m in matches:
                 # don't want match to include the separators
                 local_start = m.start()
                 local_end = m.end()
-                word_seps_copy = self.word_seps[:]
-                word_seps_copy.remove('^')
-                word_seps_copy.remove('$')
-                if re.search('('+string.join(word_seps_copy, '|') +')', raw_text[m.end()-1:m.end()]) != None:
+                #word_seps_copy = self.word_seps[:]
+                #word_seps_copy.remove('^')
+                #word_seps_copy.remove('$')
+                #if re.search('('+string.join(word_seps_copy, '|') +')', raw_text[m.end()-1:m.end()]) != None:
                     # if last character is not a characterless a separator
-                    local_end -= 1
-                if re.search('('+string.join(word_seps_copy, '|') +')', raw_text[m.start():m.start()+1]) != None:
+                #    local_end -= 1
+                #if re.search('('+string.join(word_seps_copy, '|') +')', raw_text[m.start():m.start()+1]) != None:
                     # if first character is a not a characterless separator
-                    local_start += 1
+                #    local_start += 1
                 ans.append(match(text, local_start + text.get_abs_start(), local_end + text.get_abs_start()))
 
         return ans
 
-    def __init__(self, word_seps = ['^','\s','$','\.',',']):
-        self.word_seps = word_seps
+    def __init__(self):
+        pass
 
 
 class hard_coded_word_matcher(object):
@@ -205,9 +212,9 @@ class hard_coded_basic_word_matcher(basic_word_matcher, hard_coded_word_matcher)
     def get_matches(self, text):
         return basic_word_matcher.get_matches(self, text, self.word_cls)
 
-    def __init__(self, word_cls, word_seps = ['^','\s','$','\.',',']):
+    def __init__(self, word_cls):
         self.word_cls = word_cls
-        basic_word_matcher.__init__(self, word_seps)
+        basic_word_matcher.__init__(self)
 
 
 class multiple_word_in_same_fragment_matcher(object):
@@ -226,7 +233,7 @@ class multiple_word_in_same_fragment_matcher(object):
             fragment = self.fragment_getter.get_fragment(text, match1.get_abs_start())
             possible_two_matches = basic_matcher.get_matches(fragment, word_cls2)
             for match2 in possible_two_matches:
-                ans.append(helper.get_spanning_match(match1, match2))
+                ans.append(helper.get_spanning_match(text, match1, match2))
                 #ans.append([match1, match2])
         
         return ans
@@ -260,17 +267,25 @@ class fragment_getter(object):
 
 class fragment_getter_by_delim(fragment_getter):
     """
-    if text[position] is delimiter, leftwards search will get it, but rightwards won't.
-    imagine that the search starts at the gap between position and position + 1
-    position refers to absolute position
+    convention is that fragments start right after a delimiter, and end with string of delimiters
+    if position is inside a fragment, then calling get fragment with that position should return that fragment
+    a fragment should always be returned
+    for single character delimiters, match sequence of them.  for word delimiters, only match one instance(multiple instance wouldn't even make sense conceptually)
     """
     def get_fragment(self, text, position):
         raw_text = text.get_raw_text()
-        delimiter_m = re.compile('(' + string.join(self.delimiters, sep='|') + ')')
-        
+        or_ingredients = []
+        char_regex_str = '[' + string.join(self.delimiters, sep='') + ']' + '+'
+        or_ingredients.append(char_regex_str)
+        for word in self.word_delimiters:
+            or_ingredients.append(r'\b'+word+r'\b')
+        regex_str = '(' + string.join(or_ingredients, sep='|') + ')'
 
-        end_match = helper.get_next_match(raw_text, delimiter_m, position+1 - text.get_abs_start())
-        start_match = helper.get_last_match(raw_text, delimiter_m, position - text.get_abs_start())
+        before_delimiter_m = re.compile(regex_str)
+        after_delimiter_m = re.compile(regex_str)
+
+        end_match = helper.get_next_match(raw_text, after_delimiter_m, position - text.get_abs_start())
+        start_match = helper.get_last_match(raw_text, before_delimiter_m, position - text.get_abs_start())
         if start_match == None:
             local_start = 0
         else:
@@ -278,12 +293,47 @@ class fragment_getter_by_delim(fragment_getter):
         if end_match == None:
             local_end = len(raw_text)
         else:
-            local_end = end_match.start()
+            local_end = end_match.end()
         return fragment(text, text.get_abs_start() + local_start, text.get_abs_start() + local_end)
 
-    def __init__(self, delimiters):
+    def __init__(self, delimiters, word_delimiters = []):
         self.delimiters = delimiters
+        self.word_delimiters = word_delimiters
 
+
+class window_fragment_getter(fragment_getter):
+    """
+    accepts a fragment_getter for initialization
+    get_fragment takes in position, returns fragment at that position, as well as specified number of fragments in front and before
+    """
+    def __init__(self, base_fragment_getter, forward_num, backward_num):
+        self.base_fragment_getter = base_fragment_getter
+        self.forward_num = forward_num
+        self.backward_num = backward_num
+
+    def get_fragment(self, text, position):
+        fragments = []
+        center_fragment = self.base_fragment_getter.get_fragment(text, position)
+        fragments.append(center_fragment)
+        prev_end = center_fragment.get_abs_end()
+        for i in range(self.forward_num):
+            if prev_end >= text.get_abs_end():
+                break
+            else:
+                next_fragment = self.base_fragment_getter.get_fragment(text, prev_end + 1)
+                fragments.append(next_fragment)
+                prev_end = next_fragment.get_abs_end()
+        prev_start = center_fragment.get_abs_start()
+        for i in range(self.backward_num):
+            if prev_start <= text.get_abs_start():
+                break
+            else:
+                prev_fragment = self.base_fragment_getter.get_fragment(text, prev_start - 1)
+                fragments.append(prev_fragment)
+                prev_start = prev_fragment.get_abs_start()
+
+        ans = helper.get_spanning_match(text, *fragments)
+        return ans
 
 class fragment_getter_by_stuff_after_colon(fragment_getter):
     """
@@ -327,19 +377,19 @@ class fragment_getter_by_stuff_after_colon(fragment_getter):
 class clause_fragment_getter(fragment_getter_by_delim):
 
     def __init__(self):
-        fragment_getter_by_delim.__init__(self, global_stuff.clause_delimiters)
+        fragment_getter_by_delim.__init__(self, global_stuff.clause_delimiters, global_stuff.clause_word_delimiters)
 
 class sentence_fragment_getter(fragment_getter_by_delim):
 
     def __init__(self):
-        fragment_getter_by_delim.__init__(self, global_stuff.sentence_delimiters)
+        fragment_getter_by_delim.__init__(self, global_stuff.sentence_delimiters, global_stuff.sentence_word_delimiters)
 
 
 
 class line_fragment_getter(fragment_getter_by_delim):
 
     def __init__(self):
-        fragment_getter_by_delim.__init__(self, global_stuff.newline_delimiters)
+        fragment_getter_by_delim.__init__(self, global_stuff.newline_delimiters, global_stuff.newline_word_delimiters)
 
 
 
@@ -368,17 +418,29 @@ class ignore_detector(object):
         self.ignore_words = ignore_words
 
 
+class not_ignore_detector(object):
+    """
+    takes in an ignore detector and functions as one that says don't ignore if the input one says ignore
+    """
+    def __init__(self, base_ignore_detector):
+        self.base_ignore_detector = base_ignore_detector
+
+    def to_ignore(self, text, position):
+        return not self.base_ignore_detector.to_ignore(text, position)
+
+
 class compound_ignore_detector(object):
     """
     takes in (for now) two ignore_detectors, and returns TRUE if either of them says ignore
     """
-    def __init__(self, ignore_detector1, ignore_detector2):
-        self.ignore_detector1 = ignore_detector1
-        self.ignore_detector2 = ignore_detector2
+    def __init__(self, *args):
+        self.ignore_detectors = args
+        
 
     def to_ignore(self, text, position):
-        if self.ignore_detector1.to_ignore(text, position) or self.ignore_detector2.to_ignore(text, position):
-            return True
+        for it in self.ignore_detectors:
+            if it.to_ignore(text, position):
+                return True
         return False
 
 
@@ -486,6 +548,7 @@ class generic_basic_decision_rule(decision_rule):
     def _generate(self, text):
         matches = self.hard_matcher.get_matches(text)
         for m in matches:
+
             if not self.ignore_detector.to_ignore(text, m.get_abs_start()):
                 frag = sentence_fragment_getter().get_fragment(text, m.get_abs_start())
                 #print 'frag: ', frag
