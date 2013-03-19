@@ -60,12 +60,12 @@ class generic_categorical_feature(feature):
 
     def error_check(self, *args, **kwargs):
         pass
-        #if self.backing_feature.generate(tumor) not in self.get_possible_values():
+        #if self.backing_feature(tumor) not in self.get_possible_values():
         #    raise Exception
 
     def _generate(self, *args):
         import helper
-        ans = [1 if helper.compare_in(self.backing_feature.generate(*args), val) else 0 for val in self.get_possible_values()]
+        ans = [1 if helper.compare_in(self.backing_feature(*args), val) else 0 for val in self.get_possible_values()]
         return ans
 
     def get_possible_values(self):
@@ -89,12 +89,7 @@ class generic_categorical_feature(feature):
         return self.category_descriptions
 
     def get_actual_value(self, tumor):
-        return self.backing_feature.generate(tumor)
-
-
-
-
-
+        return self.backing_feature(tumor)
 
 class report_feature_absolute_time_course_feature(feature):
 
@@ -106,8 +101,6 @@ class report_feature_absolute_time_course_feature(feature):
         ans = wc.get_stuff(objects.side_effect_time_series, p)
         return ans
 
-
-
 class report_feature_time_course_feature_relative(feature):
     """
     returns the side effect series.  raises NoFxnValueException if the patient did not get a treatment, and relative to treatment is specified
@@ -115,141 +108,57 @@ class report_feature_time_course_feature_relative(feature):
     def _generate(self, pid, side_effect, relative_option):
         assert relative_option in ['absolute', 'diagnosis', 'treatment']
         import copy, features
-        series_copy = copy.deepcopy(report_feature_absolute_time_course_feature().generate(pid, side_effect))
+        series_copy = copy.deepcopy(report_feature_absolute_time_course_feature()(pid, side_effect))
         if relative_option == 'absolute':
             return series_copy
         elif relative_option == 'treatment':
-            treatment_date = features.treatment_date_f().generate(pid)
+            treatment_date = features.treatment_date_f()(pid)
             for item in series_copy:
                 item.set_ordinal(item.get_ordinal() - treatment_date)
             return series_copy
         elif relative_option == 'diagnosis':
-            date_diagnosed = features.date_diagnosed_f().generate(pid)
+            date_diagnosed = features.date_diagnosed_f()(pid)
             for item in series_copy:
                 item.set_ordinal(item.get_ordinal() - date_diagnosed)
             return series_copy
         
-
-
-
-
-
-
-
-
 class side_effect_intervals_values_f(feature):
     """
     should never raise exception.  return list of NA's if necessary
+    label_feature should be undecorated, but i don't think this actually matters
     """
-    def _generate(self, pid, side_effect, relative_to_what, intervals):
-        series = report_feature_time_course_feature_relative().generate(pid, side_effect, relative_to_what)
-        # put the time series into bucket list by intervals
-        import my_data_types
-        import aggregate_features as af
-        bucket_list = my_data_types.bucketed_ordinal_list.init_from_intervals_and_ordinal_list(intervals, series)
-        bucket_f = single_ordinal_single_value_wrapper_feature(af.get_bucket_label_feature())
-        interval_labels = bucket_list.apply_feature_always_add(bucket_f)
+    def _generate(self, pid, side_effect, relative_to_what, intervals, label_feature):
+        series = report_feature_time_course_feature_relative()(pid, side_effect, relative_to_what)
+        import my_data_types, aggregate_features as af
+        bucket_list = my_data_types.bucket_timed_list.init_from_time_intervals_and_timed_list(intervals, series)
+        interval_labels = bucket_list.apply_feature_always_add(label_feature)
         return interval_labels
 
-# FIX: now, data_set will just be a list of pid's.  intervals and relative_to_what will still be specified, as well as side_effect_feature since there is no longer a side_effect_feature class
-class mean_of_side_effect_intervals_values_f(feature):
-
-    def _generate(self, pid_list, side_effect, relative_to_what, intervals):
+class aggregate_side_effect_intervals_values_f(feature):
+    """
+    should never raise exception
+    """
+    def _generate(self, pid_list, side_effect, relative_to_what, intervals, label_feature, aggregate_feature):
         import my_data_types, aggregate_features
-        bl = my_data_types.bucketed_ordinal_list.init_empty_bucket_list_with_specified_ordinals(intervals)
+        bl = my_data_types.bucket_timed_list.init_empty_bucket_timed_list_with_specified_times(intervals)
         for pid in pid_list:
-            interval_labels = side_effect_intervals_values_f().generate(pid, side_effect, relative_to_what, intervals)
+            interval_labels = side_effect_intervals_values_f()(pid, side_effect, relative_to_what, intervals, label_feature)
             bl.lay_in_matching_ordinal_list(interval_labels)
-        meaner = single_ordinal_single_value_wrapper_feature(aggregate_features.get_bucket_mean_feature())
-        ans = bl.apply_feature_always_add(meaner)
+        meaner = aggregate_features.get_bucket_mean_f()
+        ans = bl.apply_feature_always_add(aggregate_feature)
         return ans
 
-
-# FIX: same as previous
-class count_of_side_effect_intervals_values_f(feature):
-
-    def _generate(self, pid_list, side_effect, relative_to_what, intervals):
-
-        import my_data_types, aggregate_features
-        bl = my_data_types.bucketed_ordinal_list.init_empty_bucket_list_with_specified_ordinals(intervals)
-        for pid in pid_list:
-            interval_counts = side_effect_intervals_values_f(self.get_side_effect()).generate(tumor, intervals, relative_to_what)
-            bl.lay_in_matching_ordinal_list(interval_counts)
-        counter = single_ordinal_single_value_wrapper_feature(aggregate_features.get_bucket_count_feature())
-        ans = bl.apply_feature_always_add(counter)
-        return ans
-            
 
 class side_effect_interval_value_f(feature):
     """
+    should never raise exception
     returns a int or a no_value_object
     """
-    def _generate(self, pid, side_effect, relative_to_what, interval):
+    def _generate(self, pid, side_effect, relative_to_what, interval, label_feature):
         intervals = [interval]
-
-        ans = side_effect_intervals_values_f().generate(pid, side_effect, relative_to_what, intervals)
-        return ans[0].val
-        import my_data_types
-        #pdb.set_trace()
-        if type(ans[0]) == my_data_types.no_value_object:
-            return ans
-        else:
-            return ans[0].get_value()
-        return ans[0].get_value()
+        ans = side_effect_intervals_values_f()(pid, side_effect, relative_to_what, intervals, label_feature)
+        return ans[0]
 
 
 
-class hard_coded_side_effect_interval_value_f(feature):
-    """
-    returns label value in interval specified in years.  relative to what is also specified
-    """
-    def __init__(self, side_effect, relative_to_what, interval):
-        self.interval = interval
-        self.relative_to_what = relative_to_what
-        self.side_effect = side_effect
 
-    def _generate(self, pid):
-        return side_effect_interval_value_f(self.get_side_effect()).generate(tumor, self.interval, self.relative_to_what).get_value()
-
-
-class one_year_incontinence_f(hard_coded_side_effect_interval_value_f):
-
-    def __init__(self):
-        import side_effects, helper
-        hard_coded_side_effect_interval_value_f.__init__(self, side_effects.urin_incont_bin(), my_data_types.ordered_interval(helper.my_timedelta(0.5*365), helper.my_timedelta(1*365)), 'treatment')
-
-
-
-class two_year_erection_f(hard_coded_side_effect_interval_value_f):
-
-    def __init__(self):
-        import side_effects, helper
-        hard_coded_side_effect_interval_value_f.__init__(self, side_effects.erection_side_effect(), my_data_types.ordered_interval(helper.my_timedelta(1*365), helper.my_timedelta(2*365)), 'treatment')
-
-
-
-class one_year_erection_f(hard_coded_side_effect_interval_value_f):
-
-    def __init__(self):
-        import side_effects, helper
-        hard_coded_side_effect_interval_value_f.__init__(self, side_effects.erection_side_effect(), my_data_types.ordered_interval(helper.my_timedelta(0.5*365), helper.my_timedelta(1*365)), 'treatment')
-
-
-
-class five_year_erection_f(hard_coded_side_effect_interval_value_f):
-
-    def __init__(self):
-        import side_effects, helper
-        hard_coded_side_effect_interval_value_f.__init__(self, side_effects.erection_side_effect(), my_data_types.ordered_interval(helper.my_timedelta(2*365), helper.my_timedelta(5*365)), 'treatment')
-
-
-
-class single_ordinal_single_value_wrapper_feature(feature):
-    """
-    if i have a function that operates on the value part of a single_ordinal_single_value object, this returns a function that will operate on the entire object, and return sosv object with same ordinal
-    """
-    def __init__(self, f):
-        self.f = f
-
-    def _generate(self, x):
-        return my_data_types.single_ordinal_single_value_ordered_object(x.get_ordinal(), self.f.generate(x.get_value()))

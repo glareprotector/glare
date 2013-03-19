@@ -1,6 +1,20 @@
 import my_exceptions
 import pdb
 
+
+
+def get_ordered_equivalent(val):
+
+    if isinstance(val, int)
+        return ordered_int
+    elif isinstance(val, float)
+        return ordered_float
+    elif val.isinstance(my_list):
+        return ordered_bucket
+    elif val.isinstance(no_value_object):
+        return ordered_no_value_object
+    assert False
+
 class my_list(list):
 
     @classmethod
@@ -14,311 +28,221 @@ class my_list(list):
         ans = ans + '}'
         return ans
 
-    # NOTE: think about how this should be organized when i have time.  maybe have a class that pairs an object with the kind of list that holds it
-    def apply_feature(self, f, cls = None):
+    def apply_feature(self, f):
         """
         returns my_list or child class of it, where each element is f applied to each element as a whole
-        f should either return single_value_object or raise exception.  here, item isn't added if exception raised.  elsewhere, entire function raises that exception
+        does not add object if exception is raised.  still adds object is f returns no_value_object
         """
-        if cls == None:
-            cls = self.get_class()
-        ans = cls()
+
+        ans = my_list()
+        import helper
         for item in self:
-            # assumes f won't raise exception.
             try:
-                candidate = f.generate(item)
-                try:
-                    candidate.get_value()
-                except my_exceptions.NoFxnValueException:
-                    pass
-                else:
-                    ans.append(candidate)
+                candidate = g.generate(item)
             except my_exceptions.NoFxnValueException:
                 pass
+            except AssertionError:
+                pdb.set_trace()
+            else:
+                ans.append(candidate)
         return ans
 
-    def apply_feature_always_add(self, f, cls = None):
+    def apply_feature_always_add(self, f):
         """
-        has to assume that f.generate will not raise exception, because have no idea what to add otherwise
+        same as apply_feature, except if NoFxnValueException is raised, a ordered_no_value_object is added
         """
-        if cls == None:
-            cls = self.get_class()
-        ans = cls()
+        ans = my_list()
         for item in self:
-
-            ans.append(f.generate(item))
+            try:
+                assert isinstance(item, ordered_object)
+                candidate = g.generate(item)
+            except my_exceptions.NoFxnValueException:
+                ans.append(ordered_no_value_object(item.get_ordered_value()))
+            except AssertionError:
+                pdb.set_trace()
+            else:
+                ans.append(candidate)
         return ans
 
-
-    def apply_feature_no_catch(self, f, cls = None):
-        if cls == None:
-            cls = self.get_class()
-        ans = cls()
+    def apply_feature_no_catch(self, f):
+        ans = my_list()
         for item in self:
-            candidate = f.generate(item)
-            candidate.get_value()
+            candidate = g.generate(item)
             ans.append(candidate)
         return ans
 
-# note: to be safe, when creating a my_list or child class of it and passing in an argument, always use basic list, or a parent_class object at least
 
-class ordered_object(object):
-
-    def __lt__(self, other):
-        pass
-
-    def __gt__(self, other):
-        pass
-
-    def __eq__(self, other):
-        pass
-
-class base_single_ordinal_ordered_object(ordered_object):
+class no_value_object(object):
     """
-    ordered_object where the comparison is based on attribute that can be retrieved with get_ordinal member function
+    supports no operations.  so define both __add__ and __radd__ and all other regular/reflected operations to raise the NoFxnValueException
     """
-    def get_ordinal(self):
-        pass
 
-    def __lt__(self, other):
-        return self.get_ordinal() < other.get_ordinal()
-
-    def __gt__(self, other):
-        return self.get_ordinal() > other.get_ordinal()
-
-    def __eq__(self, other):
-        return self.get_ordinal() == other.get_ordinal()
-
-
-
-class base_single_value_object(object):
-
-    def get_value(self):
-        pass
-
-    def set_value(self, val):
-        pass
-
-
-class no_value_object(base_single_value_object):
+    def __new__(cls, *args, **kwargs):
+        inst = super(no_value_object, cls).__new__(cls, *args, **kwargs)
+        return inst
 
     def __init__(self):
         pass
 
-    def get_value(self):
+    def __add__(self, other)
+        raise my_exceptions.NoFxnValueException
+
+    def __radd__(self, other):
+        raise my_exceptions.NoFxnValueException
+
+    def __mul__(self, other):
+        raise my_exceptions.NoFxnValueException
+
+    def __rmul__(self, other):
+        raise my_exceptions.NoFxnValueException
+
+    def __sub__(self, other):
+        raise my_exceptions.NoFxnValueException
+
+    def __rsub__(self, other):
+        raise my_exceptions.NoFxnValueException
+
+    def __div__(self, other):
+        raise my_exceptions.NoFxnValueException
+
+    def __rdiv__(self, other):
         raise my_exceptions.NoFxnValueException
 
     def __repr__(self):
         return 'NA'
 
+    def __lt__(self, other):
+        raise my_exceptions.NoFxnValueException
 
-class single_value_object(base_single_value_object):
+    def __gt__(self, other):
+        raise my_exceptions.NoFxnValueException
 
-    def __init__(self, val):
-        self.val = val
+    def __eq__(self, other):
+        raise my_exceptions.NoFxnValueException
 
-    def get_value(self):
+    def __neq__(self, other):
+        raise my_exceptions.NoFxnValueException
+    
+class timed_object(object):
+
+    def __new__(cls, time, *args):
+        inst = super(timed_object, cls).__new__(cls, *args)
+        inst.time = time
+        return inst
+
+    def get_time(self):
+        return self.time
+
+    def __lt__(self, other):
+        if not isinstance(other, timed_object):
+            return NotImplemented
+        return self.get_time() < other.get_time()
+
+    def __gt__(self, other):
+        if not isinstance(other, timed_object):
+            return NotImplemented
+        return self.get_time() > other.get_time()
+
+
+    def __eq__(self, other):
+        if not isinstance(other, timed_object):
+            return NotImplemented
+        return self.get_time() == other.get_time()
+
+class timed_int(timed_object, int):
+    pass
+
+class timed_float(timed_object, float):
+    pass
+
+class timed_bucket(timed_object, my_list):
+    pass
+
+class timed_no_value_object(timed_object, no_value_object):
+    pass
+
+class time_interval(object):
+
+    def contains(self, timed_object_inst):
+        if not isinstance(timed_object_inst, timed_object):
+            return False
         try:
-            return self.val.get_value()
-        except AttributeError:
-            return self.val
-
-    def set_value(self, val):
-        self.val = val
-
-
-
-# if an object is to be used by functions, they must either implement get_value or get_ordinal, depending on the function
-
-
-class sv_int(int, single_value_object):
-    pass
-
-class sv_float(float, single_value_object):
-    pass
-
-
-
-
-
-class base_single_ordinal_single_value_ordered_object(base_single_ordinal_ordered_object, base_single_value_object):
-
-    pass
-
-
-class single_ordinal_ordered_object(base_single_ordinal_ordered_object):
-
-    def __init__(self, ordinal):
-        self.ordinal = ordinal
-
-    def get_ordinal(self):
-        return self.ordinal
-
-    def set_ordinal(self, ordinal):
-        self.ordinal = ordinal
-
-
-class single_ordinal_single_value_ordered_object(single_ordinal_ordered_object, single_value_object):
-
-    def __init__(self, ordinal, val):
-        single_ordinal_ordered_object.__init__(self, ordinal)
-        single_value_object.__init__(self, val)
-
-    def __repr__(self):
-
-        return '['+repr(self.ordinal) + ',' + repr(self.val) + ']'
-
-
-
-class ordered_interval(ordered_object):
-
-    def contains(self, item):
-        item.get_value()
-        return item.get_ordinal() >= self.low and item.get_ordinal() < self.high
+            return timed_object_inst.get_time() >= self.low and timed_object_inst.get_time() < self.high
+        except my_exceptions.NoFxnValueException:
+            return False
 
     def __init__(self, low, high):
         self.low = low
         self.high = high
 
-    def __lt__(self, other):
-        return self.low < other.low
-
-    def __gt__(self, other):
-        return self.low < other.low
-
     def __repr__(self):
         return '('+repr(self.low)+'/'+repr(self.high)+')'
 
-    def __eq__(self, other):
-        return self.low == other.low and self.high == other.high
 
 
-class ordinal_list(my_list):
+class timed_list(my_list):
     """
-    each element is an ordered_object, which are just comparable objects.  comparison might be done based on objects with get_ordinals() function, but doesn't have to be
+    each element is an timed_object
     """
+
+    def sort_by_time(self):
+        self.sort(key = lambda x: x.get_time())
+        return my_list.__iter__(self)
 
     def __iter__(self):
         pdb.set_trace()
         self.sort()
-
         return my_list.__iter__(self)
 
-        
+    def apply_feature(self, f):
+        g = helper.attach_time_dec(f)
+        return timed_list(my_list.apply_feature(g))
 
+    def apply_feature_always_add(self, f):
+        g = helper.attach_time_dec(f)
+        return timed_list(my_list.apply_feature_always_add(g))
 
-class single_ordinal_ordinal_list(my_list):
-    """
-    holds items where the ordinal comparison is based on single attribute retrieved with get_ordinals
-    """
-    def get_ordinals(self):
-        ans = ordinal_list()
-        for item in self:
-            ans.append(item.get_ordinal())
-        return ans    
-               
-class bucketed_list(my_list):
-    """
-    list where each element is a single_value_object, and get_value() returns a iterable
-    """
-    pass
+    def apply_feature_no_catch(self, f):
+        g = helper.attach_time_dec(f)
+        return timed_list(my_list.apply_feature_no_catch(g))
 
-class bucketed_ordinal_list(single_ordinal_ordinal_list, bucketed_list):
-    """
-    now, each element is also a single_ordinal element, and the ordinal is an interval.  could make parent more general classes, but i'm not going to use them
-    """
+class bucket_timed_list(timed_list):
+
     @classmethod
-    def init_from_intervals_and_ordinal_list(cls, intervals, l):
+    def init_from_time_intervals_and_timed_list(cls, intervals, l):
         """
-        assumes l is a ordinal_list.  so l might be 
+        assumes l is a timed_list, and interval units are same as the time_values of the timed_list
         """
         ans = list()
         for interval in intervals:
             temp = my_list()
             for item in l:
-                try:
-                    item.get_value()
-                    if interval.contains(item):
-                        temp.append(item)
-                except my_exceptions.NoFxnValueException:
-                    pass
-            ans.append(single_ordinal_single_value_ordered_object(interval, temp))
+                if interval.contains(item):
+                    temp.append(item)
+            ans.append(timed_bucket(interval, temp))
         return cls(ans)
-
 
     @classmethod
-    def init_empty_bucket_list_with_specified_ordinals(cls, ordinals):
+    def init_empty_bucket_timed_list_with_specified_times(cls, times):
         ans = list()
-        for ordinal in ordinals:
-            ans.append(single_ordinal_single_value_ordered_object(ordinal, my_list()))
+        for time in times:
+            ans.append(timed_bucket(time, my_list()))
         return cls(ans)
 
-    def lay_in_matching_ordinal_list(self, to_add):
+    def lay_in_matching_timed_list(self, to_add):
         assert len(to_add) == len(self)
-        for bucket_item, item in zip(self, to_add):
-            assert bucket_item.get_ordinal() == item.get_ordinal()
-            bucket_item.get_value().append(item)
+        for timed_bucket_instance, item in zip(self, to_add):
+            assert timed_bucket_instance.get_time() == item.get_time()
+            timed_bucket_instance.append(item)
+
 
                       
 
-# NOTE: didn't think thorugh my_list_list yet
-
-class my_list_list(my_list):
-
-    def apply_feature_vertical(self, f):
-        """
-        returns new my_list_list with f applied to each list
-        """
-        ans = my_list_list()
-        for l in self:
-            ans.append(f.generate(l))
-        return ans
-
-class my_list_ordinal_list(my_list_list):
-    pass
-
-class homo_my_list_list(my_list_ordinal_list):
-    """
-    all the ordinals in the lists are the same
-    unlike my_list_list, this requires that each element be a single_ordinal_ordered_object.
-    """
-    def get_member_ordinals(self):
-        try:
-            return self[0].get_ordinals()
-        except IndexError:
-            raise ValueError('homo_my_list_ordinal_list is empty or the lists contained are not single_ordinal_ordered_objects, has no ordinals')
-
-    def get_horizontal_iter(self):
-        """
-        iterates through each list and return a my_list of the columns
-        """
-        # create iter instance, and keep calling it, putting results into a my_list
-        horizontal_iters = [iter(l) for l in self]
-        import itertools
-        column_tuple_iter = itertools.izip(*horizontal_iters)
-        for column_tuple, ordinal in itertools.izip(column_tuple_iter, self.get_member_ordinals()):
-            yield single_ordinal_single_value_ordered_object(ordinal, my_list(column_tuple))
-        
-    def get_bucket_ordinal_list(self):
-
-        horizontal_iter = self.get_horizontal_iter()
-        return bucketed_ordinal_list([x for x in horizontal_iter])
 
 
-class homo_my_list_interval_list(homo_my_list_list):
-    """
-    a homo_my_list_list where the member ordinals are intervals
-    """
-    @classmethod
-    def init_from_intervals_and_my_list_ordinal_list(cls, intervals, ll):
-        """
-        creates homo list of lists by bucketizing each list, so that each list is single_ordinal_single_value and the value is a bucket
-        ll is a parent class, so ans is parent class, so init call is safe(i think)
-        """
-        def f(l):
-            return bucketed_ordinal_list.init_from_intervals_and_ordinal_list(intervals, l)
-        ans = ll.apply_f_vertical(f)
-        return cls(ans)
+
+
+
 
 # same as regular dictionary, except that key and value type are specified at init
 class IO_dict(dict):

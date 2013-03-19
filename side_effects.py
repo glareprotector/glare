@@ -62,10 +62,10 @@ class bowel_urgency_bin(side_effect_report_feature):
         #pdb.set_trace()
         ans = bowel_urgency().classify_record(report)
         #print 'BIN: ', ans.get_value()
-        if ans.get_value() in [1,2]:
-            return sv_int(0)
-        elif ans.get_value() == 0:
-            return sv_int(1)
+        if ans in [1,2]:
+            return 0
+        elif ans == 0:
+            return 1
 
 
     def use_human_label(self):
@@ -85,10 +85,10 @@ class urin_incont_bin(side_effect_report_feature):
         #pdb.set_trace()
         ans = urinary_incontinence().classify_record(report)
         #print 'BIN: ', ans.get_value()
-        if ans.get_value() in [1,2]:
-            return sv_int(0)
-        elif ans.get_value() == 0:
-            return sv_int(1)
+        if ans in [1,2]:
+            return 0
+        elif ans == 0:
+            return 1
 
 
     def use_human_label(self):
@@ -125,7 +125,7 @@ class classify_by_rule_list(side_effect_report_feature):
         for rule in self.get_report_decision_rules():
             try:
 
-                ans = rule.generate(report_text)
+                ans = rule(report_text)
 
                 #print 'VALUE: ', ans, rule, count, report.pid
                 #pdb.set_trace()
@@ -164,10 +164,10 @@ class urinary_frequency_bin(side_effect_report_feature):
 
     def classify_record(self, report):
         ans = urinary_frequency().classify_record(report)
-        if ans.get_value() in [1,2]:
-            return sv_int(0)
-        elif ans.get_value() == 0:
-            return sv_int(1)
+        if ans in [1,2]:
+            return 0
+        elif ans == 0:
+            return 1
 
 
     def use_human_label(self):
@@ -205,10 +205,10 @@ class diarrhea_bin(side_effect_report_feature):
 
     def classify_record(self, report):
         ans = diarrhea().classify_record(report)
-        if ans.get_value() in [1,2]:
-            return sv_int(0)
-        elif ans.get_value() == 0:
-            return sv_int(1)
+        if ans in [1,2]:
+            return 0
+        elif ans == 0:
+            return 1
 
 
     def use_human_label(self):
@@ -322,8 +322,8 @@ class side_effect_report_feature_by_excerpt_voting(side_effect_report_feature):
         if len(excerpt_scores) == 0:
             raise my_exceptions.NoFxnValueException
 
-        total = sv_float(0.0)
-        count = sv_int(0)
+        total = 0.0
+        count = 0
         for score in excerpt_scores:
             try:
                 total += score
@@ -333,9 +333,9 @@ class side_effect_report_feature_by_excerpt_voting(side_effect_report_feature):
                 count += 1
 
         if total > count / 2.0:
-            return sv_int(1)
+            return 1
         else:
-            return sv_int(0)
+            return 0
 
 
 
@@ -381,7 +381,7 @@ class side_effect_excerpt_feature(feature):
 
 
         for no_info_match in self.parent_report_feature.get_no_info_match_features():
-            if no_info_match.generate(excerpt, anchor) == True:
+            if no_info_match(excerpt, anchor) == True:
                 raise my_exceptions.NoFxnValueException(no_info_match.phrase)
 
         try:
@@ -416,7 +416,7 @@ class side_effect_excerpt_feature(feature):
         helper.print_if_verbose('SPECIFIC_CLASSIFY',2)
         absolute_good = False
         for absolute_good_match in self.parent_report_feature.get_absolute_good_match_features():
-            if absolute_good_match.generate(excerpt, anchor) == True:
+            if absolute_good_match(excerpt, anchor) == True:
                 helper.print_if_verbose('absolute good with phrase:',2) 
                 helper.print_if_verbose(str(absolute_good_match.phrase),2)
                 absolute_good = True
@@ -424,7 +424,7 @@ class side_effect_excerpt_feature(feature):
 
         absolute_bad = False
         for absolute_bad_match in self.parent_report_feature.get_absolute_bad_match_features():
-            if absolute_bad_match.generate(excerpt, anchor) == True:
+            if absolute_bad_match(excerpt, anchor) == True:
                 helper.print_if_verbose('absolute bad with phrase:',2) 
                 helper.print_if_verbose(str(absolute_bad_match.phrase),2)
                 absolute_bad = True
@@ -437,34 +437,28 @@ class side_effect_excerpt_feature(feature):
             raise my_exceptions.NoFxnValueException
         
         if absolute_good:
-            return sv_int(1)
+            return 1
         
         if absolute_bad:
-            return sv_int(0)
+            return 0
 
         num_semi_good = 0
         for semi_good_match in self.parent_report_feature.get_semi_good_match_features():
             try:
-                ans = semi_good_match.generate(excerpt, anchor)
-                ans.get_value()
+                ans = helper.raise_NoFxnValueException_dec(semi_good_match)(excerpt, anchor)
             except my_exceptions.NoFxnValueException:
                 pass
             else:
-                if ans.get_value():
-                    helper.print_if_verbose('semi good with phrase: ' + semi_good_match.phrase, 1.5)
-                num_semi_good += ans.get_value()
+                num_semi_good += ans
         
         num_semi_bad = 0
         for semi_bad_match in self.parent_report_feature.get_semi_bad_match_features():
             try:
-                ans = semi_bad_match.generate(excerpt, anchor)
-                ans.get_value()
+                ans = helper.raise_NoFxnValueException_dec(semi_bad_match)(excerpt, anchor)
             except my_exceptions.NoFxnValueException:
                 pass
             else:
-                if ans.get_value():
-                    helper.print_if_verbose('semi bad with phrase: ' + semi_bad_match.phrase, 1.5)
-                num_semi_bad += ans.get_value()
+                num_semi_bad += ans
 
 
         helper.print_if_verbose('num_semi_good: ' + str(num_semi_good) + ' num_semi_bad: ' + str(num_semi_bad), 1.5)
@@ -473,9 +467,9 @@ class side_effect_excerpt_feature(feature):
             raise my_exceptions.NoFxnValueException
         else:
             if num_semi_bad % 2 == 0:
-                return sv_int(1)
+                return 1
             else:
-                return sv_int(0)
+                return 0
 
 
 

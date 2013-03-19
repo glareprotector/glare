@@ -602,7 +602,7 @@ import my_data_types
 
 # assumes all records can be filtered
 # holds records, not excerpts
-class record_list(my_data_types.single_ordinal_ordinal_list):
+class record_list(my_data_types.timed_list):
 
     # returns a list of list of excerpts
     def get_excerpts_by_words(self, words):
@@ -629,7 +629,7 @@ def init_from_str(cls, the_string):
 from datetime import date, timedelta
 
 
-class my_date(date, my_data_types.ordered_object):
+class my_date(date):
 
         
     def __repr__(self):
@@ -679,17 +679,16 @@ class my_timedelta(timedelta):
 
 
     
-class record(my_data_types.single_ordinal_ordered_object):
+class record(my_data_types.timed_object):
     """
     refers to patient's record
     """
 
-    def get_ordinal(self):
+    def get_time(self):
         return self.date
 
-    def __init__(self, pid, date, raw_text):
+    def __init__(self, date, pid, raw_text):
         self.pid = pid
-        self.date = date
         self.raw_text = raw_text
 
 
@@ -705,12 +704,12 @@ class report_record(record):
     window_size = 100
 
 
-    def __init__(self, pid, date, raw_text, idx):
+    def __init__(self, date, pid, raw_text, idx):
         """
         report_record has to store its index in the list of records for the patient
         """
         self.idx = idx
-        record.__init__(self, pid, date, raw_text)
+        record.__init__(self, date, pid, raw_text)
 
     # returns my_list of excerpts containing a list of words.  this only makes sense for report records that have excerpts.  makes sure a window doesn't contain 2 matches
     def get_excerpts_by_words(self, words):
@@ -767,8 +766,8 @@ class report_record(record):
             low = max(0, max(prev_pos, position - report_record.window_size))
             high = min(len(cleaned_text), min(next_pos, position + report_record.window_size))
             #print low, high
-            #to_add = excerpt(self.pid, self.date, cleaned_text[low:high], self, match_list[i].word.strip(), position)
-            to_add = excerpt(self.pid, self.date, cleaned_text[low:high], self, match_list[i].word.strip())
+            #to_add = excerpt(self.date, self.pid, cleaned_text[low:high], self, match_list[i].word.strip(), position)
+            to_add = excerpt(self.date, self.pid, cleaned_text[low:high], self, match_list[i].word.strip())
             ans.append(to_add)
 
         return ans
@@ -786,11 +785,11 @@ class report_record(record):
 # excerpt abstract class
 class excerpt(record):
 
-    def __init__(self, pid, date, raw_text, parent_record, anchor):
+    def __init__(self, date, pid, raw_text, parent_record, anchor):
         self.parent_record = parent_record
         self.anchor = anchor
         #self.position = position
-        record.__init__(self, pid, date, raw_text)
+        record.__init__(self, date, pid, raw_text)
 
 
         
@@ -812,7 +811,7 @@ class tumor_lite(object):
         return self.attributes[attribute]
 
     def get_label(self, label_f):
-        ans = label_f.generate(self)
+        ans = label_f(self)
         assert(len(ans) == 1)
         return ans[0]
 
@@ -827,7 +826,7 @@ class tumor_lite(object):
         """
         vector = []
         for feature in feature_list:
-            to_add = feature.generate(self)
+            to_add = feature(self)
             try:
                 vector = vector + to_add
             except TypeError:
@@ -954,7 +953,7 @@ class data_set(object):
 
         for feature in feature_list:
             try:
-                to_add = feature.generate(pid)
+                to_add = feature(pid)
             except my_exceptions.NoFxnValueException:
                 to_add = no_value_object()
             except Exception, error:
@@ -1059,5 +1058,30 @@ class data_set(object):
 
 
 
+def attach_time_dec(f):
+    """
+    assumes f is a callable that takes in a timed_object, but returns an un_timed one
+    g returns a timed_object version of the original answer, using the input's time
+    """
+    def g(timed_object_inst):
+        import my_data_types
+        assert isinstance(ans, my_data_types.timed_object)
+        ans = f(timed_object_inst)
+        cls = get_ordered_equivalent(val)
+        return cls(ans.get_time(), ans)
 
+    return g
 
+def raise_NoFxnValueException_dec(f):
+    """
+    function decorator that raises NoFxnValueException if f returns a no_value_object
+    purpose is to ensure that function does not return a no_value_object
+    """
+    def g(*args, **kwargs):
+        ans = f(*args, **kwargs)
+        import my_data_types, my_exceptions
+        if isinstance(ans, my_data_types.no_value_object):
+            raise my_exceptions.NoFxnValueException
+        return ans
+
+    return g

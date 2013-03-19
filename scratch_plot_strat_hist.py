@@ -15,7 +15,6 @@ import plotters
 import numpy
 import my_exceptions
 import aggregate_features as af
-from my_data_types import sv_int, sv_float
 
 import matplotlib.pyplot as plt
 
@@ -33,7 +32,7 @@ PID_to_use = list(AAA - B - C)
 
 
 the_data_set = helper.data_set(PID_to_use)
-treated_data_set = the_data_set.filter(lambda x: f.treatment_code_f().generate(x) in [1,2])
+treated_data_set = the_data_set.filter(lambda x: f.treatment_code_f()(x) in [1,2])
 interval_boundaries = [0,0.5,1,2.0]
 intervals = [my_data_types.ordered_interval(helper.my_timedelta(interval_boundaries[i]*365), helper.my_timedelta(interval_boundaries[i+1]*365)) for i in range(len(interval_boundaries)-1)]
 interval_strings = ['0-6 months','6-12 months','1-2 years']
@@ -47,16 +46,16 @@ interval_strings = ['0-6 months','6-12 months','1-2 years']
 side_effect_instances = [side_effects.erection_side_effect(), side_effects.urin_incont_bin(), side_effects.urinary_frequency_bin(), side_effects.diarrhea_bin()]  
 side_effect_strings = ['ED','urin_incont','urin_freq','diarrhea']
 
-attribute_fs = [lambda x: f.psa_value_f().generate(x), \
-                    lambda x: f.BMI_f().generate(x), \
-                    lambda x: f.age_at_diagnosis_f().generate(x)]
+attribute_fs = [lambda x: f.psa_value_f()(x), \
+                    lambda x: f.BMI_f()(x), \
+                    lambda x: f.age_at_diagnosis_f()(x)]
 attribute_f_strings = ['psa','BMI','age']
 attribute_maxes = [200,50,100]
 attribute_bin_sizes = [25,25,25]
 
 
-treatment_fs = [lambda x: f.treatment_code_f().generate(x) == 1,\
-                    lambda x: f.treatment_code_f().generate(x) == 2, \
+treatment_fs = [lambda x: f.treatment_code_f()(x) == 1,\
+                    lambda x: f.treatment_code_f()(x) == 2, \
                     lambda x: True]
 treatment_f_strings = ['SURG', 'RAD', 'ALLTRT']
 
@@ -69,8 +68,8 @@ for side_effect_instance, side_effect_string in zip(side_effect_instances, side_
     for attribute_f, attribute_f_string, attribute_max, attribute_bin_size in zip(attribute_fs, attribute_f_strings, attribute_maxes, attribute_bin_sizes):
         for treatment_f, treatment_f_string in zip(treatment_fs, treatment_f_strings):
             pre_treatment_fs = [lambda x: True,\
-                                    lambda x: f.pre_treatment_side_effect_label_f().generate(x, side_effect_instance).get_value() == sv_int(1), \
-                                    lambda x: f.pre_treatment_side_effect_label_f().generate(x, side_effect_instance).get_value() == sv_int(0)]
+                                    lambda x: f.pre_treatment_side_effect_label_f()(x, side_effect_instance).get_value() == 1, \
+                                    lambda x: f.pre_treatment_side_effect_label_f()(x, side_effect_instance).get_value() == 0]
             pre_treatment_f_strings = ['pre_all','pre_good','pre_bad']
             for pre_treatment_f, pre_treatment_f_string in zip(pre_treatment_fs, pre_treatment_f_strings):
                 fig = plt.figure()
@@ -79,8 +78,8 @@ for side_effect_instance, side_effect_string in zip(side_effect_instances, side_
                 fig.suptitle(title)
                 for interval, interval_string, row_num in zip(intervals, interval_strings, range(len(intervals))):
                     try:
-                        data_one_f = lambda x: treatment_f(x) and pre_treatment_f(x) and bf.side_effect_interval_value_f().generate(x, side_effect_instance, 'treatment', interval) == 1
-                        data_zero_f = lambda x: treatment_f(x) and pre_treatment_f(x) and bf.side_effect_interval_value_f().generate(x, side_effect_instance, 'treatment', interval) == 0
+                        data_one_f = lambda x: treatment_f(x) and pre_treatment_f(x) and bf.side_effect_interval_value_f()(x, side_effect_instance, 'treatment', interval) == 1
+                        data_zero_f = lambda x: treatment_f(x) and pre_treatment_f(x) and bf.side_effect_interval_value_f()(x, side_effect_instance, 'treatment', interval) == 0
                         one_data = treated_data_set.filter(data_one_f)
                         zero_data = treated_data_set.filter(data_zero_f)
 
@@ -109,7 +108,7 @@ for side_effect_instance, side_effect_string in zip(side_effect_instances, side_
 
 
 side_effect_instance = side_effects.urin_incont_bin()
-attribute_f = lambda x: f.psa_value_f().generate(x)
+attribute_f = lambda x: f.psa_value_f()(x)
 
 
 fig = plt.figure()
@@ -117,8 +116,8 @@ fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 
 
-data_zero = treated_data_set.filter(lambda x: f.pre_treatment_side_effect_label_f().generate(x, side_effect_instance) == 0)
-data_one = treated_data_set.filter(lambda x: f.pre_treatment_side_effect_label_f().generate(x, side_effect_instance) == 1)
+data_zero = treated_data_set.filter(lambda x: f.pre_treatment_side_effect_label_f()(x, side_effect_instance) == 0)
+data_one = treated_data_set.filter(lambda x: f.pre_treatment_side_effect_label_f()(x, side_effect_instance) == 1)
 
 
 

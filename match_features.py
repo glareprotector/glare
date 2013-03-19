@@ -1,6 +1,6 @@
 from features import *
 import helper
-from my_data_types import sv_int, sv_float
+
 import re
 import string
 import global_stuff
@@ -30,12 +30,12 @@ class phrase_matcher(feature):
 
         for ignore_phrase in self.ignore_phrases:
             if helper.match_phrase(excerpt, ignore_phrase):
-                return sv_int(0)
+                return 0
 
         if helper.match_phrase(excerpt, self.phrase):
-            return sv_int(1)
+            return 1
         else:
-            return sv_int(0)
+            return 0
 
 
 
@@ -558,19 +558,19 @@ class generic_basic_decision_rule(decision_rule):
                 if self.sign == 0:
                     if self.negation_detector.is_negated(text, m.get_abs_start()) == False:
                         if self.moderating_detector.is_moderated(text, m.get_abs_start()) == False:
-                            return sv_int(2)
+                            return 2
                         else:
-                            return sv_int(1)
+                            return 1
                     else:
-                        return sv_int(0)
+                        return 0
                 elif self.sign == 1:
                     if self.negation_detector.is_negated(text, m.get_abs_start()) == False:
                         if self.moderating_detector.is_moderated(text, m.get_abs_start()) == False:
-                            return sv_int(0)
+                            return 0
                         else:
-                            return sv_int(1)
+                            return 1
                     else:
-                        return sv_int(2)
+                        return 2
 
         raise my_exceptions.NoFxnValueException
 

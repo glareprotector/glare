@@ -44,8 +44,8 @@ class treatment_code_f(feature):
         4 for other
         """
 
-        surgery_code = surgery_code_f().generate(pid)
-        radiation_code = radiation_code_f().generate(pid)
+        surgery_code = surgery_code_f()(pid)
+        radiation_code = radiation_code_f()(pid)
         if surgery_code == '00' and radiation_code == '0':
             ans = 0
         elif surgery_code == '50':
@@ -57,16 +57,6 @@ class treatment_code_f(feature):
         else:
             ans = 4
         return ans
-
-class treatment_code_cat_f(generic_categorical_feature):
-
-    def __init__(self):
-        possible_values = [[0],[1],[2],[3],[4]]
-        backing_feature = treatment_code_f()
-        category_descriptions = ['ww','rp','beam','brachy', 'other']
-        generic_categorical_feature.__init__(self, possible_values, backing_feature, category_descriptions)
-
-        
 
 
 class date_diagnosed_f(feature):
@@ -88,7 +78,7 @@ class age_at_diagnosis_f(range_checked_feature):
     """
 
     def _generate(self, pid):
-        ans = (date_diagnosed_f().generate(pid) - DOB_f().generate(pid)).days / 365.0
+        ans = (date_diagnosed_f()(pid) - DOB_f()(pid)).days / 365.0
         if ans < 20:
             import my_data_types
             return my_data_types.no_value_object()
@@ -117,20 +107,17 @@ class DLC_f(feature):
         sdt = wc.get_stuff(objects.super_db_info, param({'pid':pid}))
         return helper.my_date.init_from_hyphen_string(sdt['C_DLC'])
 
-
-# HARDCODED
 class age_at_LC_f(range_checked_feature):
     """
     returns age at date of last contact in years
     """
     def _generate(self, pid):
-        return (DLC_f().generate(pid) - DOB_f().generate(pid)).days / 365.0
+        return (DLC_f()(pid) - DOB_f()(pid)).days / 365.0
 
     def __init__(self):
         range_checked_feature.__init__(self, 0.0, 120.0)
 
 
-# FIX - no more tumor class.  work with extracted row directly
 class vital_status_f(feature):
     """
     1 if patient is alive, 0 is dead
@@ -140,8 +127,6 @@ class vital_status_f(feature):
         return sdt['C_Vital']
 
 
-
-# refers to other features.  that is fine
 class follow_up_time_f(feature):
     """
     a person is followed until end of study or death.  if vital status is 0(dead), then this is DLC - diagnosis date
@@ -149,13 +134,11 @@ class follow_up_time_f(feature):
     returns in units of years
     """
     def _generate(self, pid):
-        DLC = DLC_f().generate(pid)
-        date_diagnosed = date_diagnosed_f().generate(pid)
+        DLC = DLC_f()(pid)
+        date_diagnosed = date_diagnosed_f()(pid)
         return (DLC - date_diagnosed).days / 365.0
 
-# ideally, when i try to do anything with no value object, it either raises exception or returns no value object
-# ideally, no value object you can't do any operations with it
-# what is the benefit of having a no_value_object? so that i know 
+
 class surgery_date_f(feature):
     
     def _generate(self, pid):
@@ -176,13 +159,13 @@ class treatment_date_f(feature):
     does not return a date for brachytherapy - ignoring that for now
     """
     def _generate(self, pid):
-        treatment_code = treatment_code_f().generate(pid)
+        treatment_code = treatment_code_f()(pid)
         if treatment_code in [0,4]:
             raise my_exceptions.NoFxnValueException
         elif treatment_code == 1:
-            return surgery_date_f().generate(pid)
+            return surgery_date_f()(pid)
         elif treatment_code == 2:
-            return radiation_date_f().generate(pid)
+            return radiation_date_f()(pid)
             
 
 class psa_value_f(range_checked_feature):
@@ -217,47 +200,24 @@ class psa_value_f(range_checked_feature):
 
 
 
-
-
-
-
-# FIX after i fix basic side effect time course feature
 class pre_treatment_side_effect_label_f(feature):
     """
     returns no_value_object if there is no treatment, int otherwise
     """
 
-    def _generate(self, pid, side_effect):
+    def _generate(self, pid, side_effect, label_feature):
         import helper, my_data_types
         interval = my_data_types.ordered_interval(helper.my_timedelta(-99999), helper.my_timedelta(0))
         import basic_features
 
         try:
-            interval_label = basic_features.side_effect_interval_value_f().generate(pid, side_effect, 'treatment', interval)
+            interval_label = basic_features.side_effect_interval_value_f()(pid, side_effect, 'treatment', interval, label_feature)
         except Exception, e:
             print e
             
         else:
             return interval_label
 
-        """
-
-        try:
-            pdb.set_trace()
-            interval_label = basic_features.side_effect_interval_value_f().generate(pid, side_effect, 'treatment', interval)
-            
-        except my_exceptions.NoFxnValueException:
-
-
-            return my_data_types.no_value_object()
-
-        try:
-            ans = interval_label.get_value()
-        except my_exceptions.NoFxnValueException:
-            return my_data_types.no_value_object()
-        else:
-            return ans
-        """
 
 
 class grade_f(feature):
@@ -304,7 +264,9 @@ class higher_coverage_stage(feature):
 
 
 
-
+##########################################################
+# stuff below is not used/useful
+##########################################################
 
 
 
@@ -383,6 +345,18 @@ class gleason_primary_f(feature):
         else:
             return 9
             
+
+
+
+class treatment_code_cat_f(generic_categorical_feature):
+
+    def __init__(self):
+        possible_values = [[0],[1],[2],[3],[4]]
+        backing_feature = treatment_code_f()
+        category_descriptions = ['ww','rp','beam','brachy', 'other']
+        generic_categorical_feature.__init__(self, possible_values, backing_feature, category_descriptions)
+
+        
 
 
 

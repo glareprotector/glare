@@ -572,8 +572,8 @@ class bowel_urgency_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         tumor_texts = self.get_var_or_file(raw_medical_text_new, params)
         diagnosis_date = helper.my_date.init_from_num(tt['DateDx'])
         relative_to_diagnosis = self.get_param(params, 'reltd')
-        #return features.report_feature_time_course_feature(features.side_effect_report_record_feature(side_effects.erection_side_effect())).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
-        return basic_features.report_feature_time_course_feature(side_effects.bowel_urgency_bin()).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
+        #return features.report_feature_time_course_feature(features.side_effect_report_record_feature(side_effects.erection_side_effect()))(tumor_texts, relative_to_diagnosis, diagnosis_date)
+        return basic_features.report_feature_time_course_feature(side_effects.bowel_urgency_bin())(tumor_texts, relative_to_diagnosis, diagnosis_date)
 
 
 
@@ -601,21 +601,8 @@ class side_effect_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
     def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
 
         tumor_texts = self.get_var_or_file(raw_medical_text_new, params)
-        import my_data_types, my_exceptions
-        ans = my_data_types.single_ordinal_ordinal_list()
         side_effect_feature = self.get_param(params, 'side_effect')
-
-        count = 0
-        for report in tumor_texts:
-            #print count
-            try:
-                temp = side_effect_feature.generate(report)
-            except my_exceptions.NoFxnValueException:
-                pass
-            else:
-                ans.append(my_data_types.single_ordinal_single_value_ordered_object(report.date, temp))
-            count += 1
-            #print ans
+        ans = tumor_texts.apply_feature(side_effect_feature)
         return ans
 
 
@@ -682,10 +669,8 @@ class BMI_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         for row in cursor:
             try:
                 if row.Units == 'Kilograms':
-                    #print 'kilogram', row.Result
                     kg_weight = float(row.Result)
                 elif row.Units == 'Pounds':
-                    #print 'pounds', row.Result
                     kg_weight = float(row.Result) / 2.204
                 else:
                     raise my_exceptions.NoFxnValueException
@@ -715,191 +700,3 @@ class BMI_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
 
 
 
-
-class erection_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
-    
-
-    @classmethod
-    def get_all_keys(cls, params, self=None):
-        return set(['pid', 'reltd'])
-
-    def whether_to_override(self, object_key):
-        return False
-
-    @dec
-    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
-        tt = self.get_var_or_file(tumor_info, params)
-        tumor_texts = self.get_var_or_file(raw_medical_text_new, params)
-        diagnosis_date = helper.my_date.init_from_num(tt['DateDx'])
-        relative_to_diagnosis = self.get_param(params, 'reltd')
-        #return features.report_feature_time_course_feature(features.side_effect_report_record_feature(side_effects.erection_side_effect())).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
-        return basic_features.report_feature_time_course_feature(side_effects.erection_side_effect()).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
-
-
-
-class incontinence_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
-    
-
-    @classmethod
-    def get_all_keys(cls, params, self=None):
-        return set(['pid', 'reltd'])
-
-    def whether_to_override(self, object_key):
-        return False
-
-    @dec
-    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
-        tt = self.get_var_or_file(tumor_info, params)
-        tumor_texts = self.get_var_or_file(raw_medical_text_new, params)
-        diagnosis_date = helper.my_date.init_from_num(tt['DateDx'])
-        relative_to_diagnosis = self.get_param(params, 'reltd')
-        #return features.report_feature_time_course_feature(features.side_effect_report_record_feature(side_effects.erection_side_effect())).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
-        ans = features.report_feature_time_course_feature(side_effects.urin_incont_bin()).generate(tumor_texts, relative_to_diagnosis, diagnosis_date)
-        return ans
-
-
-class tumor_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
-
-    @classmethod
-    def get_all_keys(cls, params, self=None):
-        return set(['pid']) | erection_time_series.get_all_keys(params, self)
-
-    def whether_to_override(self, object_key):
-        return True
-
-    @dec
-    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
-        # obtains info related to a tumor.  puts it into a tumor instance and returns it
-
-        tt = self.get_var_or_file(tumor_info, params)
-        pt = self.get_var_or_file(patient_info, params)
-        sdt = self.get_var_or_file(super_db_info, params)
-        texts = self.get_var_or_file(raw_medical_text_new, params)
-        #self.set_param(params, 'count_words', helper.words_to_coded_words(['erection','erections','erectile dysfunction']))
-        #erection_negation_counts = self.get_var_or_file(negation_counts, params)
-        pid = self.get_param(params, 'pid')
-        pdb.set_trace()
-        #gleason_primary = tt['CS_SSFactor5'][2]
-        #gleason_secondary = tt['CS_SSFactor5'][3]
-        
-        ets = self.get_var_or_file(erection_time_series, params)
-        uts = self.get_var_or_file(incontinence_time_series, params)
-        buts = self.get_var_or_file(bowel_urgency_time_series, params)
-
-        #ets = None
-        #uts = None
-        #buts = None
-
-
-        #print buts
-
-        alive_or_not = sdt['C_Vital']
-        date_last_contact = helper.my_date.init_from_hyphen_string(sdt['C_DLC'])
-        dob = helper.my_date.init_from_slash_string(sdt['C_DOB'])
-
-        return helper.tumor(_pid = pid, _grade = tt['Grade'], _SEERSummStage = tt['SEERSummStage2000'] , _BestStage = tt['BestStage'], _surgery_code = tt['MstDefSurgPrimSumm'], _radiation_code = tt['MstDefRTSumm'], _date_diagnosed = helper.my_date.init_from_num(tt['DateDx']), _surgery_date = helper.my_date.init_from_num(tt['DtMstDefSurg']), _radiation_date = helper.my_date.init_from_num(tt['MstDefRTDt']), _erection_time_series = ets, _incontinence_time_series = uts, _bowel_urgency_time_series = buts, _DLC = date_last_contact, _alive = alive_or_not, _DOB = dob, _tt = tt, _pt = pt, _sdt = sdt, _texts = texts)
-
-
-
-class tumor_lite_w(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
-
-    @classmethod
-    def get_all_keys(cls, params, self=None):
-        return set(['pid']) | erection_time_series.get_all_keys(params, self)
-
-    def whether_to_override(self, object_key):
-        return False
-
-    @dec
-    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
-        # obtains info related to a tumor.  puts it into a tumor instance and returns it
-        tt = self.get_var_or_file(tumor_info, params)
-        pt = self.get_var_or_file(patient_info, params)
-        sdt = self.get_var_or_file(super_db_info, params)
-        #self.set_param(params, 'count_words', helper.words_to_coded_words(['erection','erections','erectile dysfunction']))
-        #erection_negation_counts = self.get_var_or_file(negation_counts, params)
-        pid = self.get_param(params, 'pid')
-        #pdb.set_trace()
-        #gleason_primary = tt['CS_SSFactor5'][2]
-        #gleason_secondary = tt['CS_SSFactor5'][3]
-        
-
-        #ets = self.get_var_or_file(erection_time_series, params)
-        #uts = self.get_var_or_file(incontinence_time_series, params)
-
-        ets = None
-        uts = None
-        buts = None
-
-        alive_or_not = sdt['C_Vital']
-        date_last_contact = helper.my_date.init_from_hyphen_string(sdt['C_DLC'])
-        dob = helper.my_date.init_from_slash_string(sdt['C_DOB'])
-
-        return helper.tumor_lite(_pid = pid, _grade = tt['Grade'], _SEERSummStage = tt['SEERSummStage2000'] , _BestStage = tt['BestStage'], _surgery_code = tt['MstDefSurgPrimSumm'], _radiation_code = tt['MstDefRTSumm'], _date_diagnosed = helper.my_date.init_from_num(tt['DateDx']), _surgery_date = helper.my_date.init_from_num(tt['DtMstDefSurg']), _radiation_date = helper.my_date.init_from_num(tt['MstDefRTDt']), _erection_time_series = ets, _incontinence_time_series = uts, _bowel_urgency_time_series = buts, _DLC = date_last_contact, _alive = alive_or_not, _DOB = dob, _tt = tt, _pt = pt, _sdt = sdt)
-
-
-class tumor_list(wrapper.obj_wrapper):
-    """
-    list is identified by name i give it.  not by contents of list
-    """
-
-
-    @classmethod
-    def get_all_keys(cls, params, self=None):
-        return set(['list_name'])
-
-    def whether_to_override(self, object_key):
-        return False
-
-    @dec
-    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
-        pids_to_use = self.get_param(params, 'pid_list')
-        ans = []
-        count = 0
-        for pid in pids_to_use:
-            try:
-                self.set_param(params, 'pid', pid)
-                helper.print_if_verbose('getting ' + str(pid) + ' ' + str(count), 0.8)
-                to_add = self.get_var_or_file(tumor_w, params)
-                import features as f
-                print f.single_attribute_feature(helper.tumor.alive).generate(to_add)
-            except:
-                pass
-            else:
-                ans.append(to_add)
-            count += 1
-        pdb.set_trace()
-        return ans
-
-class tumor_lite_list(wrapper.obj_wrapper):
-    """
-    list is identified by name i give it.  not by contents of list
-    """
-
-
-    @classmethod
-    def get_all_keys(cls, params, self=None):
-        return set(['list_name'])
-
-    def whether_to_override(self, object_key):
-        return True
-
-    @dec
-    def constructor(self, params, recalculate, to_pickle, to_filelize = False, always_recalculate = False, old_obj = None):
-        pids_to_use = self.get_param(params, 'pid_list')
-        ans = []
-        count = 0
-        for pid in pids_to_use:
-            try:
-                self.set_param(params, 'pid', pid)
-                helper.print_if_verbose('getting ' + str(pid) + ' ' + str(count), 0.8)
-                to_add = self.get_var_or_file(tumor_lite_w, params)
-                import features as f
-                print f.single_attribute_feature(helper.tumor.alive).generate(to_add)
-            except:
-                pass
-            else:
-                ans.append(to_add)
-            count += 1
-        pdb.set_trace()
-        return ans
