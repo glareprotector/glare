@@ -19,7 +19,7 @@ class get_bucket_mean_feature(feature):
         if count == 0:
             return my_data_types.no_value_object()
         else:
-            return total / float(count))
+            return total / float(count)
 
 
 class get_bucket_sum_feature(feature):
@@ -43,7 +43,7 @@ class get_bucket_max_feature(feature):
     def _generate(self, bucket):
         max_so_far = my_data_types.no_value_object()
         for item in bucket:
-            if not isinstance(max_so_far, my_data_types.no_value_object)
+            if not isinstance(max_so_far, my_data_types.no_value_object):
                 try:
                     if max_so_far < item:
                         max_so_far = item
@@ -59,7 +59,7 @@ class get_bucket_min_feature(feature):
     def _generate(self, bucket):
         max_so_far = my_data_types.no_value_object()
         for item in bucket:
-            if not isinstance(max_so_far, my_data_types.no_value_object)
+            if not isinstance(max_so_far, my_data_types.no_value_object):
                 try:
                     if max_so_far > item:
                         max_so_far = item
@@ -77,7 +77,7 @@ class get_bucket_count_feature(feature):
     def _generate(self, bucket):
         count = 0
         for item in bucket:
-            if not isinstance(item, my_data_types.no_value_object)
+            if not isinstance(item, my_data_types.no_value_object):
                 count += 1
         return count
 

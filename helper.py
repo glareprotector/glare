@@ -11,7 +11,7 @@ import param
 import random
 import sys
 import my_exceptions
-from my_data_types import sv_int, sv_float, no_value_object
+from my_data_types import no_value_object
 
 
 def print_traceback():
@@ -677,6 +677,9 @@ class my_timedelta(timedelta):
 
         return str(self.days / 365.0)
 
+    def __str__(self):
+        return self.__repr__()
+
 
     
 class record(my_data_types.timed_object):
@@ -1065,10 +1068,10 @@ def attach_time_dec(f):
     """
     def g(timed_object_inst):
         import my_data_types
-        assert isinstance(ans, my_data_types.timed_object)
+        assert isinstance(timed_object_inst, my_data_types.timed_object)
         ans = f(timed_object_inst)
-        cls = get_ordered_equivalent(val)
-        return cls(ans.get_time(), ans)
+        cls = my_data_types.get_ordered_equivalent(ans)
+        return cls(ans, time=timed_object_inst.get_time())
 
     return g
 

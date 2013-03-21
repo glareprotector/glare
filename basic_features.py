@@ -8,7 +8,7 @@ from param import param
 import wc
 import objects
 
-from my_data_types import sv_int, sv_float
+
 
 class feature(object):
     """
@@ -91,7 +91,43 @@ class generic_categorical_feature(feature):
     def get_actual_value(self, tumor):
         return self.backing_feature(tumor)
 
-class report_feature_absolute_time_course_feature(feature):
+
+
+
+
+class ucla_report_feature_relative_to_treatment_time_course_feature(feature):
+    """
+    doesn't do much besides call the side effect's get_time_series method.  side_effect is an instance
+    """
+    def _generate(self, pid, side_effect):
+        return side_effect.get_time_series(pid)
+
+class mgh_report_feature_time_course_feature_relative(feature):
+    """
+    can only return series relative to treatment date
+    """
+    def _generate(self, pid, side_effect, relative_option):
+        if relative_option == 'treatment':
+            return ucla_report_feature_relative_to_treatment_time_course_feature(pid, side_effect)
+        else:
+            raise my_exceptions.NoFxnValueException
+
+
+class general_report_feature_time_course_feature_relative(feature):
+    """
+    side_effect in the case of mgh data will be side effect instance that knows how to classify records
+    if it is for ucla data, it will just know how to extract the absolute series given the data file
+    """
+    def _generate(self, pid, side_effect, relative_option, which_dataset):
+        if which_dataset == 'mgh':
+            return mgh_report_feature_time_course_feature_relative()(pid, side_effect, relative_option)
+        elif which_dataset == 'ucla':
+            return ucla_report_feature_time_course_feature_relative()(pid, side_effect, relative_option)
+                                                                     
+
+
+
+class mgh_report_feature_absolute_time_course_feature(feature):
 
     def _generate(self, pid, side_effect):
         """
@@ -101,14 +137,14 @@ class report_feature_absolute_time_course_feature(feature):
         ans = wc.get_stuff(objects.side_effect_time_series, p)
         return ans
 
-class report_feature_time_course_feature_relative(feature):
+class mgh_report_feature_time_course_feature_relative(feature):
     """
     returns the side effect series.  raises NoFxnValueException if the patient did not get a treatment, and relative to treatment is specified
     """
     def _generate(self, pid, side_effect, relative_option):
         assert relative_option in ['absolute', 'diagnosis', 'treatment']
         import copy, features
-        series_copy = copy.deepcopy(report_feature_absolute_time_course_feature()(pid, side_effect))
+        series_copy = copy.deepcopy(mgh_report_feature_absolute_time_course_feature()(pid, side_effect))
         if relative_option == 'absolute':
             return series_copy
         elif relative_option == 'treatment':
@@ -126,9 +162,12 @@ class side_effect_intervals_values_f(feature):
     """
     should never raise exception.  return list of NA's if necessary
     label_feature should be undecorated, but i don't think this actually matters
+    series_getter gets the raw series.  raw_processor takes the raw_series and converts it to what i want.
     """
-    def _generate(self, pid, side_effect, relative_to_what, intervals, label_feature):
-        series = report_feature_time_course_feature_relative()(pid, side_effect, relative_to_what)
+    #def _generate(self, pid, side_effect, relative_to_what, intervals, label_feature, which_dataset):
+    def _generate(self, pid, series_getter, raw_series_processor, relative_to_what):
+        pdb.set_trace()
+        series = general_report_feature_time_course_feature_relative()(pid, side_effect, relative_to_what, which_dataset)
         import my_data_types, aggregate_features as af
         bucket_list = my_data_types.bucket_timed_list.init_from_time_intervals_and_timed_list(intervals, series)
         interval_labels = bucket_list.apply_feature_always_add(label_feature)
@@ -138,13 +177,13 @@ class aggregate_side_effect_intervals_values_f(feature):
     """
     should never raise exception
     """
-    def _generate(self, pid_list, side_effect, relative_to_what, intervals, label_feature, aggregate_feature):
+    def _generate(self, pid_list, side_effect, relative_to_what, intervals, label_feature, aggregate_feature, which_dataset):
         import my_data_types, aggregate_features
+
         bl = my_data_types.bucket_timed_list.init_empty_bucket_timed_list_with_specified_times(intervals)
         for pid in pid_list:
-            interval_labels = side_effect_intervals_values_f()(pid, side_effect, relative_to_what, intervals, label_feature)
+            interval_labels = side_effect_intervals_values_f()(pid, side_effect, relative_to_what, intervals, label_feature, which_dataset)
             bl.lay_in_matching_ordinal_list(interval_labels)
-        meaner = aggregate_features.get_bucket_mean_f()
         ans = bl.apply_feature_always_add(aggregate_feature)
         return ans
 
@@ -154,9 +193,9 @@ class side_effect_interval_value_f(feature):
     should never raise exception
     returns a int or a no_value_object
     """
-    def _generate(self, pid, side_effect, relative_to_what, interval, label_feature):
+    def _generate(self, pid, side_effect, relative_to_what, interval, label_feature, which_dataset):
         intervals = [interval]
-        ans = side_effect_intervals_values_f()(pid, side_effect, relative_to_what, intervals, label_feature)
+        ans = side_effect_intervals_values_f()(pid, side_effect, relative_to_what, intervals, label_feature, which_dataset)
         return ans[0]
 
 

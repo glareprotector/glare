@@ -7,7 +7,7 @@ import numpy as np
 import my_exceptions
 import pdb
 
-collection_to_bucket = f.single_ordinal_single_value_wrapper_feature
+
 
 
 class plot_struct(object):

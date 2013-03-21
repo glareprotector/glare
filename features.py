@@ -13,7 +13,6 @@ from param import param
 
 from global_stuff import get_tumor_cls
 
-from my_data_types import sv_int, sv_float
 
 from basic_features import *
 

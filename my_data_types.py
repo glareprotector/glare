@@ -5,14 +5,14 @@ import pdb
 
 def get_ordered_equivalent(val):
 
-    if isinstance(val, int)
-        return ordered_int
-    elif isinstance(val, float)
-        return ordered_float
-    elif val.isinstance(my_list):
-        return ordered_bucket
-    elif val.isinstance(no_value_object):
-        return ordered_no_value_object
+    if isinstance(val, int):
+        return timed_int
+    elif isinstance(val, float):
+        return timed_float
+    elif isinstance(val, my_list):
+        return timed_bucket
+    elif isinstance(val, no_value_object):
+        return timed_no_value_object
     assert False
 
 class my_list(list):
@@ -28,6 +28,14 @@ class my_list(list):
         ans = ans + '}'
         return ans
 
+    def __init__(self, *args, **kwargs):
+        """
+        because my_list can be the parent of a timed_object, whose __new__ takes in both the time value and actual init value,
+        both of those things will be passed to init, which is too much for the original list.  so have to have my own __init__
+        that just gets rid of the arguments that don't matter
+        """
+        super(my_list, self).__init__(*args)
+
     def apply_feature(self, f):
         """
         returns my_list or child class of it, where each element is f applied to each element as a whole
@@ -38,7 +46,7 @@ class my_list(list):
         import helper
         for item in self:
             try:
-                candidate = g.generate(item)
+                candidate = f(item)
             except my_exceptions.NoFxnValueException:
                 pass
             except AssertionError:
@@ -54,10 +62,10 @@ class my_list(list):
         ans = my_list()
         for item in self:
             try:
-                assert isinstance(item, ordered_object)
-                candidate = g.generate(item)
+                assert isinstance(item, timed_object)
+                candidate = f(item)
             except my_exceptions.NoFxnValueException:
-                ans.append(ordered_no_value_object(item.get_ordered_value()))
+                ans.append(ordered_no_value_object(item.get_time()))
             except AssertionError:
                 pdb.set_trace()
             else:
@@ -67,7 +75,7 @@ class my_list(list):
     def apply_feature_no_catch(self, f):
         ans = my_list()
         for item in self:
-            candidate = g.generate(item)
+            candidate = f(item)
             ans.append(candidate)
         return ans
 
@@ -81,10 +89,10 @@ class no_value_object(object):
         inst = super(no_value_object, cls).__new__(cls, *args, **kwargs)
         return inst
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         pass
 
-    def __add__(self, other)
+    def __add__(self, other):
         raise my_exceptions.NoFxnValueException
 
     def __radd__(self, other):
@@ -124,10 +132,13 @@ class no_value_object(object):
         raise my_exceptions.NoFxnValueException
     
 class timed_object(object):
-
-    def __new__(cls, time, *args):
+    """
+    supply time as named argument
+    assumes that parent class's __new__ takes whatever is in *args
+    """
+    def __new__(cls, *args, **kwargs):
         inst = super(timed_object, cls).__new__(cls, *args)
-        inst.time = time
+        inst.time = kwargs['time']
         return inst
 
     def get_time(self):
@@ -161,7 +172,28 @@ class timed_bucket(timed_object, my_list):
 class timed_no_value_object(timed_object, no_value_object):
     pass
 
-class time_interval(object):
+
+class time_subsetter(object):
+    """
+    implements the contains method, which takes in a timed_object instance, and returns a boolean of whether the instance is 'in' the subset 
+    """
+    def contains(self, timed_object_inst):
+        raise NotImpelementedError
+
+class exact_time(timed_object, time_subsetter):
+    """
+    contains a timed_object instance only if their times are exactly the same
+    """
+    def contains(self, timed_object_inst):
+        assert isinstance(timed_object_inst, timed_object)
+        if self.get_time() == timed_object_inst.get_time():
+            return True
+        else:
+            return False
+
+
+
+class time_interval(time_subsetter):
 
     def contains(self, timed_object_inst):
         if not isinstance(timed_object_inst, timed_object):
@@ -195,16 +227,19 @@ class timed_list(my_list):
         return my_list.__iter__(self)
 
     def apply_feature(self, f):
+        import helper
         g = helper.attach_time_dec(f)
-        return timed_list(my_list.apply_feature(g))
+        return timed_list(my_list.apply_feature(self, g))
 
     def apply_feature_always_add(self, f):
+        import helper
         g = helper.attach_time_dec(f)
-        return timed_list(my_list.apply_feature_always_add(g))
+        return timed_list(my_list.apply_feature_always_add(self, g))
 
     def apply_feature_no_catch(self, f):
+        import helper
         g = helper.attach_time_dec(f)
-        return timed_list(my_list.apply_feature_no_catch(g))
+        return timed_list(my_list.apply_feature_no_catch(self, g))
 
 class bucket_timed_list(timed_list):
 
@@ -226,15 +261,21 @@ class bucket_timed_list(timed_list):
     def init_empty_bucket_timed_list_with_specified_times(cls, times):
         ans = list()
         for time in times:
-            ans.append(timed_bucket(time, my_list()))
+            ans.append(timed_bucket(my_list(), time=time))
         return cls(ans)
 
     def lay_in_matching_timed_list(self, to_add):
-        assert len(to_add) == len(self)
+        #assert len(to_add) == len(self)
+        for timed_bucket_instance in self:
+            for item in to_add:
+                if timed_bucket_instance.get_time() == item.get_time():
+                    timed_bucket_instance.append(item)
+
+        """
         for timed_bucket_instance, item in zip(self, to_add):
             assert timed_bucket_instance.get_time() == item.get_time()
             timed_bucket_instance.append(item)
-
+        """
 
                       
 

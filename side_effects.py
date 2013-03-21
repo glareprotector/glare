@@ -1,11 +1,55 @@
 import my_exceptions
 from match_features import *
 import helper
-from my_data_types import sv_int, sv_float
+
 import global_stuff
 from basic_features import feature
 
+
+
+# actually maybe a side effect should just be a class that implements get_absolute_time_series, which can call classify_report if it wants(for side effects calculated from reports)
+class side_effect(object):
+    pass
+
+class ucla_side_effect(side_effect):
+
+    def get_data_column_number(self):
+        return self.column_number
+
+    def __repr__(self):
+        return self.repr
+
+    def get_time_series(self, pid):
+        """
+        reads the file and returns a timed_list of the side effect values.  even if a value is not available, still has an entry with the time
+        """
+        f = open(self.backing_file,'r')
+        f.next()
+        import my_data_types
+        ans = my_data_types.timed_list()
+        for line in f:
+            s = line.strip().split(',')
+            line_pid = s[0]
+            if line_pid == pid:
+                line_time = helper.my_time_delta(days = int(s[1]) * 30)
+                try:
+                    val = float(s[self.get_data_column_number()])
+                except:
+                    pass
+                else:
+                    ans.append(my_data_types.timed_float(line_time, val))
+        return ans
+                
+    def __init__(self, column_number, backing_file, repr):
+        self.column_number = column_number
+        self.backing_file = backing_file
+        self.repr = repr
+
+
 # this is now a feature whose input object is a record
+# have been passing this entire class as the argument to objects.side_effect_time_series.  but that assumes that a side_effect is specialized to only operate on reports
+# if i want to be more general and say that side_effects can operate on report_lists as well as other datasets, then the thing that all side_effects must be able to do is
+# calculate a time series.  then, that should be the main feature(and side effect doesn't necessarily have to be a feature).
 class side_effect_report_feature(feature):
 
 

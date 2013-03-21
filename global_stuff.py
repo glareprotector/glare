@@ -15,7 +15,7 @@ import pdb
 time_total = datetime.timedelta(0)
 
 cosmic_or_humvar = 'cosmic'
-orchestra_or_no = 'mgh'
+orchestra_or_no = 'laptop'
 
 if orchestra_or_no  == 'orchestra':
 
@@ -76,6 +76,11 @@ elif orchestra_or_no == 'dragon':
     real_home = '/home/fultonw/pros/'
     temp_home = None
     real_base_folder = 'home/fultonw/pros/data/by_pid/'
+elif orchestra_or_no == 'laptop':
+    real_home = '/Users/glareprotector/Dropbox/prostate/'
+    real_base_folder = '/Users/glareprotector/Dropbox/prostate/by_pid/'
+
+
 
 base_folder = real_base_folder
 home = real_home
@@ -118,6 +123,9 @@ deleterious_mutations_file = '../data/humvar-2011_12.deleterious.pph.input'
 cosmic_raw_data_folder = data_folder + 'fasta/'
 
 negex_triggers_file = 'negex_triggers.txt'
+
+
+ucla_file = 'BrachyFull.csv'
 
 
 
