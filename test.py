@@ -1,14 +1,65 @@
 
 
-#class ordered_object(object):
 
-#    def __add__(self, other):
-#        """
-#        will refer to super class to use its operations
-#        """
+class named_object(object):
+
+    def __new__(cls, *args, **kwargs):
+        """
+        assuming whatever arguments needed to make parent class are in args
+        can't include **kwargs because some objects don't allow named arguments
+        alternatively, could rewrite the __new__ of the parent classes but not doing that for now
+        """
+        inst = super(named_object, cls).__new__(cls, *args)
+        inst.name = kwargs.pop('name')
+        return inst
+
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __init__(self, *args, **kwargs):
+        super(named_object, self).__init__(*args, **kwargs)
 
 
+import pdb
 
+class my_int(int):
+
+    def __new__(cls, *args, **kwargs):
+        inst = super(my_int, cls).__new__(cls, *args)
+        inst.arg = kwargs.pop('arg')
+        # prints {}
+        print "inside __new__: ", kwargs
+        return inst
+
+    def __init__(self, *args, **kwargs):
+        # prints {'arg':'asdf}'
+        print "inside __init__: ", kwargs
+        print kwargs    
+
+
+a = my_int(5, arg = 'asdf')
+
+pdb.set_trace()
+# inits for base classes need to take named arguments because whatever gets passed into new gets passed into init
+# alternatively, assume that init does not need any named arguments
+def ok(f, name):
+    def g(*args):
+        class D(named_object,f):
+            def __init__(self, *args, **kwargs):
+                print 'D: ', D.__mro__
+                super(D,self).__init__(*args)
+        return D(*args, name=name)
+    return g
+import basic_features as bf
+gfg = ok(bf.filtered_pid_iterable, 'asdf')(bf.all_ucla_pid_iterable(), lambda x: True)
+
+
+#gfg = ok(int, 'asdf')(5)
+
+pdb.set_trace()
 
 
 class ordered_object(object):

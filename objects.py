@@ -5,10 +5,10 @@ import param
 import global_stuff
 import helper
 import pdb
-import features
+#import features
 import side_effects
 import sys
-import basic_features
+#import basic_features
 
 class PID_to_MRN_dict(wrapper.obj_wrapper):
 
@@ -572,6 +572,7 @@ class bowel_urgency_time_series(wrapper.obj_wrapper, wrapper.by_pid_wrapper):
         tumor_texts = self.get_var_or_file(raw_medical_text_new, params)
         diagnosis_date = helper.my_date.init_from_num(tt['DateDx'])
         relative_to_diagnosis = self.get_param(params, 'reltd')
+        import basic_features
         #return features.report_feature_time_course_feature(features.side_effect_report_record_feature(side_effects.erection_side_effect()))(tumor_texts, relative_to_diagnosis, diagnosis_date)
         return basic_features.report_feature_time_course_feature(side_effects.bowel_urgency_bin())(tumor_texts, relative_to_diagnosis, diagnosis_date)
 

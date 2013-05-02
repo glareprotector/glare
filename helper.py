@@ -10,9 +10,9 @@ import pdb
 import param
 import random
 import sys
-import my_exceptions
-from my_data_types import no_value_object
-
+#import my_exceptions
+#from my_data_types import no_value_object
+import my_data_types
 
 def print_traceback():
     import traceback, sys
@@ -671,7 +671,22 @@ class my_date(date):
         day = int(s[1])
         return cls(year, month, day)
 
+from datetime import timedelta
+
+class year_from_timedelta(object):
+
+    def __get__(self, timedelta_inst, cls):
+        return timedelta_inst.days / 365.0
+
 class my_timedelta(timedelta):
+
+    years = year_from_timedelta()
+
+    def get_plot_coord(self):
+        """
+        returns the time_delta in terms of years, which is what i will plot
+        """
+        return self.days / 365.0
 
     def __repr__(self):
 
@@ -679,6 +694,7 @@ class my_timedelta(timedelta):
 
     def __str__(self):
         return self.__repr__()
+
 
 
     
@@ -689,6 +705,10 @@ class record(my_data_types.timed_object):
 
     def get_time(self):
         return self.date
+
+    def set_time(self, time):
+        self.time = time
+
 
     def __init__(self, date, pid, raw_text):
         self.pid = pid
@@ -1060,11 +1080,30 @@ class data_set(object):
         return self.pid_list.__iter__()
 
 
+def cast_result(f, cls):
+    def g(*args, **kwargs):
+        ans = f(*args, **kwargs)
+        return cls(ans)
+    return g
+
+
+
+def beta_mu_v_to_alpha_beta(mu, v):
+    beta = (mu*pow(1-mu,2)/v) - 1 + mu
+    alpha = mu * beta / (1 - mu)
+    return alpha, beta
+
+def beta_mu_rho_to_alpha_beta(mu, rho):
+    alpha = mu * (1.0 - rho) / rho
+    beta = (1.0 - rho) * (1.0 - mu) / rho
+    return alpha, beta
+
 
 def attach_time_dec(f):
     """
     assumes f is a callable that takes in a timed_object, but returns an un_timed one
     g returns a timed_object version of the original answer, using the input's time
+    assumes that the ans can take in itself in the __init__
     """
     def g(timed_object_inst):
         import my_data_types
@@ -1087,4 +1126,50 @@ def raise_NoFxnValueException_dec(f):
             raise my_exceptions.NoFxnValueException
         return ans
 
+    return g
+
+
+
+
+
+
+
+def isiterable(x):
+    try:
+        iter(x)
+    except TypeError:
+        return False
+    else:
+        return True
+
+# NOT USED ANYWHERE
+def remove_no_value_objects(l):
+    """
+    removes no_value_objects from list(or child class of) l
+    """
+    ans = type(l)()
+    import my_data_types
+    for x in l:
+        if not isinstance(x, my_data_types.no_value_object):
+            ans.append(x)
+    return ans
+
+# NOT USED ANYWHERE    
+def remove_no_value_dec(f):
+    """
+    takes in a function which is assumed to return a list(or child class of) and returns a function that returns the same list but with no_value_objects removed
+    """
+    def g(*args, **kwargs):
+        l = f(*args, **kwargs)
+        return remove_no_value_objects(l)
+    
+    return g
+
+# inits for base classes need to take named arguments because whatever gets passed into new gets passed into init
+def get_branded_version(cls, name):
+    def g(*args):
+        class anon(my_data_types.named_object, cls):
+            def __init__(self, *args, **kwargs):
+                super(anon,self).__init__(*args)
+        return anon(*args, name=name)
     return g

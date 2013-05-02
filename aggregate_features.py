@@ -2,8 +2,17 @@ from features import *
 
 
 
+
+class aggregate_feature(feature):
+    """
+    abstract class.  requirement is that the only argument to generate is a bucket
+    """
+    def check_input(self, x):
+        import helper
+        assert helper.isiterable(x)
+
 # if a feature output is to be used for bucket functions, then it has to implement get_value
-class get_bucket_mean_feature(feature):
+class get_bucket_mean_feature(aggregate_feature):
     """
     returns a float.  always returns something
     """
@@ -22,7 +31,7 @@ class get_bucket_mean_feature(feature):
             return total / float(count)
 
 
-class get_bucket_sum_feature(feature):
+class get_bucket_sum_feature(aggregate_feature):
     """
     returns a float.  always returns something
     """
@@ -37,8 +46,38 @@ class get_bucket_sum_feature(feature):
         return total
 
 
+class get_bucket_sd_feature(aggregate_feature):
+    """
+    might raise exception
+    """
+    def _generate(self, bucket):
+        import helper, pdb, basic_features as bf
+        mean = bf.always_raise(get_bucket_mean_feature())(bucket)
+        bucket_sqr_dist = bf.feature_applier(lambda x: pow(x-mean,2))(bucket)
+        avg_sqr_dist = bf.always_raise(get_bucket_mean_feature())(bucket_sqr_dist)
+        if abs(avg_sqr_dist) < .0001:
+            return 1.0
+        return pow(avg_sqr_dist, 0.5)
 
-class get_bucket_max_feature(feature):
+class get_uncertainty_point_feature(aggregate_feature):
+    """
+    returns uncertainty_point of bucket.  might raise exception
+    """
+    def _generate(self, bucket):
+        import pdb, basic_features as bf
+        mean = bf.always_raise(get_bucket_mean_feature())(bucket)
+        width = get_bucket_CI_width_feature()(bucket)
+        import my_data_types
+        return my_data_types.uncertainty_point.init_normal(mean, mean-width, mean+width)
+
+class get_bucket_CI_width_feature(aggregate_feature):
+    def _generate(self, bucket):
+        count = get_bucket_count_feature()(bucket)
+        sd = get_bucket_sd_feature()(bucket)
+        return 1.96 * sd / pow(count, 0.5)
+
+
+class get_bucket_max_feature(aggregate_feature):
 
     def _generate(self, bucket):
         max_so_far = my_data_types.no_value_object()
@@ -54,7 +93,7 @@ class get_bucket_max_feature(feature):
         return ans
 
 
-class get_bucket_min_feature(feature):
+class get_bucket_min_feature(aggregate_feature):
 
     def _generate(self, bucket):
         max_so_far = my_data_types.no_value_object()
@@ -70,7 +109,7 @@ class get_bucket_min_feature(feature):
         return ans
 
 
-class get_bucket_count_feature(feature):
+class get_bucket_count_feature(aggregate_feature):
     """
     returns the number of objects in buckets that are not no_value_objects
     """
@@ -82,7 +121,7 @@ class get_bucket_count_feature(feature):
         return count
 
 
-class get_bucket_count_nonzero_feature(feature):
+class get_bucket_count_nonzero_feature(aggregate_feature):
     """
     returns 1 if the count of the bucket is > 0.  otherwise, 0
     """
@@ -100,7 +139,7 @@ class get_bucket_count_nonzero_feature(feature):
 
 
 
-class get_bucket_label_feature(feature):
+class get_bucket_label_feature(aggregate_feature):
     """
     returns no_value_object if no real values in bucket, and a int otherwise.  should not raise any exceptions
     assumes that bucket values are either 0 or 1
@@ -126,7 +165,7 @@ class get_bucket_label_feature(feature):
         else:
             return 0
 
-class get_bucket_label_feature_justone(feature):
+class get_bucket_label_feature_justone(aggregate_feature):
 
     def _generate(self, bucket):
 

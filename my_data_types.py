@@ -1,7 +1,7 @@
 import my_exceptions
 import pdb
-
-
+import numpy
+import pandas
 
 def get_ordered_equivalent(val):
 
@@ -13,9 +13,56 @@ def get_ordered_equivalent(val):
         return timed_bucket
     elif isinstance(val, no_value_object):
         return timed_no_value_object
+    elif isinstance(val, uncertainty_point):
+        return timed_uncertainty_point
     assert False
 
-class my_list(list):
+
+def plot(self, ax, **kwargs):
+    """
+    because this collection is not ordered, this just calls plot function of each of its elements
+    """
+    for item in self:
+        try:
+            item.plot(ax, **kwargs)
+        except AttributeError:
+            pass
+
+def plot_hist(self, ax, bin_specifier=None, **kwargs):
+    """
+    if each element of list is subclass of some scalar, then can plot histogram of it
+    """
+    if bin_specifier:
+        ax.hist(self, bins=bin_specifier(self), **kwargs)
+    else:
+        ax.hist(self, **kwargs)
+
+def plot_best_fit(self, ax, **kwargs):
+    """
+    if each element is a 2-d tuple, can plot a best fit line
+    """
+    import numpy
+    x_vals = numpy.array([item[0] for item in self])
+    y_vals = numpy.array([item[1] for item in self])
+    import pylab
+    m,b = pylab.polyfit(x_vals, y_vals, 1)
+    ax.plot(x_vals, m*x_vals + b, **kwargs)
+
+
+
+class plottable(object):
+
+    plot = plot
+    plot_hist = plot_hist
+    plot_best_fit = plot_best_fit
+
+
+
+
+
+
+
+class my_list(list, plottable):
 
     @classmethod
     def get_class(cls):
@@ -65,7 +112,7 @@ class my_list(list):
                 assert isinstance(item, timed_object)
                 candidate = f(item)
             except my_exceptions.NoFxnValueException:
-                ans.append(ordered_no_value_object(item.get_time()))
+                ans.append(timed_no_value_object(time=item.get_time()))
             except AssertionError:
                 pdb.set_trace()
             else:
@@ -88,10 +135,17 @@ class no_value_object(object):
     def __new__(cls, *args, **kwargs):
         inst = super(no_value_object, cls).__new__(cls, *args, **kwargs)
         return inst
-
+    
     def __init__(self, *args, **kwargs):
         pass
 
+    def __repr__(self):
+        return 'NA'
+
+    def __str__(self):
+        return self.__repr__()
+
+    
     def __add__(self, other):
         raise my_exceptions.NoFxnValueException
 
@@ -116,9 +170,6 @@ class no_value_object(object):
     def __rdiv__(self, other):
         raise my_exceptions.NoFxnValueException
 
-    def __repr__(self):
-        return 'NA'
-
     def __lt__(self, other):
         raise my_exceptions.NoFxnValueException
 
@@ -131,6 +182,31 @@ class no_value_object(object):
     def __neq__(self, other):
         raise my_exceptions.NoFxnValueException
     
+    
+class uncertainty_point(object):
+    """
+    just holds 3 points - mean, lower, upper
+    """
+    @classmethod
+    def init_normal(cls, val, lower, upper):
+        ans = uncertainty_point()
+        ans.val = val
+        ans.lower = lower
+        ans.upper = upper
+        return ans
+
+    def __init__(self, another = None):
+
+        if another:
+            # self dict already has time added by new.  want to transfer that over
+            self.__dict__ = dict(another.__dict__.items() + self.__dict__.items())
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __repr__(self):
+        return '(' + str(self.val) + ',' + str(self.lower) + ',' + str(self.upper) + ')'
+
 class timed_object(object):
     """
     supply time as named argument
@@ -140,10 +216,24 @@ class timed_object(object):
         inst = super(timed_object, cls).__new__(cls, *args)
         inst.time = kwargs['time']
         return inst
+    
+    def __str__(self):
+        return self.__repr__()
 
+    def __repr__(self):
+        import pdb
+        return '(' + str(self.get_time()) + ',' + super(timed_object, self).__repr__() + ')'
+    
     def get_time(self):
         return self.time
 
+    def set_time(self, time):
+        self.time = time
+
+    def __init__(self, *args, **kwargs):
+        super(timed_object, self).__init__(*args)
+
+"""
     def __lt__(self, other):
         if not isinstance(other, timed_object):
             return NotImplemented
@@ -159,6 +249,14 @@ class timed_object(object):
         if not isinstance(other, timed_object):
             return NotImplemented
         return self.get_time() == other.get_time()
+"""
+
+
+class timed_nan(timed_object, no_value_object):
+    pass
+
+class timed_uncertainty_point(timed_object, uncertainty_point):
+    pass
 
 class timed_int(timed_object, int):
     pass
@@ -173,6 +271,8 @@ class timed_no_value_object(timed_object, no_value_object):
     pass
 
 
+
+
 class time_subsetter(object):
     """
     implements the contains method, which takes in a timed_object instance, and returns a boolean of whether the instance is 'in' the subset 
@@ -180,17 +280,18 @@ class time_subsetter(object):
     def contains(self, timed_object_inst):
         raise NotImpelementedError
 
-class exact_time(timed_object, time_subsetter):
-    """
+"""
+class exact_time(timed_my_timedelta, time_subsetter):
+    
     contains a timed_object instance only if their times are exactly the same
-    """
+    
     def contains(self, timed_object_inst):
         assert isinstance(timed_object_inst, timed_object)
         if self.get_time() == timed_object_inst.get_time():
             return True
         else:
             return False
-
+"""
 
 
 class time_interval(time_subsetter):
@@ -210,20 +311,28 @@ class time_interval(time_subsetter):
     def __repr__(self):
         return '('+repr(self.low)+'/'+repr(self.high)+')'
 
-
+class my_tuple(tuple):
+    """
+    this is just a regular tuple that i know how to plot
+    """
+    def plot(self, ax, color):
+        assert len(self) == 2
+        import matplotlib.pyplot as plt
+        ax.scatter([self[0]],[self[1]], color=color, s=0.7)
 
 class timed_list(my_list):
     """
     each element is an timed_object
     """
 
+    
+
     def sort_by_time(self):
         self.sort(key = lambda x: x.get_time())
         return my_list.__iter__(self)
 
     def __iter__(self):
-        pdb.set_trace()
-        self.sort()
+        self.sort_by_time()
         return my_list.__iter__(self)
 
     def apply_feature(self, f):
@@ -240,6 +349,21 @@ class timed_list(my_list):
         import helper
         g = helper.attach_time_dec(f)
         return timed_list(my_list.apply_feature_no_catch(self, g))
+
+class timed_uncertainty_list(timed_list):
+
+    def plot(self, ax, **kwargs):
+        import matplotlib.pyplot as plt
+        x_vals = [x.get_time().get_plot_coord() for x in self]
+        line = ax.plot(x_vals, [x.val for x in self], linewidth=2, **kwargs)
+        try:
+            kwargs.pop('label')
+        except KeyError:
+            pass
+        line = ax.plot(x_vals, [x.lower for x in self], linewidth=0.5, **kwargs)
+        line = ax.plot(x_vals, [x.upper for x in self], linewidth=0.5, **kwargs)
+
+
 
 class bucket_timed_list(timed_list):
 
@@ -270,6 +394,7 @@ class bucket_timed_list(timed_list):
             for item in to_add:
                 if timed_bucket_instance.get_time() == item.get_time():
                     timed_bucket_instance.append(item)
+
 
         """
         for timed_bucket_instance, item in zip(self, to_add):
@@ -323,3 +448,24 @@ class IO_dict(dict):
             ans = ans + '$$KEY$$' + '|' + str(key) + '\n'
             ans = ans + str(self[key]) + '\n'
         return ans
+
+class named_object(object):
+
+    def __new__(cls, *args, **kwargs):
+        """
+        assuming whatever arguments needed to make parent class are in args
+        can't include **kwargs because some objects don't allow named arguments
+        alternatively, could rewrite the __new__ of the parent classes but not doing that for now
+        """
+        inst = super(named_object, cls).__new__(cls, *args)
+        inst.name = kwargs.pop('name')
+        return inst
+
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __init__(self, *args, **kwargs):
+        super(named_object, self).__init__(*args, **kwargs)

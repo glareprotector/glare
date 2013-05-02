@@ -1,3 +1,18 @@
+import pdb
+
+mu = 0.4
+v = 0.1
+
+
+
+print alpha, beta
+print mu, alpha/(alpha + beta)
+print v, (alpha * beta) / (pow(alpha+beta,2) * (alpha + beta + 1))
+
+pdb.set_trace()
+
+
+
 import wc
 import param
 import objects

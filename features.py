@@ -1,8 +1,11 @@
 import re
+import pdb
+
+from basic_features import *
 import global_stuff
 import my_data_types
 import my_exceptions
-import pdb
+
 import helper
 
 # these imports may have problems
@@ -14,7 +17,7 @@ from param import param
 from global_stuff import get_tumor_cls
 
 
-from basic_features import *
+
 
 
 class surgery_code_f(feature):
