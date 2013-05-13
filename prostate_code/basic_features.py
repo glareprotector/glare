@@ -1,5 +1,7 @@
 import pandas
 import random
+import matplotlib.pyplot as plt
+
 
 class feature(object):
     """
@@ -126,7 +128,7 @@ class raw_series_getter(series_getter):
 
 class ucla_raw_series_getter_panda(feature):
     """
-    returns a panda series with no NA's
+    returns a panda series with no NA's.  time units is month(assume 30 days a month)
     """
     physical_condition, mental_condition, urinary_function, urinary_bother, bowel_function, bowel_bother, sexual_function, sexual_bother = 2,3,4,5,6,7,8,9
     def __init__(self, column, **kwargs):
@@ -139,8 +141,56 @@ class ucla_raw_series_getter_panda(feature):
         import my_data_types
         for item in my_series:
             if not isinstance(item, my_data_types.no_value_object):
-                d[item.get_time().days] = item
+                d[int(item.get_time().days / 30)] = item
         return pandas.Series(d)
+
+
+
+class plot_function_wrapper(feature):
+    """
+    takes in a regular function, keyworded arguments for those you want to hard code in init.
+    """
+    def __init__(self, f, **kwargs):
+        self.kwargs = kwargs
+        self.f = f
+
+    def _generate(self, **kwargs):
+        merged = dict(self.kwargs.items() + kwargs.items())
+        self.f(merged)
+
+
+class fig_with_one_subfig(feature):
+    """
+    function takes in a function which takes in a subfig and modifies it, and returns a figure with with only that 1 subfig
+    """
+    def _generate(self, subfig_f):
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        ax = subfig_f(ax)
+        return fig
+
+class show_fig_f(feature):
+    """
+    takes in function that returns a figure.  generate will call it and show the fig
+    """
+    def __init__(self, f):
+        self.f = f
+
+    def _generate(self, **kwargs):
+        fig = self.f(**kwargs)
+        fig.show()
+
+
+class save_fig_f(feature):
+    """
+    takes in function that returns a figure.  saves the figure to specified file
+    """
+    def __init__(self, f, file_name):
+        self.f, self.file_name = f, file
+
+    def _generate(self, **kwargs):
+        fig = self.f(**kwargs)
+        plt.savefig(self.file)
 
 
 class fake_raw_series_getter(feature):

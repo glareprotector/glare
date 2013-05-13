@@ -13,6 +13,7 @@ import sys
 #import my_exceptions
 #from my_data_types import no_value_object
 import my_data_types
+import numpy as np
 
 def print_traceback():
     import traceback, sys
@@ -1087,6 +1088,12 @@ def cast_result(f, cls):
     return g
 
 
+def seq(low, high, num):
+    
+    span = high - low
+    return [low + x * span / float(num) for x in xrange(1,num)]
+
+
 
 def beta_mu_v_to_alpha_beta(mu, v):
     beta = (mu*pow(1-mu,2)/v) - 1 + mu
@@ -1097,6 +1104,44 @@ def beta_mu_rho_to_alpha_beta(mu, rho):
     alpha = mu * (1.0 - rho) / rho
     beta = (1.0 - rho) * (1.0 - mu) / rho
     return alpha, beta
+
+
+def gamma_mu_phi_to_k_theta(mu, phi):
+    k = 1.0 / phi
+    theta = mu * phi
+    return k, theta
+
+
+def truncated_exponential_likelihood(x, l):
+    if x > 1.0 or x < 0.0:
+        return -1.0 * np.inf
+    else:
+        l = 1.0 / l
+        import math
+        return math.log((math.exp(-1.0 * x / l) / l) / (1.0 - math.exp(-1.0 / l)))
+
+
+import matplotlib.pyplot as plt
+
+
+def painter_add_one_subfig(fig, sub_painter, *args):
+    ax = fig.add_subplot(111)
+    sub_painter(ax, *args)
+    return fig
+
+def make_fig_show_fig(painter, *args):
+    
+    fig = plt.figure()
+    fig = painter(fig, *args)
+    fig.show()
+
+def make_fig_save_fig(file_name, painter, *args):
+
+    fig = plt.figure()
+    fig = painter(*args)
+    plt.savefig(file_name)
+
+
 
 
 def attach_time_dec(f):

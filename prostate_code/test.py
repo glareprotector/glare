@@ -1,3 +1,20 @@
+import helper
+import get_model
+
+
+
+l_as = [1,5,10,15,20]
+l_cs = l_as
+
+helper.make_fig_show_fig(helper.painter_add_one_subfig, get_model.plot_a_for_several_l_c, 20000, 0.7, 0.7, 0.7, 0.3, 0.3, 0.3, 10, 10, l_cs)
+
+helper.make_fig_show_fig(helper.painter_add_one_subfig, get_model.plot_a_for_several_l_a, 20000, 0.7, 0.7, 0.7, 0.3, 0.3, 0.3, l_as, 10, 10)
+
+
+
+helper.make_fig_show_fig(get_model.plot_simple_dashboard_mus, 10000, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 2, .2, 20)
+
+
 
 
 
