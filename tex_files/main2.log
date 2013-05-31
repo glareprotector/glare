@@ -1,0 +1,1021 @@
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.6.30)  24 MAY 2013 14:40
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**main2.tex
+(./main2.tex
+LaTeX2e <2011/06/27>
+Babel <v3.8m> and hyphenation patterns for english, dumylang, nohyphenation, ge
+rman-x-2012-05-30, ngerman-x-2012-05-30, afrikaans, ancientgreek, ibycus, arabi
+c, armenian, basque, bulgarian, catalan, pinyin, coptic, croatian, czech, danis
+h, dutch, ukenglish, usenglishmax, esperanto, estonian, ethiopic, farsi, finnis
+h, french, friulan, galician, german, ngerman, swissgerman, monogreek, greek, h
+ungarian, icelandic, assamese, bengali, gujarati, hindi, kannada, malayalam, ma
+rathi, oriya, panjabi, tamil, telugu, indonesian, interlingua, irish, italian, 
+kurmanji, latin, latvian, lithuanian, mongolian, mongolianlmc, bokmal, nynorsk,
+ polish, portuguese, romanian, romansh, russian, sanskrit, serbian, serbianc, s
+lovak, slovenian, spanish, swedish, turkish, turkmen, ukrainian, uppersorbian, 
+welsh, loaded.
+(./mitthesis.cls
+Document Class: mitthesis 1999/10/20
+\vithesis=\count79
+(/usr/local/texlive/2012/texmf-dist/tex/latex/base/report.cls
+Document Class: report 2007/10/19 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2012/texmf-dist/tex/latex/base/size12.clo
+File: size12.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count80
+\c@chapter=\count81
+\c@section=\count82
+\c@subsection=\count83
+\c@subsubsection=\count84
+\c@paragraph=\count85
+\c@subparagraph=\count86
+\c@figure=\count87
+\c@table=\count88
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/usr/local/texlive/2012/texmf-dist/tex/latex/setspace/setspace.sty
+Package: setspace 2011/12/19 v6.7a set line spacing
+)
+Thesis document copyright MIT unless otherwise (manually) specified
+\@titlesupervisor=\box26
+\@abstractsupervisor=\box27
+\c@savepage=\count89
+) (./lgrind.sty
+Package: lgrind 1997/01/30 v3.4 LGrind environment and supporting stuff
+\lc@unt=\count90
+\ln@xt=\count91
+\LGnuminterval=\count92
+\LGindent=\skip43
+\LGsloppy=\skip44
+\procbox=\box28
+\ls@far=\box29
+\tb@x=\box30
+\TBw@d=\dimen103
+\@ts=\dimen104
+)
+(/usr/local/texlive/2012/texmf-dist/tex/latex/enumitem/enumitem.sty
+Package: enumitem 2011/09/28 v3.5.2 Customized lists
+\enitkv@toks@=\toks14
+\labelindent=\skip45
+\enit@outerparindent=\dimen105
+\enit@toks=\toks15
+\enit@inbox=\box31
+\enitdp@description=\count93
+)
+(/usr/local/texlive/2012/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2012/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks16
+)
+(/usr/local/texlive/2012/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2012/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(/usr/local/texlive/2012/texmf-dist/tex/latex/latexconfig/graphics.cfg
+File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
+)
+Package graphics Info: Driver file: pdftex.def on input line 91.
+
+(/usr/local/texlive/2012/texmf-dist/tex/latex/pdftex-def/pdftex.def
+File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
+
+(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+)
+(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
+Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count94
+))
+\Gin@req@height=\dimen106
+\Gin@req@width=\dimen107
+)
+(/usr/local/texlive/2012/texmf-dist/tex/latex/bbm-macros/bbm.sty
+Package: bbm 1999/03/15 V 1.2 provides fonts for set symbols - TH
+LaTeX Font Info:    Overwriting math alphabet `\mathbbm' in version `bold'
+(Font)                  U/bbm/m/n --> U/bbm/bx/n on input line 33.
+LaTeX Font Info:    Overwriting math alphabet `\mathbbmss' in version `bold'
+(Font)                  U/bbmss/m/n --> U/bbmss/bx/n on input line 35.
+)
+(/usr/local/texlive/2012/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2009/06/22 v3.00 Basic AMSFonts support
+\@emptytoks=\toks17
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 96.
+)
+(/usr/local/texlive/2012/texmf-dist/tex/latex/amscls/amsthm.sty
+Package: amsthm 2009/07/02 v2.20.1
+\thm@style=\toks18
+\thm@bodyfont=\toks19
+\thm@headfont=\toks20
+\thm@notefont=\toks21
+\thm@headpunct=\toks22
+\thm@preskip=\skip46
+\thm@postskip=\skip47
+\thm@headsep=\skip48
+\dth@everypar=\toks23
+)
+(/usr/local/texlive/2012/texmf-dist/tex/latex/subfigure/subfigure.sty
+Package: subfigure 2002/03/15 v2.1.5 subfigure package
+\subfigtopskip=\skip49
+\subfigcapskip=\skip50
+\subfigcaptopadj=\dimen108
+\subfigbottomskip=\skip51
+\subfigcapmargin=\dimen109
+\subfiglabelskip=\skip52
+\c@subfigure=\count95
+\c@lofdepth=\count96
+\c@subtable=\count97
+\c@lotdepth=\count98
+
+****************************************
+* Local config file subfigure.cfg used *
+****************************************
+(/usr/local/texlive/2012/texmf-dist/tex/latex/subfigure/subfigure.cfg)
+\subfig@top=\skip53
+\subfig@bottom=\skip54
+)
+\c@defn=\count99
+\c@obs=\count100
+
+Enter file names to process, (chap1,chap2 ...), or `all' to process all files:
+
+\files=all
+Including all files.
+(./main2.aux (./cover.aux) (./contents.aux) (./chapters/intro.aux)
+(./chapters/exploratory_analysis.aux) (./chapters/chp_model.aux)
+(./chapters/curve_prediction.aux) (./my_biblio.aux))
+\openout1 = `main2.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+
+(/usr/local/texlive/2012/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count101
+\scratchdimen=\dimen110
+\scratchbox=\box32
+\nofMPsegments=\count102
+\nofMParguments=\count103
+\everyMPshowfont=\toks24
+\MPscratchCnt=\count104
+\MPscratchDim=\dimen111
+\MPnumerator=\count105
+\makeMPintoPDFobject=\count106
+\everyMPtoPDFconversion=\toks25
+) (/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
+Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/ifluatex.sty
+Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
+)
+(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/ifpdf.sty
+Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
+Package ifpdf Info: pdfTeX in PDF mode is detected.
+)
+Package pdftexcmds Info: LuaTeX not detected.
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
+(/usr/local/texlive/2012/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
+
+(/usr/local/texlive/2012/texmf-dist/tex/latex/oberdiek/grfext.sty
+Package: grfext 2010/08/19 v1.1 Manage graphics extensions (HO)
+
+(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
+Package: kvdefinekeys 2011/04/07 v1.3 Define keys (HO)
+))
+(/usr/local/texlive/2012/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+Package: kvoptions 2011/06/30 v3.11 Key value format for package options (HO)
+
+(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+Package: kvsetkeys 2012/04/25 v1.16 Key value parser (HO)
+
+(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+Package: etexcmds 2011/02/16 v1.5 Avoid name clashes with e-TeX commands (HO)
+Package etexcmds Info: Could not find \expanded.
+(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
+(etexcmds)             that some package has redefined \expanded.
+(etexcmds)             In the latter case, load this package earlier.
+)))
+Package grfext Info: Graphics extension search list:
+(grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPE
+G,.JBIG2,.JB2,.eps]
+(grfext)             \AppendGraphicsExtensions on input line 452.
+
+(/usr/local/texlive/2012/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+\openout2 = `cover.aux'.
+
+
+(./cover.tex
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 91.
+ (/usr/local/texlive/2012/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <14.4> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 91.
+
+[1
+
+
+
+{/usr/local/texlive/2012/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+[2
+
+] (./abstract.tex) [3
+
+] [4
+
+]) [5]
+\openout2 = `contents.aux'.
+
+ (./contents.tex [6
+
+
+
+] (./main2.toc
+LaTeX Font Info:    Try loading font information for U+msa on input line 2.
+
+(/usr/local/texlive/2012/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2009/06/22 v3.00 AMS symbols A
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 2.
+
+(/usr/local/texlive/2012/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2009/06/22 v3.00 AMS symbols B
+) [7])
+\tf@toc=\write3
+\openout3 = `main2.toc'.
+
+ [8]
+(./main2.lof)
+\tf@lof=\write4
+\openout4 = `main2.lof'.
+
+) [9
+
+]
+\openout2 = `chapters/intro.aux'.
+
+ (./chapters/intro.tex [10
+
+
+
+]
+Chapter 1.
+[11]) [12]
+\openout2 = `chapters/exploratory_analysis.aux'.
+
+ (./chapters/exploratory_analysis.tex
+Chapter 2.
+(./sections/explore/explore-content.tex
+</Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_time_s
+eries_by_treatment/bowel_func.png, id=48, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_t
+ime_series_by_treatment/bowel_func.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_ti
+me_series_by_treatment/bowel_func.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/explore/avg_time_series_by_treatment/bowel_func.png used on input line 11
+.
+(pdftex.def)             Requested size: 130.08038pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_time_s
+eries_by_treatment/sexual_func.png, id=50, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_t
+ime_series_by_treatment/sexual_func.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_ti
+me_series_by_treatment/sexual_func.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/explore/avg_time_series_by_treatment/sexual_func.png used on input line 1
+4.
+(pdftex.def)             Requested size: 130.08038pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_time_s
+eries_by_treatment/urin_func.png, id=51, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_t
+ime_series_by_treatment/urin_func.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_ti
+me_series_by_treatment/urin_func.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/explore/avg_time_series_by_treatment/urin_func.png used on input line 17.
+
+(pdftex.def)             Requested size: 130.08038pt x 195.1338pt.
+ [13
+
+
+
+]
+</Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_time_s
+eries_strat_by_attribute/bowel_func.png, id=56, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_t
+ime_series_strat_by_attribute/bowel_func.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_ti
+me_series_strat_by_attribute/bowel_func.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/explore/avg_time_series_strat_by_attribute/bowel_func.png used on input l
+ine 30.
+(pdftex.def)             Requested size: 130.08038pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_time_s
+eries_strat_by_attribute/sexual_func.png, id=57, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_t
+ime_series_strat_by_attribute/sexual_func.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_ti
+me_series_strat_by_attribute/sexual_func.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/explore/avg_time_series_strat_by_attribute/sexual_func.png used on input 
+line 33.
+(pdftex.def)             Requested size: 130.08038pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_time_s
+eries_strat_by_attribute/urin_func.png, id=58, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_t
+ime_series_strat_by_attribute/urin_func.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_ti
+me_series_strat_by_attribute/urin_func.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/explore/avg_time_series_strat_by_attribute/urin_func.png used on input li
+ne 36.
+(pdftex.def)             Requested size: 130.08038pt x 195.1338pt.
+ [14 </Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_t
+ime_series_by_treatment/bowel_func.png> </Users/glareprotector/prostate_git/gla
+re/tex_files/sections/explore/avg_time_series_by_treatment/sexual_func.png> </U
+sers/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_time_seri
+es_by_treatment/urin_func.png>]
+</Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_time_s
+eries_strat_by_pre_state/bowel_func.png, id=66, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_t
+ime_series_strat_by_pre_state/bowel_func.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_ti
+me_series_strat_by_pre_state/bowel_func.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/explore/avg_time_series_strat_by_pre_state/bowel_func.png used on input l
+ine 46.
+(pdftex.def)             Requested size: 130.08038pt x 130.08038pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_time_s
+eries_strat_by_pre_state/sexual_func.png, id=67, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_t
+ime_series_strat_by_pre_state/sexual_func.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_ti
+me_series_strat_by_pre_state/sexual_func.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/explore/avg_time_series_strat_by_pre_state/sexual_func.png used on input 
+line 49.
+(pdftex.def)             Requested size: 130.08038pt x 130.08038pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_time_s
+eries_strat_by_pre_state/urin_func.png, id=68, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_t
+ime_series_strat_by_pre_state/urin_func.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_ti
+me_series_strat_by_pre_state/urin_func.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/explore/avg_time_series_strat_by_pre_state/urin_func.png used on input li
+ne 52.
+(pdftex.def)             Requested size: 130.08038pt x 130.08038pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/explore/change_in_
+state_vs_attribute_by_treatment/bowel_func_brachy.png, id=69, 578.16pt x 433.62
+pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/chang
+e_in_state_vs_attribute_by_treatment/bowel_func_brachy.png Graphic file (type p
+ng)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/change
+_in_state_vs_attribute_by_treatment/bowel_func_brachy.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/explore/change_in_state_vs_attribute_by_treatment/bowel_func_brachy.png u
+sed on input line 62.
+(pdftex.def)             Requested size: 130.08038pt x 130.08038pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 62--62
+[]\OT1/cmr/m/n/10 (a) bowel func-
+ []
+
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/explore/change_in_
+state_vs_attribute_by_treatment/sexual_func_surgery.png, id=70, 578.16pt x 433.
+62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/chang
+e_in_state_vs_attribute_by_treatment/sexual_func_surgery.png Graphic file (type
+ png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/change
+_in_state_vs_attribute_by_treatment/sexual_func_surgery.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/explore/change_in_state_vs_attribute_by_treatment/sexual_func_surgery.png
+ used on input line 65.
+(pdftex.def)             Requested size: 130.08038pt x 130.08038pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/explore/change_in_
+state_vs_attribute_by_treatment/urin_func_radiation.png, id=71, 578.16pt x 433.
+62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/chang
+e_in_state_vs_attribute_by_treatment/urin_func_radiation.png Graphic file (type
+ png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/explore/change
+_in_state_vs_attribute_by_treatment/urin_func_radiation.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/explore/change_in_state_vs_attribute_by_treatment/urin_func_radiation.png
+ used on input line 68.
+(pdftex.def)             Requested size: 130.08038pt x 130.08038pt.
+ [15 </Users/glareprotector/prostate_git/glare/tex_files/sections/explore/avg_t
+ime_series_strat_by_attribute/bowel_func.png> </Users/glareprotector/prostate_g
+it/glare/tex_files/sections/explore/avg_time_series_strat_by_attribute/sexual_f
+unc.png> </Users/glareprotector/prostate_git/glare/tex_files/sections/explore/a
+vg_time_series_strat_by_attribute/urin_func.png> </Users/glareprotector/prostat
+e_git/glare/tex_files/sections/explore/avg_time_series_strat_by_pre_state/bowel
+_func.png> </Users/glareprotector/prostate_git/glare/tex_files/sections/explore
+/avg_time_series_strat_by_pre_state/sexual_func.png> </Users/glareprotector/pro
+state_git/glare/tex_files/sections/explore/avg_time_series_strat_by_pre_state/u
+rin_func.png>]))
+[16 </Users/glareprotector/prostate_git/glare/tex_files/sections/explore/change
+_in_state_vs_attribute_by_treatment/bowel_func_brachy.png> </Users/glareprotect
+or/prostate_git/glare/tex_files/sections/explore/change_in_state_vs_attribute_b
+y_treatment/sexual_func_surgery.png> </Users/glareprotector/prostate_git/glare/
+tex_files/sections/explore/change_in_state_vs_attribute_by_treatment/urin_func_
+radiation.png>]
+\openout2 = `chapters/chp_model.aux'.
+
+ (./chapters/chp_model.tex
+Chapter 3.
+(./sections/model_description/model_description-content.tex [17
+
+
+
+]
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 36.
+ [18] [19]
+[20] [21] [22]
+Underfull \vbox (badness 4048) has occurred while \output is active []
+
+ [23]
+[24]) (./sections/normal_prior/normal_prior-content.tex [25] [26]
+Overfull \hbox (45.38318pt too wide) in paragraph at lines 49--50
+\OT1/cmr/m/n/12 For a test sam-ple $[]$, the prior pre-dic-tive dis-tri-bu-tion
+ $[]\OMS/cmsy/m/n/12 j\OML/cmm/m/it/12 c[]$ \OT1/cmr/m/n/12 is dis-tributed $[]
+(\OML/cmm/m/it/12 ^^V[]; []\OT1/cmr/m/n/12 )$,
+ []
+
+[27]
+</Users/glareprotector/prostate_git/glare/tex_files/sections/normal_prior/files
+/mu_a_pdf.png, id=126, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/normal_prior/
+files/mu_a_pdf.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/normal_prior/f
+iles/mu_a_pdf.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/normal_prior/files/mu_a_pdf.png used on input line 61.
+(pdftex.def)             Requested size: 289.07928pt x 216.80946pt.
+ [28 </Users/glareprotector/prostate_git/glare/tex_files/sections/normal_prior/
+files/mu_a_pdf.png>])
+(./sections/gamma_prior/gamma_prior-content.tex
+Underfull \vbox (badness 1077) has occurred while \output is active []
+
+ [29]
+[30]
+</Users/glareprotector/prostate_git/glare/tex_files/sections/gamma_prior/files/
+several_pdfs.png, id=137, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/gamma_prior/f
+iles/several_pdfs.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/gamma_prior/fi
+les/several_pdfs.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/gamma_prior/files/several_pdfs.png used on input line 33.
+(pdftex.def)             Requested size: 216.80946pt x 144.53743pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [31 </Users/glareprotector/prostate_git/glare/tex_files/sections/gamma_prior/f
+iles/several_pdfs.png>]
+</Users/glareprotector/prostate_git/glare/tex_files/sections/curve_prior/files/
+curve_priors.png, id=143, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/curve_prior/f
+iles/curve_priors.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/curve_prior/fi
+les/curve_priors.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/curve_prior/files/curve_priors.png used on input line 49.
+(pdftex.def)             Requested size: 216.80946pt x 144.53743pt.
+)) [32 </Users/glareprotector/prostate_git/glare/tex_files/sections/curve_prior
+/files/curve_priors.png>]
+\openout2 = `chapters/curve_prediction.aux'.
+
+ (./chapters/curve_prediction.tex
+Chapter 4.
+(./sections/simulate_data_points_infer_Bs/simulation_results-content.tex
+Overfull \hbox (6.93098pt too wide) in paragraph at lines 4--5
+[]\OT1/cmr/m/n/12 To per-form the ac-tual in-fer-ence, we use the stan-dard Met
+ropolis-hastings method[[]],
+ []
+
+[33
+
+
+
+]
+</Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data_poin
+ts_infer_Bs/files/fixing_abc_log_p_trace.png, id=151, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data
+_points_infer_Bs/files/fixing_abc_log_p_trace.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data_
+points_infer_Bs/files/fixing_abc_log_p_trace.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/simulate_data_points_infer_Bs/files/fixing_abc_log_p_trace.png used on in
+put line 16.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data_poin
+ts_infer_Bs/files/fixing_abc_Bs_histogram.png, id=152, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data
+_points_infer_Bs/files/fixing_abc_Bs_histogram.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data_
+points_infer_Bs/files/fixing_abc_Bs_histogram.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/simulate_data_points_infer_Bs/files/fixing_abc_Bs_histogram.png used on i
+nput line 19.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data_poin
+ts_infer_Bs/files/fixing_abc_Bs_trace.png, id=153, 590.4459pt x 445.9059pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data
+_points_infer_Bs/files/fixing_abc_Bs_trace.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data_
+points_infer_Bs/files/fixing_abc_Bs_trace.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/simulate_data_points_infer_Bs/files/fixing_abc_Bs_trace.png used on input
+ line 22.
+(pdftex.def)             Requested size: 195.12704pt x 195.13098pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data_poin
+ts_infer_Bs/files/cmatters_log_p_trace.png, id=154, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data
+_points_infer_Bs/files/cmatters_log_p_trace.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data_
+points_infer_Bs/files/cmatters_log_p_trace.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/simulate_data_points_infer_Bs/files/cmatters_log_p_trace.png used on inpu
+t line 33.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data_poin
+ts_infer_Bs/files/cmatters_Bs_histogram.png, id=155, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data
+_points_infer_Bs/files/cmatters_Bs_histogram.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data_
+points_infer_Bs/files/cmatters_Bs_histogram.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/simulate_data_points_infer_Bs/files/cmatters_Bs_histogram.png used on inp
+ut line 36.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data_poin
+ts_infer_Bs/files/cmatters_Bs_trace.png, id=156, 590.4459pt x 445.9059pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data
+_points_infer_Bs/files/cmatters_Bs_trace.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data_
+points_infer_Bs/files/cmatters_Bs_trace.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/simulate_data_points_infer_Bs/files/cmatters_Bs_trace.png used on input l
+ine 39.
+(pdftex.def)             Requested size: 195.12704pt x 195.13098pt.
+)
+(./sections/simulate_data_points_infer_Bs/error_checking.tex [34] [35 </Users/g
+lareprotector/prostate_git/glare/tex_files/sections/simulate_data_points_infer_
+Bs/files/fixing_abc_log_p_trace.png> </Users/glareprotector/prostate_git/glare/
+tex_files/sections/simulate_data_points_infer_Bs/files/fixing_abc_Bs_histogram.
+png> </Users/glareprotector/prostate_git/glare/tex_files/sections/simulate_data
+_points_infer_Bs/files/fixing_abc_Bs_trace.png>] [36 </Users/glareprotector/pro
+state_git/glare/tex_files/sections/simulate_data_points_infer_Bs/files/cmatters
+_log_p_trace.png> </Users/glareprotector/prostate_git/glare/tex_files/sections/
+simulate_data_points_infer_Bs/files/cmatters_Bs_histogram.png> </Users/glarepro
+tector/prostate_git/glare/tex_files/sections/simulate_data_points_infer_Bs/file
+s/cmatters_Bs_trace.png>]
+</Users/glareprotector/Documents/prostate/hist09.png, id=172, 590.4459pt x 445.
+9059pt>
+File: /Users/glareprotector/Documents/prostate/hist09.png Graphic file (type pn
+g)
+ <use /Users/glareprotector/Documents/prostate/hist09.png>
+Package pdftex.def Info: /Users/glareprotector/Documents/prostate/hist09.png us
+ed on input line 19.
+(pdftex.def)             Requested size: 195.12704pt x 195.13098pt.
+
+</Users/glareprotector/Documents/prostate/hist05.png, id=173, 590.4459pt x 445.
+9059pt>
+File: /Users/glareprotector/Documents/prostate/hist05.png Graphic file (type pn
+g)
+ <use /Users/glareprotector/Documents/prostate/hist05.png>
+Package pdftex.def Info: /Users/glareprotector/Documents/prostate/hist05.png us
+ed on input line 22.
+(pdftex.def)             Requested size: 195.12704pt x 195.13098pt.
+
+</Users/glareprotector/Documents/prostate/hist02.png, id=174, 590.4459pt x 445.
+9059pt>
+File: /Users/glareprotector/Documents/prostate/hist02.png Graphic file (type pn
+g)
+ <use /Users/glareprotector/Documents/prostate/hist02.png>
+Package pdftex.def Info: /Users/glareprotector/Documents/prostate/hist02.png us
+ed on input line 25.
+(pdftex.def)             Requested size: 195.12704pt x 195.13098pt.
+
+</Users/glareprotector/Documents/prostate/hist001.png, id=175, 590.4459pt x 445
+.9059pt>
+File: /Users/glareprotector/Documents/prostate/hist001.png Graphic file (type p
+ng)
+ <use /Users/glareprotector/Documents/prostate/hist001.png>
+Package pdftex.def Info: /Users/glareprotector/Documents/prostate/hist001.png u
+sed on input line 28.
+(pdftex.def)             Requested size: 195.12704pt x 195.13098pt.
+)
+(./sections/exploratory_with_abc/exploratory_with_abc-content.tex [37] [38 </Us
+ers/glareprotector/Documents/prostate/hist09.png> </Users/glareprotector/Docume
+nts/prostate/hist05.png> </Users/glareprotector/Documents/prostate/hist02.png> 
+</Users/glareprotector/Documents/prostate/hist001.png>]
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/bowel_function_brachytherapy_age.png, id
+=188, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/bowel_function_brachytherapy_age.pn
+g Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/bowel_function_brachytherapy_age.png
+>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/bowel_function_b
+rachytherapy_age.png used on input line 7.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/bowel_function_brachytherapy_initial_lev
+el.png, id=189, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/bowel_function_brachytherapy_initia
+l_level.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/bowel_function_brachytherapy_initial
+_level.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/bowel_function_b
+rachytherapy_initial_level.png used on input line 10.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/bowel_function_surgery_age.png, id=190, 
+578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/bowel_function_surgery_age.png Grap
+hic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/bowel_function_surgery_age.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/bowel_function_s
+urgery_age.png used on input line 13.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/bowel_function_surgery_initial_level.png
+, id=191, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/bowel_function_surgery_initial_leve
+l.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/bowel_function_surgery_initial_level
+.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/bowel_function_s
+urgery_initial_level.png used on input line 16.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/bowel_function_radiation_age.png, id=192
+, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/bowel_function_radiation_age.png Gr
+aphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/bowel_function_radiation_age.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/bowel_function_r
+adiation_age.png used on input line 19.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/bowel_function_radiation_initial_level.p
+ng, id=193, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/bowel_function_radiation_initial_le
+vel.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/bowel_function_radiation_initial_lev
+el.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/bowel_function_r
+adiation_initial_level.png used on input line 22.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/sexual_function_brachytherapy_age.png, i
+d=194, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/sexual_function_brachytherapy_age.p
+ng Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/sexual_function_brachytherapy_age.pn
+g>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/sexual_function_
+brachytherapy_age.png used on input line 30.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/sexual_function_brachytherapy_initial_le
+vel.png, id=195, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/sexual_function_brachytherapy_initi
+al_level.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/sexual_function_brachytherapy_initia
+l_level.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/sexual_function_
+brachytherapy_initial_level.png used on input line 33.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/sexual_function_surgery_age.png, id=196,
+ 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/sexual_function_surgery_age.png Gra
+phic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/sexual_function_surgery_age.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/sexual_function_
+surgery_age.png used on input line 36.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/sexual_function_surgery_initial_level.pn
+g, id=197, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/sexual_function_surgery_initial_lev
+el.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/sexual_function_surgery_initial_leve
+l.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/sexual_function_
+surgery_initial_level.png used on input line 39.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/sexual_function_radiation_age.png, id=19
+8, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/sexual_function_radiation_age.png G
+raphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/sexual_function_radiation_age.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/sexual_function_
+radiation_age.png used on input line 42.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/sexual_function_radiation_initial_level.
+png, id=199, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/sexual_function_radiation_initial_l
+evel.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/sexual_function_radiation_initial_le
+vel.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/sexual_function_
+radiation_initial_level.png used on input line 45.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/urinary_function_brachytherapy_age.png, 
+id=200, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/urinary_function_brachytherapy_age.
+png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/urinary_function_brachytherapy_age.p
+ng>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/urinary_function
+_brachytherapy_age.png used on input line 53.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/urinary_function_brachytherapy_initial_l
+evel.png, id=201, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/urinary_function_brachytherapy_init
+ial_level.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/urinary_function_brachytherapy_initi
+al_level.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/urinary_function
+_brachytherapy_initial_level.png used on input line 56.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/urinary_function_surgery_age.png, id=202
+, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/urinary_function_surgery_age.png Gr
+aphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/urinary_function_surgery_age.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/urinary_function
+_surgery_age.png used on input line 59.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/urinary_function_surgery_initial_level.p
+ng, id=203, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/urinary_function_surgery_initial_le
+vel.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/urinary_function_surgery_initial_lev
+el.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/urinary_function
+_surgery_initial_level.png used on input line 62.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/urinary_function_radiation_age.png, id=2
+04, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/urinary_function_radiation_age.png 
+Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/urinary_function_radiation_age.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/urinary_function
+_radiation_age.png used on input line 65.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+
+</Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_with_a
+bc/files/attribute_vs_curve_parameters/urinary_function_radiation_initial_level
+.png, id=205, 578.16pt x 433.62pt>
+File: /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_w
+ith_abc/files/attribute_vs_curve_parameters/urinary_function_radiation_initial_
+level.png Graphic file (type png)
+
+<use /Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_wi
+th_abc/files/attribute_vs_curve_parameters/urinary_function_radiation_initial_l
+evel.png>
+Package pdftex.def Info: /Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/urinary_function
+_radiation_initial_level.png used on input line 68.
+(pdftex.def)             Requested size: 195.12498pt x 195.1338pt.
+)) [39] [40 </Users/glareprotector/prostate_git/glare/tex_files/sections/explor
+atory_with_abc/files/attribute_vs_curve_parameters/bowel_function_brachytherapy
+_age.png> </Users/glareprotector/prostate_git/glare/tex_files/sections/explorat
+ory_with_abc/files/attribute_vs_curve_parameters/bowel_function_brachytherapy_i
+nitial_level.png> </Users/glareprotector/prostate_git/glare/tex_files/sections/
+exploratory_with_abc/files/attribute_vs_curve_parameters/bowel_function_surgery
+_age.png> </Users/glareprotector/prostate_git/glare/tex_files/sections/explorat
+ory_with_abc/files/attribute_vs_curve_parameters/bowel_function_surgery_initial
+_level.png> </Users/glareprotector/prostate_git/glare/tex_files/sections/explor
+atory_with_abc/files/attribute_vs_curve_parameters/bowel_function_radiation_age
+.png> </Users/glareprotector/prostate_git/glare/tex_files/sections/exploratory_
+with_abc/files/attribute_vs_curve_parameters/bowel_function_radiation_initial_l
+evel.png>] [41 </Users/glareprotector/prostate_git/glare/tex_files/sections/exp
+loratory_with_abc/files/attribute_vs_curve_parameters/sexual_function_brachythe
+rapy_age.png> </Users/glareprotector/prostate_git/glare/tex_files/sections/expl
+oratory_with_abc/files/attribute_vs_curve_parameters/sexual_function_brachyther
+apy_initial_level.png> </Users/glareprotector/prostate_git/glare/tex_files/sect
+ions/exploratory_with_abc/files/attribute_vs_curve_parameters/sexual_function_s
+urgery_age.png> </Users/glareprotector/prostate_git/glare/tex_files/sections/ex
+ploratory_with_abc/files/attribute_vs_curve_parameters/sexual_function_surgery_
+initial_level.png> </Users/glareprotector/prostate_git/glare/tex_files/sections
+/exploratory_with_abc/files/attribute_vs_curve_parameters/sexual_function_radia
+tion_age.png> </Users/glareprotector/prostate_git/glare/tex_files/sections/expl
+oratory_with_abc/files/attribute_vs_curve_parameters/sexual_function_radiation_
+initial_level.png>] [42 </Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/urinary_function
+_brachytherapy_age.png> </Users/glareprotector/prostate_git/glare/tex_files/sec
+tions/exploratory_with_abc/files/attribute_vs_curve_parameters/urinary_function
+_brachytherapy_initial_level.png> </Users/glareprotector/prostate_git/glare/tex
+_files/sections/exploratory_with_abc/files/attribute_vs_curve_parameters/urinar
+y_function_surgery_age.png> </Users/glareprotector/prostate_git/glare/tex_files
+/sections/exploratory_with_abc/files/attribute_vs_curve_parameters/urinary_func
+tion_surgery_initial_level.png> </Users/glareprotector/prostate_git/glare/tex_f
+iles/sections/exploratory_with_abc/files/attribute_vs_curve_parameters/urinary_
+function_radiation_age.png> </Users/glareprotector/prostate_git/glare/tex_files
+/sections/exploratory_with_abc/files/attribute_vs_curve_parameters/urinary_func
+tion_radiation_initial_level.png>]
+\openout2 = `my_biblio.aux'.
+
+ (./my_biblio.tex) [43
+
+
+
+] (./main2.aux (./cover.aux) (./contents.aux) (./chapters/intro.aux)
+(./chapters/exploratory_analysis.aux) (./chapters/chp_model.aux)
+(./chapters/curve_prediction.aux) (./my_biblio.aux)) ) 
+Here is how much of TeX's memory you used:
+ 2699 strings out of 493488
+ 60750 string characters out of 3141326
+ 94127 words of memory out of 3000000
+ 5835 multiletter control sequences out of 15000+200000
+ 14002 words of font info for 54 fonts, out of 3000000 for 9000
+ 957 hyphenation exceptions out of 8191
+ 38i,9n,25p,1076b,265s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/local/texlive/2012/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2012/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2012/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2012/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2012/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2012/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2012/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2012/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2012/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2012/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2012/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2012/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2012/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2012/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmti12.pfb>
+Output written on main2.pdf (43 pages, 2742434 bytes).
+PDF statistics:
+ 288 PDF objects out of 1000 (max. 8388607)
+ 141 compressed objects within 2 object streams
+ 0 named destinations out of 1000 (max. 500000)
+ 216 words of extra memory for PDF output out of 10000 (max. 10000000)
+

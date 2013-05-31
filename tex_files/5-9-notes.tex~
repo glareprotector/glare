@@ -1,0 +1,28 @@
+\documentclass[a4paper,10pt]{article}
+\section*{5-9 notes}
+\input{common_header}
+
+\begin{enumerate}
+\item Set $B_a=B_b=B_c=1$, $\mu_{pop}^a=\mu_{pop}^b=0.7$, $\mu_{pop}^c=2.0$, $c_a=c_b=c_c=1$, $\lambda_a=\lambda_b=15$, $\lambda_c=1$, and generated 50 samples of $a, b, c$ by running chain with burn-in.
+
+\item Took those samples, set them to be observed, and plotted distributions of $B_a, B_b, B_c$.  Not working.
+
+
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=5in, height=4in]{/Users/glareprotector/prostate_git/glare/bin/abc_vs_covariates.png}
+\caption{plots of a,b,c vs covariate value with $B_a=B_b=B_c=1$}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=5in, height=4in]{/Users/glareprotector/prostate_git/glare/bin/Bs.png}
+\caption{prior predictive distribution of $\tilde{c}$ for several values of $\tilde{\sigma}^c$ and $\lambda^c$}
+\end{center}
+\end{figure}
+
+
+
+\end{document}

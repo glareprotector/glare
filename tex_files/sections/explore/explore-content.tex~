@@ -1,0 +1,3 @@
+
+section{Dataset}
+To build our predictive models, we use a dataset collected by urologists at UCLA.  This data follows a cohort of XXX patients who received one of 3 possible treatments - prostatectomy, radiation therapy, or brachytherapy for a period of 5 years.  Surveys were sent at various time points after treatment that asked patients to assign a functional score in each of several categories: sexual, bowel, and urinary function, as well as general physical and mental well being.  These scores are between 0 and 100.  Several patient attributes such as age, race, comorbidity count, and PSA level were also recorded for every patient.  Figure 1 shows an example of the average sexual function scores in the entire dataset after each of 3 treatments.

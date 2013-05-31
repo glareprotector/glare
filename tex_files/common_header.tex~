@@ -1,0 +1,5 @@
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage[pdftex]{graphicx}
+\usepackage{bbm}
+\usepackage{amsfonts}

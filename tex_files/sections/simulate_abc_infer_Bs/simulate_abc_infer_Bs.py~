@@ -1,0 +1,9 @@
+import prior_Bs_fixed
+import get_model_new as get_model
+
+
+b_a, b_b, b_c = 1.0, 2.0, 1.5
+
+the_pid = '0'
+
+simulate_M = prior_Bs_fixed.

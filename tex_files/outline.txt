@@ -1,0 +1,19 @@
+problem statement
+
+data description
+
+exploratory data analysis
+
+tutorials:
+-bayesian framework: P(\theta|hyperparameters), P(data|theta)
+-what is prior predictive distribution
+-posterior distribution of theta, posterior predictive distribution
+(up to here, agnostic about linear model)
+-bayesian linear model
+-generalized linear model
+
+Model description
+-desirables
+-description
+ - split into prior given parameters(B, n
+-impact of hyperparameters on prior predictive distributions

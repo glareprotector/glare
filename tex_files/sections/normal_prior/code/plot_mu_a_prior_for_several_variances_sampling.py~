@@ -1,0 +1,36 @@
+import get_model
+import basic_features as bf
+from helper import get_branded_version as brand
+import sys
+
+"""
+plots several prior curves for mu_a in one plot, with mu_a fixed and std of B_a varying.  change variances to be used by modifying variances list
+usage: num_samples, mu_pop_a, mu_pop_b, mu_pop_c, title
+"""
+num_samples, mu_pop_a, mu_pop_b, mu_pop_c, sigma_mu_a, sigma_mu_b, sigma_mu_c = [int(sys.argv[1])] + [float(x) for x in sys.argv[1:8]]
+title = sys.argv[8]
+
+"""
+modify stds to change the variances for which prior curves are plotted
+"""
+stds = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+
+
+attribute_fs = [brand(bf.hard_coded_f,'age')(1)]
+num_attributes = len(attribute_fs)
+pid_iterator = bf.restricted_pid_iterable(bf.all_ucla_pid_iterable(), 1)
+X = bf.data_frame_feature_alternate(attribute_fs)(pid_iterator)
+X_pop = bf.dataset_aggregate_f(bf.hard_coded_f(0.0), bf.normalized_data_frame_f(bf.data_frame_feature_alternate(attribute_fs)))(pid_iterator)
+the_pid = pid.next()
+
+for std in stds:
+
+    M = get_model.get_model(X, X_pop, mu_pop_a, mu_pop_b, mu_pop_c, std, 1, 1)
+    M.sample(num_samples)
+
+    """
+    only care about the distribution of mu_a
+    """
+    a_var = 'MM_mu_%s_a' % the_pid
+    a_vals = M.trace(a_var)
+    

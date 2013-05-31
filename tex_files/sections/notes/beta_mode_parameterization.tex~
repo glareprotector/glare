@@ -1,0 +1,10 @@
+\documentclass[a4paper,10pt]{article}
+
+\input{../../common_header}
+\begin{document}
+
+\section{Parameterization a Beta Distribution by its Mode and Shape Parameter}
+
+
+
+\end{document}

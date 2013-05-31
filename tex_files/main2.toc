@@ -1,0 +1,44 @@
+\contentsline {chapter}{\numberline {1}Introduction}{11}
+\contentsline {section}{\numberline {1.1}Background}{11}
+\contentsline {section}{\numberline {1.2}Goal of Project}{12}
+\contentsline {section}{\numberline {1.3}Desirables for Model}{12}
+\contentsline {chapter}{\numberline {2}Exploratory Data Analysis}{13}
+\contentsline {section}{\numberline {2.1}Dataset}{13}
+\contentsline {section}{\numberline {2.2}General Shape of Function Curves}{13}
+\contentsline {section}{\numberline {2.3}Dependence of Function Curves on Patient Attributes}{14}
+\contentsline {chapter}{\numberline {3}Model Description}{17}
+\contentsline {section}{\numberline {3.1}Model Description}{17}
+\contentsline {section}{\numberline {3.2}Parametric Form of Curve}{17}
+\contentsline {section}{\numberline {3.3}Model for Curve Parameters}{19}
+\contentsline {subsection}{\numberline {3.3.1}Generalized Linear Model}{19}
+\contentsline {subsection}{\numberline {3.3.2}Model for $a$}{20}
+\contentsline {subsection}{\numberline {3.3.3}Beta Distribution}{20}
+\contentsline {subsection}{\numberline {3.3.4}GLM for $a$}{21}
+\contentsline {subsection}{\numberline {3.3.5}GLM for $c$}{21}
+\contentsline {subsection}{\numberline {3.3.6}Data Normalization and choosing intercepts $z^a, z^b, z^c$}{22}
+\contentsline {subsection}{\numberline {3.3.7}Extracting mean population parameters $\mu _{pop}^a,\mu _{pop}^b,\mu _{pop}^c$}{22}
+\contentsline {section}{\numberline {3.4}Model for observed data}{23}
+\contentsline {section}{\numberline {3.5}Priors for parameters}{23}
+\contentsline {subsection}{\numberline {3.5.1}Desired prior predictive distribution for $a,b,c$}{24}
+\contentsline {subsection}{\numberline {3.5.2}Specifying the Priors for Parameters}{24}
+\contentsline {subsection}{\numberline {3.5.3}Prior Predictive Distribution for $\mathaccent "707E\relax {\mu }^a$}{25}
+\contentsline {subsection}{\numberline {3.5.4}Logit-Normal Distribution}{25}
+\contentsline {subsubsection}{Key Properties}{26}
+\contentsline {subsubsection}{Unimodality}{26}
+\contentsline {subsection}{\numberline {3.5.5}Logit-Normality of $\mathaccent "707E\relax {\mu }^a$ in the Prior}{27}
+\contentsline {subsection}{\numberline {3.5.6}Dependence of Prior Predictive Distribution of $\mathaccent "707E\relax {\mu }^a$ on Hyperparameters}{27}
+\contentsline {subsection}{\numberline {3.5.7}Choosing $c^a$ and $\lambda ^a$}{29}
+\contentsline {subsection}{\numberline {3.5.8}Prior Predictive Distribution for $\mathaccent "707E\relax {\mu }^c$}{29}
+\contentsline {subsubsection}{Log-Normal Distribution}{30}
+\contentsline {subsubsection}{Key Properties}{30}
+\contentsline {subsubsection}{Log-Normality of $\mathaccent "707E\relax {\mu }^c$ in the Prior}{30}
+\contentsline {subsection}{\numberline {3.5.9}Choosing $c^c$ and $\lambda ^c$}{31}
+\contentsline {subsubsection}{Choosing a prior for $\phi ^{noise}$}{31}
+\contentsline {section}{\numberline {3.6}Plots of prior patient curve distributions}{32}
+\contentsline {chapter}{\numberline {4}Curve Prediction with Model}{33}
+\contentsline {section}{\numberline {4.1}Bayesian Inference}{33}
+\contentsline {section}{\numberline {4.2}Simulation Results}{33}
+\contentsline {subsection}{\numberline {4.2.1}Simulating latent variables $a, b, c$}{34}
+\contentsline {subsection}{\numberline {4.2.2}Simulating data points $g^*(t)$}{34}
+\contentsline {section}{\numberline {4.3}Biasedness of model}{34}
+\contentsline {subsection}{\numberline {4.3.1}Applicability of Model to Real Data}{37}

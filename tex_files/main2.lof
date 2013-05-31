@@ -1,0 +1,33 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2-1}{\ignorespaces Average patient time series for the 3 side effects, stratified by treatment}}{14}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {bowel function}}}{14}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {sexual function}}}{14}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {urinary function}}}{14}
+\contentsline {figure}{\numberline {2-2}{\ignorespaces Average patient time series for the 3 side effects, stratified by each of 6 patient attributes}}{15}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {bowel function}}}{15}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {sexual function}}}{15}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {urinary function}}}{15}
+\contentsline {figure}{\numberline {2-3}{\ignorespaces Average patient time series for the 3 side effects, stratified by each of 6 patient attributes}}{15}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {bowel function}}}{15}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {sexual function}}}{15}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {urinary function}}}{15}
+\contentsline {figure}{\numberline {2-4}{\ignorespaces Initial drop in function level vs attribute, for 3 side effect/treatment combinations}}{16}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {bowel function/brachytherapy}}}{16}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {sexual function/surgery}}}{16}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {urinary function/radiation}}}{16}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3-1}{\ignorespaces prior predictive distribution of $\mathaccent "707E\relax {\mu }^a$}}{28}
+\contentsline {figure}{\numberline {3-2}{\ignorespaces prior predictive distribution of $\mathaccent "707E\relax {\mu }^c$ for several values of $\mu _{pop}^c$ and $\mathaccent "707E\relax {\sigma }^c$}}{31}
+\contentsline {figure}{\numberline {3-3}{\ignorespaces prior predictive distribution of over curves for several values of $\mathaccent "707E\relax {X}$}}{32}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4-1}{\ignorespaces Plots for when simulating $a,b,c$}}{35}
+\contentsline {figure}{\numberline {4-2}{\ignorespaces Plots for when simulating $a,b,c$}}{36}
+\contentsline {figure}{\numberline {4-3}{\ignorespaces histogram of posterior of $B_a$ when $\phi ^a$ is fixed to various values during inference}}{38}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {$\phi ^a=0.9$}}}{38}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {$\phi ^a=0.5$}}}{38}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {$\phi ^a=0.2$}}}{38}
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {$\phi ^a=0.01$}}}{38}
+\contentsline {figure}{\numberline {4-4}{\ignorespaces Plots of bowel function curve parameters vs initial function level and age attribute, stratified by treatment}}{40}
+\contentsline {figure}{\numberline {4-5}{\ignorespaces Plots of sexual function curve parameters vs initial function level and age attribute, stratified by treatment}}{41}
+\contentsline {figure}{\numberline {4-6}{\ignorespaces Plots of sexual function curve parameters vs initial function level and age attribute, stratified by treatment}}{42}

@@ -1,0 +1,35 @@
+\documentclass[a4paper,10pt]{article}
+
+\input{../../common_header}
+\begin{document}
+
+\section{Parameterization a Beta Distribution by its Mode and Shape Parameter}
+Here I briefly jot down the new parameterization we will use for the Beta distribution.  Before, we had been parameterization a beta distribution by its mean and a dispersion parameter related to its variance.  We modelled the mean using a linear model.  However, the drawback was that when the variance of a beta distribution is large, its mean and mode are not close to each other.  What we really wanted was to model the mode of a Beta distribution using a linear model.  With this parameterization found from literature \cite{newbeta}, we can now do that.
+
+\subsection{Beta Distribution Facts}
+\begin{itemize}
+\item $p(x) \sim x^{\alpha-1}(1-x)^{\beta-1}$
+\item mode = $\frac{\alpha-1}{\alpha+\beta-2}$
+\item unimodal if both $\alpha>1$ and $\beta>1$
+\end{itemize}
+
+\subsection{New Parameterization}
+Let $m$ be the desired mode of the beta distribution, and $s>-1$ be a shape parameter.  They show a new parameterization $Beta'(m,s)$ which is equivalent to a (old parameterization) $Beta(\alpha,\beta)$ distribution where 
+\begin{eqnarray}
+\alpha &=& 1 + sm \\
+\beta &=& 1 + s(1-m)
+\end{eqnarray}
+
+First, we can check that the mode of a $Beta'(m,s)$ distribution is indeed $m$.  The mode of this distribution is:
+\begin{eqnarray}
+\frac{\alpha-1}{\alpha+\beta-2} = \frac{sm}{sm + s(1-m)} = m
+\end{eqnarray}
+
+\subsection{Unimodality}
+They also claim that a $Beta'(m,s)$ distribution is unimodal iff $s>0$.  This is true because $m$ is between 0 and 1, and plugging $s>0$ into equation 1 and 2 always leads to $\alpha>1$ and $\beta>1$.
+
+
+\begin{thebibliography}{10}
+\bibitem{newbeta} Dorp, J. On Some Elicitation Procedures for Distributions with Bounded Support with Applications in Pert.  Page 2. 
+\end{thebibliography}
+\end{document}

@@ -1,0 +1,13 @@
+\chapter{Introduction}
+
+\section{Background}
+Prostate cancer is one of the most common cancers, affecting roughly 1 in 5 men in the USA.  Men diagnosed with PC typically have several treatment choices, and to decide between them, one would need to consider what effect the treatment will have on various bodily functions.  For example, radial prostatecomy is known to have a fairly strong effect on sexual function level.  Other bodily functions of interest include urinary, bowel, and general physical function.  To help the patient make their decision, it would be very helpful to provide them with a prediction of what their various function levels would be, should they choose a given treatment.
+
+Typically, each of these functions can be quantified, and are known to change with time.  For example, one can be assigned a sexual function score, and typically one's sexual function score undergoes a steep drop immediately after surgery, before slowly recovering to some steady state level.  Then, the piece of information that would be of use to a patient is to offer them, for each treatment and each function, a \emph{time series} of the function level, should they undergo the given treatment.
+
+Furthermore, data shows that one's function time series for a given treatment varies by patient; different patients undergoing the same treatment should expect to, on average, experience \emph{different} function time series.  For example, patients who are doing poorly in terms of sexual function before surgery should expect to do worse in the long run than patients who were sexually unhealthy before surgery.  
+
+\section{Goal of Project}
+Therefore, our goal is to build a predictive model of the \emph{personalized} function time series for patients, taking into account patient attributes such as age, race, comorbidity, and function level prior to treatment.
+
+To help people make decisions, it is not enough to present to a patient a single most likely estimate of their function time series given a treatment - if one is not very certain in the prediction, then that information should be communicated to the patient.  Thus, we will take a Bayesian approach to curve prediction that furthermore utilizes a novel prior structure, reflecting our a priori belief that the more 'extreme' a patient is, the the more uncertainty there would lie in our predictions for a patient.

@@ -1,0 +1,12 @@
+ERROR: Undefined control sequence.
+
+--- TeX said ---
+l.65   p_{\Beta
+               }(y;\alpha,\beta) \propto y^{\alpha-1}(1-y)^{\beta-1}
+--- HELP ---
+TeX encountered an unknown command name. You probably misspelled the
+name. If this message occurs when a LaTeX command is being processed,
+the command is probably in the wrong place---for example, the error
+can be produced by an \item command that's not inside a list-making
+environment. The error can also be caused by a missing \documentclass
+command.

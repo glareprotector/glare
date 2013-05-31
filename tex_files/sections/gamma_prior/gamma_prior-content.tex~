@@ -1,0 +1,25 @@
+\section{Prior Predictive Distribution for $\tilde{\mu}^c$}
+Here, we study the prior predictive distribution of $\tilde{\mu}^c$, the underlying 'true' value of the parameter $c$ for a patient with covariate vector $\tilde{x}$.  The goal of this section is to see how our prior belief on what $\tilde{\mu}^c$ varies depends on the hyperparameters.  We first describe the log-normal distribution, because it turns out this is the distribution that $\tilde{\mu}^c$ follows a log-normal distribution in the prior.
+
+\subsection{Log-Normal Distribution}
+A log-normal distribution is a continuous distribution defined on the open interval $(0, \infty)$.  A random variable $X$ follows a log-normal distribution if the transformed random variable $\log(X)$ follows a normal distribution.  An equivalent definition makes the parameterization of a log-normal distribution clear:
+
+\begin{defn}
+If $Y \sim \textrm{Normal}(\mu, \sigma^2)$, then the transformed random variable $X=\exp(Y)$ follows a $\textrm{Log-Normal}(\mu, \sigma^2)$ distribution.
+\end{defn}
+
+Thus, a Log-Normal distributed random variable $X$ is parameterized using the mean and standard deviation of the normal distribution that $\log(X)$ follows.
+
+\subsubsection{Key Properties}
+
+The density of a $\textrm{Log-Normal}(\mu, \sigma^2)$ distribution is:
+
+\begin{eqnarray}
+f_X(x;\mu, \sigma^2) = \frac{1}{x\sigma \sqrt{2\pi}} \exp{-\frac{(\log(x) - \mu)^2}{2 \sigma^2}};   x > 0
+\end{eqnarray}
+
+The log-normal distribution is unimodal regardless of the choice of parameters.  This is suitable for our poses.  There are analytical formulas for the mean and mode; the mean is $\exp(\mu + \frac{\sigma^2}{2)}$, and the mode is $\exp(\mu - \sigma^2)$.  Like in the case of the logit-normal distribution, neither the mean nor mode are constant as $\sigma^2$ increases, for fixed $\mu$.  Also, the mode and mean exhibit opposite trends.  Finally, as one would expect, the variance is increasing in $\sigma^2$.
+
+\subsubsection{Log-Normality of $\tilde{\mu}^c$ in the Prior}
+
+The only hyperparameter that $\tilde{\mu}^c$ depends on is $c^c$.  The argument for the log-normality of $\tilde{\mu}^c$ is exactly analogous to that for the logit-normality of $\tilde{\mu}^a$.  The prior predictive distribution of $\mu^c$, $\mu^c|c^c$, is distributed $g^c(\mu_{pop}^{c*} + B^c\tilde{x})$.  $B^c \sim N(0, c^cI)$, and so $B^c\tilde{x} \sim N(0, \tilde{\sigma}^c)$ where $\tilde{\sigma^c} := \tilde{x}'(c^cI)\tilde{x} = c^c\sum_{j=1}^k \tilde{x}_j^2$.  Thus $\mu_{pop}^{c*} + B^c\tilde{x} \sim N(\mu_{pop}^{c*}, \tilde{\sigma}^c)$ and thus $\tilde{\mu}^c \sim \textrm{log-normal}(\mu_{pop}^{c*}, \tilde{\sigma}^c)$

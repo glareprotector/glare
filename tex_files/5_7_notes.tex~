@@ -1,0 +1,14 @@
+\documentclass[a4paper,10pt]{article}
+
+\input{../../common_header}
+
+\begin{document}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=4in, height=3in]{/Users/glareprotector/prostate_git/glare/tex_files/sections/normal_prior/files/mu_a_pdf.png}
+\caption{prior predictive distribution of $\tilde{\mu}^a$ for several values of $\mu_{pop}^a$}
+\end{center}
+\end{figure}
+
+\end{document}
