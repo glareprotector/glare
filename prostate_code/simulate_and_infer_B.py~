@@ -1,0 +1,3 @@
+import get_model_helper
+
+data = get_model_helper.fake_data_getter().get_data(0.7, 0.7, 2.0, 1.0, 1.0, 1.0, 15.0, 15.0, 1)

@@ -170,32 +170,8 @@ def plot_Bs_histogram(out_file, sampled_model):
     ax.set_xlabel('B_c value')
 
     fig.savefig(out_file)
-    #fig.show()
+    fig.show()
 
-def plot_Bs_histogram_given_samples(out_file, B_a_vals, B_b_vals, B_c_vals):
-
-    fig = plt.figure()
-    fig.subplots_adjust(hspace = 0.4, wspace = 0.25)
-    fig.suptitle('histogram of Bs')
-    num_bins = 50
-
-
-    ax = fig.add_subplot(2,2,1)
-    ax.hist(B_a_vals, bins = num_bins)
-    ax.set_xlabel('B_a value')
-
-
-    ax = fig.add_subplot(2,2,2)
-    ax.hist(B_b_vals, bins = num_bins)
-    ax.set_xlabel('B_b value')
-
-
-    ax = fig.add_subplot(2,2,3)
-    ax.hist(B_c_vals, bins = num_bins)
-    ax.set_xlabel('B_c value')
-
-    fig.savefig(out_file)
-    #fig.show()
 
 
 
@@ -227,32 +203,6 @@ def plot_Bs_trace(out_file, sampled_model):
     fig.savefig(out_file)
 
 
-def plot_Bs_trace_given_samples(out_file, B_a_vals, B_b_vals, B_c_vals):
-
-    fig = plt.figure()
-    fig.subplots_adjust(hspace = 0.4, wspace = 0.25)
-    fig.suptitle('trace of Bs')
-
-
-    ax = fig.add_subplot(3,1,1)
-    ax.plot(B_a_vals)
-    ax.set_xlabel('iteration')
-    ax.set_ylabel('B_a value')
-
-
-    ax = fig.add_subplot(3,1,2)
-    ax.plot(B_b_vals)
-    ax.set_xlabel('iteration')
-    ax.set_ylabel('B_b value')
-
-
-    ax = fig.add_subplot(3,1,3)
-    ax.plot(B_c_vals)
-    ax.set_xlabel('iteration')
-    ax.set_ylabel('B_c value')
-
-    fig.show()
-    fig.savefig(out_file)
 
 
 def plot_logp_trace(out_file, sampled_model):

@@ -1234,25 +1234,3 @@ class cov(object):
 
     def __init__(self, x, s):
         self.x, self.s = x, s
-
-
-def m_s_to_alpha_beta(center, rho, mean_or_mode):
-
-    s = (1.0 / rho) - 1
-    if mean_or_mode == 'mean':
-        m = (center * (s+2) - 1) / s
-    elif mean_or_mode == 'mode':
-        m = center
-    a = 1 + s*m
-    b = 1 + s*(1-m)
-    return a,b
-
-
-def get_beta(center, rho, mean_or_mode):
-    alpha, beta = m_s_to_alpha_beta(center, rho, mean_or_mode)
-    return random.betavariate(alpha, beta)
-
-
-def get_beta_p(v,mu,rho,mean_or_mode):
-    alpha, beta = m_s_to_alpha_beta(mu, rho, mean_or_mode)
-    return pymc.distributions.beta_like(v,alpha,beta)

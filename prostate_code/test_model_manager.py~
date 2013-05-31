@@ -1,0 +1,9 @@
+import get_model_new
+
+M = get_model_new.variable_manager()
+
+"""
+variables of model:
+B_a mu_a_i rho_a a
+constants: mu_pop_a sigma_mu_a
+"""

@@ -63,7 +63,7 @@ class variable_manager(object):
 
     def get_pid_variable_observed(seed, pid):
         try:
-            return self.get_pid_variable_observed_blanket(seed)
+            return self.get_pid_variable_observed_blanket(seed):
         except:
             return self.observed_cache[get_pid_variable_name(seed, pid)]
 
@@ -132,7 +132,7 @@ class fake_data_getter(object):
         """
 
         for i in range(num_samples):
-            x = np.random.normal(0, 1)
+            x = numpy.random.normal(0, 1)
             temp_X = pandas.DataFrame([[x]], index = [str(i)])
             X_records.append([x])
             X_pop = pandas.Series([0])

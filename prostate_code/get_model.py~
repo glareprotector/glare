@@ -1375,7 +1375,7 @@ def get_model_using_variable_manager(M):
 
     for pid in pid_iterator:
 
-        @pymc.deterministic(name = M.get_pid_variable_name('mu_a', pid))
+        @pymc.deterministic(name = M.get_pid_variable_name('mu_a', pid)
         def MM_mu_i_a(anchor = mu_pop_a_prime, X_pop = X_pop, X_i = X.loc[pid], B = MM_B_mu_a):
             inside = (X_i - X_pop).dot(B)
             ans = g_mu_a(anchor + inside)

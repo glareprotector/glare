@@ -4,12 +4,8 @@ import matplotlib.pyplot as plt
 import pandas
 import pdb
 
-import common_models
-
 M = common_models.M
 
-num_data = 2
-num_samples_for_inference = 20000
 
 ############################################
 # store the samples in temp data structure #
@@ -20,34 +16,33 @@ num_samples_for_inference = 20000
 
 pidxabc_records = []
 for i in range(num_data):
-    s = 1.0
+
     x =pandas.Series([np.random.normal(0,1)])
-    a,b,c = get_model_new.get_abc_given_xs(M, x, s, 50)
-    pidxabc_records.append([i,x,s,a,b,c])
+    a,b,c = get_model_new.get_abc_given_x(M, x, 50)
+    pidxabc_records.append([i,x,a,b,c])
 
 
 
 for record in pidxabc_records:
-    pid, x, s, a, b, c = record
+    pid, x, a, b, c = record
     pid = str(pid)
 
     M.set_pid_x(pid, x)
-    M.set_pid_variable_value('s', pid, s)
     M.set_pid_variable_value('a', pid, a)
     M.set_pid_variable_value('b', pid, b)
     M.set_pid_variable_value('c', pid, c)
 
 
-print pidxabc_records
+
 
 ###########################
 # plot the simulated data #
 ###########################
 
 x_vals = [temp[1] for temp in pidxabc_records]
-a_vals = [temp[3] for temp in pidxabc_records]
-b_vals = [temp[4] for temp in pidxabc_records]
-c_vals = [temp[5] for temp in pidxabc_records]
+a_vals = [temp[2] for temp in pidxabc_records]
+b_vals = [temp[3] for temp in pidxabc_records]
+c_vals = [temp[2] for temp in pidxabc_records]
 
 
 
@@ -88,10 +83,9 @@ M.set_pid_variable_observed_blanket('a', True)
 M.set_pid_variable_observed_blanket('b', True)
 M.set_pid_variable_observed_blanket('c', True)
 
-pdb.set_trace()
+
 infer_model = get_model_new.get_model_using_variable_manager(M)
 
-pdb.set_trace()
 
 ##################################################################################
 # do inference with new model to get/plot posterior distribution of B_a, B_b, B_c#

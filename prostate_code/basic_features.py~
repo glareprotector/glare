@@ -192,7 +192,6 @@ class get_abc_parameters_feature(feature):
     def _generate(self, pid):
         curve = self.curve_getter_f(pid)
         initial_level = self.initial_level_f(pid)
-        a = initial_level
         #print curve, initial_level
         def obj_f(x):
             error = 0.0
@@ -201,7 +200,7 @@ class get_abc_parameters_feature(feature):
             return error
 
         import scipy.optimize
-        x, f, d = scipy.optimize.fmin_l_bfgs_b(obj_f, np.array([0.5, 0.5, 2.0]), approx_grad = True, bounds = [(0.01,.99),[0.01,.99],[0.01,None]])
+        x, f, d = scipy.optimize.fmin_l_bfgs_b(obj_f, np.array([0.5, 0.5, 2.0]), approx_grad = True, bounds = [(0.0,1.0),[0.0,1.0],[0.0,None]])
         #pdb.set_trace()
         return x
 
@@ -255,31 +254,6 @@ class apply_return_as_dict_f(feature):
                 pass
 
         return ans
-
-
-
-class normalize_data_dict(feature):
-    """
-    takes in data_dict_f in init, returns properly normalized data dict
-    """
-    def __init__(self, data_dict_f):
-        self.data_dict_f = data_dict_f
-
-    def _generate(self, pid_iterator):
-        d = self.data_dict_f(pid_iterator)
-        num_attributes = len(d.iteritems().next()[1].cov.x)
-
-        sums = np.zeros(num_attributes)
-
-        for i in range(num_attributes):
-            vals = [data.cov.x[i] for pid,data in d.iteritems()]
-            mean = np.mean(vals)
-            std = np.std(vals)
-            for pid,data in d.iteritems():
-                data.cov.x[i] = (data.cov.x[i] - mean) / std
-        
-        return d
-                
 
 
 """

@@ -1,0 +1,12 @@
+import matplotlib.pyplot as plt
+import math
+import scipy.optimize
+import scipy.integrate
+import numpy.random
+
+def log_normal_pdf(x, mu, sigma):
+    a = math.exp(-1.0 * (pow(math.log(x) - mu, 2) / (2 * pow(sigma, 2))))
+    b = x * sigma * pow(2 * math.pi, 0.5)
+    return a/b
+
+

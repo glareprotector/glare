@@ -1,0 +1,172 @@
+import pymc
+import math
+import helper
+import random
+
+def g(x):
+    return 1.0 / (1.0 + math.exp(-1.0 * x))
+
+def g_inv(y):
+    return math.log(y/(1.0-y))
+
+def squash(x,B):
+    return g(mu_pop_a_inv + B*x)
+import pdb
+
+import numpy as np
+a,b = helper.beta_mu_rho_to_alpha_beta(0.3, 0.4)
+
+
+init_B = 1.0
+mu_pop_a = 0.5
+mu_pop_a_inv = g_inv(mu_pop_a)
+
+sim_rho = 10000
+
+num_xs = 500
+
+
+num_steps = 100000
+
+
+import matplotlib.pyplot as plt
+
+# have new beta distribution parameterization.  
+# also, would be useful to to see what the equivalent rho and s stuff is.  don't worry about that for now.
+def m_s_to_alpha_beta(mean, rho):
+    s = (1.0 / rho) - 1
+    #s = rho
+
+    # get the equivalent mode
+    
+    m = (mean * (s+2) - 1) / s
+
+    a = 1 + s*m
+    b = 1 + s*(1-m)
+
+    return a,b
+
+
+def get_beta(mu, rho):
+    # FIX
+    #alpha, beta = helper.beta_mu_rho_to_alpha_beta(mu, rho)
+    alpha, beta = m_s_to_alpha_beta(mu, rho)
+    return random.betavariate(alpha, beta)
+
+
+def get_beta_p(v,mu,rho):
+    alpha, beta = m_s_to_alpha_beta(mu, rho)
+    return pymc.distributions.beta_like(v,alpha,beta)
+
+
+"""
+for fdsa in xrange(0,100):
+    print fdsa, m_s_to_alpha_beta(0.2,fdsa)
+
+pdb.set_trace()
+
+
+"""
+
+#try printing histogram of beta with given mu and rho
+
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+#asdfg=[get_beta(squash(1,1),.1) for x in xrange(100000)]
+ppx = helper.seq(0,1,1000)
+import math
+ppy = [math.exp(get_beta_p(x,.6,.9)) for x in ppx]
+ax.plot(ppx,ppy)
+print 'ONE'
+fig.show()
+
+pdb.set_trace()
+
+
+
+@pymc.stochastic(observed=False, verbose = 0)
+def B(value = 1):
+    return 0
+
+@pymc.stochastic(observed=True, verbose = 0)
+def rho(value = .9):
+    return 0
+
+xs = [x/float(num_xs) for x in range(-1*num_xs, num_xs+1)]
+#xs = [1]
+
+mus = [squash(x,init_B) for x in xs]
+
+#a_s = [get_beta(squash(x,init_B),sim_rho) for x in xs]
+a_s = [squash(x,init_B) for x in xs]
+
+a_vars = []
+
+for x,a,i in zip(xs,a_s,xrange(len(xs))):
+
+    @pymc.stochastic(observed=True,name='a_'+str(i), verbose = 0)
+    def a(value = a, x = x, B=B, rho = rho):
+        m = squash(x,B)
+
+        #s = (1.0 / rho) - 1
+        s = rho
+        # FIX
+        alpha, beta = m_s_to_alpha_beta(m, s)
+        #print x, rho
+        #print alpha, beta
+
+        #alpha, beta = helper.beta_mu_rho_to_alpha_beta(squash(x,B), rho)
+        return pymc.distributions.beta_like(value, alpha, beta)
+    
+    a_vars.append(a)
+
+model = pymc.MCMC([B,rho,a_vars])
+pdb.set_trace()
+
+# can just plot likelihood for various values of B.  forget sampling
+
+import math
+import helper
+vals = helper.seq(-5,5,1000)
+spacing = 10.0 / 1000
+import numpy as np
+pdfs = np.zeros(1000)
+ev = 0
+for i in xrange(1000):
+    model.get_node('B').value = vals[i]
+    pdfs[i] = math.exp(model.logp)
+    ev += vals[i] * pdfs[i] 
+
+
+
+
+print 'EV: ', ev 
+
+
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.plot(vals, pdfs)
+
+ax.axvline(1)
+fig.show()
+
+
+pdb.set_trace()
+
+model.sample(num_steps,burn=500, tune_throughout=False)
+
+
+
+fig = plt.figure()
+
+ax = fig.add_subplot(1,1,1)
+ax.hist(model.trace('B')[:],bins=50)
+ax.axvline(1)
+
+fig.show()
+fig.savefig('/Users/glareprotector/Documents/prostate/hist001.png')
+import pdb
+
+pdb.set_trace()

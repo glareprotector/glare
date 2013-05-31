@@ -262,7 +262,7 @@ def f(t, s, a, b, c):
     initial level = a.  final level = (1.0 - a) * b + a
     """
 
-    #return a + b * t
+    return a + b * t
 
     #return s * (a + ((1.0 - a) * b) * (1.0 - math.exp(-1.0*t)))
     #return s * ( (1.0-a) - (1.0-a)*(b) * math.exp(-1.0*t))
@@ -272,7 +272,7 @@ def f(t, s, a, b, c):
 
 def real_f(t, s, a, b, c):
 
-    #return a + b * t
+    return a + b * t
 
     try:
         ans = s * ( (1.0-a) - (1.0-a)*(b) * math.exp(-1.0*c*t))
@@ -311,7 +311,7 @@ def g_mu_c_inv(y):
 
 
 
-def get_model_using_variable_manager(M, which_model = 'MCMC', db_file = 'trace.db'):
+def get_model_using_variable_manager(M, which_model = 'MCMC'):
 
     ########################
     # define some variables#
@@ -320,7 +320,7 @@ def get_model_using_variable_manager(M, which_model = 'MCMC', db_file = 'trace.d
     num_attributes = M.get_x_len()
     to_trace = True
     all_verbose = False
-    trace_rho = False
+    trace_rho = True
 
 
 
@@ -591,7 +591,7 @@ def get_model_using_variable_manager(M, which_model = 'MCMC', db_file = 'trace.d
     data_variables = [rho_noise, VM_f_i]
 
     if which_model == 'MCMC':
-        model = pymc.MCMC(prior_variables + data_variables, verbose=True, db = 'pickle', dbname=db_file)
+        model = pymc.MCMC(prior_variables + data_variables, verbose=True)
     elif which_model == 'MAP':
         model = pymc.MAP(prior_variables + data_variables, verbose=True)
 

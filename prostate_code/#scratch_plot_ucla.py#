@@ -143,9 +143,9 @@ if False:
         num_treatments = len(treatments)
         for treatment in treatments:
             x_feature = bf.single_time_processed_time_series(bf.processed_exact_time_series_getter(side_effect.se_series_getter), helper.my_timedelta(days=0*30))
-            y_feature = bf.single_time_processed_time_series(bf.processed_exact_time_series_getter(side_effect.se_series_getter), helper.my_timedelta(days=1*30))
+            y_feature = bf.single_time_processed_time_series(bf.processed_exact_time_series_getter(side_effect.se_series_getter), helper.my_timedelta(days=1*30))http://www.teamliquid.net/blogs/viewblog.php?topic_id=364817
             tuple_feature = bf.cross_feature(x_feature, y_feature)
-            treatment_iterator = bf.filtered_pid_iterable(bf.all_ucla_pid_iterable(), treatment.indicator_feature)
+            treatment_iterator = bf.filtered_pid_iterable(bf.all_ucla_pid_iterable(), treatment.indicator_feature)http://www.teamliquid.net/blogs/viewblog.php?topic_id=364817http://www.teamliquid.net/blogs/viewblog.php?topic_id=364817
             tuples = bf.feature_applier(tuple_feature)(treatment_iterator)
             ax = fig.add_subplot(2, 2, treatment.idx+1)
             tuples.plot_best_fit(ax,color = side_effect.color, linestyle='-', lw=2, alpha=0.4)

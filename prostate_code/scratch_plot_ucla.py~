@@ -478,13 +478,12 @@ if True:
                 treatment_iterator = bf.filtered_pid_iterable(bf.all_ucla_pid_iterable(), treatment.indicator_feature)            
                 
                 ans = bf.feature_applier(change_feature)(treatment_iterator)
-                #pdb.set_trace()
+                pdb.set_trace()
 
                 tuples = bf.feature_applier(tuple_feature)(treatment_iterator)
                 tuples.plot(ax, color = attribute.color)
                 tuples.plot_best_fit(ax, color = attribute.color, linestyle='-', lw=2, alpha=0.4)
 
-            pdb.set_trace()
             file_name = get_file_name(save_path, description)
             plt.savefig(file_name)
             print file_name

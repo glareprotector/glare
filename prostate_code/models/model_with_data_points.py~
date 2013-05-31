@@ -77,7 +77,7 @@ def get_model_manager(complete_datas, pids, mu_pop_a, mu_pop_b, mu_pop_c, B_a_in
 
 
     M.set_variable_value('rho_noise', 0.3)
-    M.set_variable_observed('rho_noise', False)
+    M.set_variable_observed('rho_noise', True)
     M.constants.lambda_noise = 1.0
 
 
