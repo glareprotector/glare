@@ -178,7 +178,7 @@ if False:
 
 if True:
 
-    infer_model.sample(flush_steps, verbose = 0, burn=flush_steps, tune_throughout=False)
+    infer_model.sample(flush_steps, verbose = 0, burn=0, tune_throughout=True)
     B_a_vals = []
     B_b_vals = []
     B_c_vals = []
@@ -187,7 +187,7 @@ if True:
 
             
 
-        infer_model.sample(flush_steps, verbose = 0, burn = 0, tune_throughout = False)
+        infer_model.sample(flush_steps, verbose = 0, burn = 0, tune_throughout = True)
 
         B_a_vals = B_a_vals + [x[0] for x in infer_model.trace('B_a')[:]]
         B_b_vals = B_b_vals + [x[0] for x in infer_model.trace('B_b')[:]]

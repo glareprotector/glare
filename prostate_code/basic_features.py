@@ -206,6 +206,51 @@ class get_abc_parameters_feature(feature):
         return x
 
 
+class compose(feature):
+
+    def __init__(self, f, g):
+        self.f,self.g = f,g
+
+    def _generate(self, *args, **kwargs):
+        return self.f(self.g(*args, **kwargs))
+
+
+
+
+
+class apply_f_g_then_apply_h(feature):
+
+    """
+    f gets initialized with same arguments
+    """
+
+    def __init__(self, f, g, h):
+        self.f,self.g,self.h = f,g,h
+
+    def _generate(self, *args, **kwargs):
+        f_result = self.f(*args, **kwargs)
+        g_result = self.g(*args, **kwargs)
+        return self.h(f_result, g_result)
+
+class get_all_data_feature(feature):
+
+    """
+    divides datapoints by initial level.  
+    """
+
+    def __init__(self, attribute_fs, curve_getter, initial_level_f, curve_fxn):
+        self.attribute_fs, self.curve_getter, self.curve_fxn, self.initial_level_f = attribute_fs, curve_getter, curve_fxn, initial_level_f
+
+    def _generate(self, pid):
+        import helper
+        a,b,c = get_abc_parameters_feature(self.curve_getter, self.initial_level_f, self.curve_fxn)(pid)
+        initial_level = self.initial_level_f(pid)
+        data_points = self.curve_getter(pid) 
+        x = patient_features_feature(self.attribute_fs)(pid)
+        
+        the_cov = helper.cov(x, initial_level)
+
+        return helper.all_data(the_cov, a, b, c, data_points)
 
 class get_abc_data_feature(feature):
     """

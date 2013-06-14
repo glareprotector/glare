@@ -36,6 +36,9 @@ def make_folder(folder):
     if not os.path.exists(folder):
         os.makedirs(folder)
 
+
+
+
 ############################################################################
 # define pid_iterators, different raw_series_getters, different attributes #
 ############################################################################
@@ -101,6 +104,9 @@ if True:
             mu_pop_a = np.mean(a_s)
             mu_pop_b = np.mean(b_s)
             mu_pop_c = np.mean(c_s)
+
+            print mu_pop_a, mu_pop_b, mu_pop_c
+            pdb.set_trace()
 
             pids = treatment_abc_data_dict.keys()
 

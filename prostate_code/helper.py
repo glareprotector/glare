@@ -14,6 +14,7 @@ import sys
 #from my_data_types import no_value_object
 import my_data_types
 import numpy as np
+import pandas
 
 def print_traceback():
     import traceback, sys
@@ -1111,6 +1112,25 @@ def gamma_mu_phi_to_k_theta(mu, phi):
     theta = mu * phi
     return k, theta
 
+def gamma_mode_phi_to_alpha_beta(mode, phi):
+    alpha = 1.0 / phi
+    beta = (alpha - 1.0) / mode
+    return alpha, beta
+
+def gamma_mode_phi_to_alpha_scale(mode, phi):
+    alpha = 1.0 / phi
+    beta = (alpha - 1.0) / mode
+    return alpha, 1.0/beta
+
+def rgamma_by_mode_phi(mode, phi):
+    alpha, beta = gamma_mode_phi_to_alpha_beta
+    return random.gammavariate(alpha, beta)
+
+def pgamma_by_mode_phi(x, mode, phi):
+    alpha, beta = gamma_mode_phi_to_alpha_beta(mode, phi)
+    import math
+    return pow(beta,alpha) * pow(x,alpha-1) * math.exp(-1.0*beta*x) / math.gamma(alpha)
+    
 
 def truncated_exponential_likelihood(x, l):
     if x > 1.0 or x < 0.0:
@@ -1219,6 +1239,9 @@ def get_branded_version(cls, name):
         return anon(*args, name=name)
     return g
 
+class all_data(object):
+    def __init__(self, cov, a, b, c, data_points):
+        self.cov,self.a,self.b,self.c,self.data_points = cov, a, b, c, data_points
 
 class complete_data(object):
 
@@ -1235,6 +1258,35 @@ class cov(object):
     def __init__(self, x, s):
         self.x, self.s = x, s
 
+
+def dict_of_series_to_dataframe(d, f):
+    """
+    given dictionary, function that extract the series contained in item, returns the dataframe
+    """
+    records = []
+    columns = f(d[iter(d).next()]).index
+    indicies = []
+    for k,v in d.iteritems():
+        records.append(f(v))
+        indicies.append(k)
+    return pandas.DataFrame.from_records(records, columns=columns, index = indicies)
+
+def make_folder(folder):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+def write_dict_stuff_by_folder(d, stuff_f, write_stuff_f, which_file_f):
+    for k,v in d.iteritems():
+        file = which_file_f(k)
+        stuff = stuff_f(v)
+        write_stuff_f(stuff,file)
+
+        
+
+def write_all_data_dict_to_folder(folder, d):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    
 
 def m_s_to_alpha_beta(center, rho, mean_or_mode):
 

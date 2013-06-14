@@ -128,7 +128,7 @@ if True:
 
         a_ax.hist(a_values, label = a_labels, normed=True, alpha=0.5, histtype='bar')
         b_ax.hist(b_values, label = b_labels, normed=True, alpha=0.5, histtype='bar')
-        c_ax.hist(c_values, label = c_labels, normed=True, alpha=0.5, histtype='bar')
+        c_ax.hist(c_values, label = c_labels, normed=True, alpha=0.5, histtype='bar',bins=helper.seq(0,100,20))
         drop_ax.hist(drop_values, label = drop_labels, normed=True, alpha=0.5, histtype='bar')
 
         font_size = 6

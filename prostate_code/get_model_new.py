@@ -267,7 +267,7 @@ def f(t, s, a, b, c):
     #return s * (a + ((1.0 - a) * b) * (1.0 - math.exp(-1.0*t)))
     #return s * ( (1.0-a) - (1.0-a)*(b) * math.exp(-1.0*t))
     #return s * ( (1.0-a) - (1.0-a)*(b) * (1.0 - math.exp(-1.0*t)))
-    return s * ( (1.0-a) - (1.0-a)*(b) * math.exp(-1.0*c*t))
+    return s * ( (1.0-a) - (1.0-a)*(b) * math.exp(-1.0*t/c))
 
 
 def real_f(t, s, a, b, c):
@@ -275,7 +275,7 @@ def real_f(t, s, a, b, c):
     #return a + b * t
 
     try:
-        ans = s * ( (1.0-a) - (1.0-a)*(b) * math.exp(-1.0*c*t))
+        ans = s * ( (1.0-a) - (1.0-a)*(b) * math.exp(-1.0*t/c))
     except:
         print t, s, a, b, c
         pdb.set_trace()
