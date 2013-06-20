@@ -22,4 +22,71 @@ for fold in folds
 
 to same figures, return the fig object, and the writer calls fig.savefig
 
-""'
+
+
+ok, need to make 
+- model.  one huge vector of times, one huge vector of function values, one vector of patient lengths
+- r code that reads in data written by python, and converts it into the data structures that will be used by rstan.
+
+to train, specify model file, folder where data will go.
+
+"""
+
+def get_full_data_f(treatment, side_effect, attribute):
+    """
+    
+    """
+
+class k_fold_fold_getter(object):
+
+    def __init__(self, k, d):
+        self.k, self.d = k, k
+
+    def __iter__(self):
+        count = 0
+        for i in range(self.k):
+            train = {}
+            test = {}
+            for k,v in d.iteritems():
+                if count % k == i:
+                    test[k] = v
+                else:
+                    train[k] = v
+            yield fold(train, test)
+
+"""
+ideally, objects would be tagged with their memoizing key
+is it true that object is either taggable, or stringable? 
+"""
+
+class fold(object):
+
+    def __init__(self, train_data, test_data):
+        self.train_data, self.test_data = train_data, test_data
+
+def full_model_train_parameters_f(train_data):
+    """
+    this function will train data, using the full model.  requires: generating data_file in some directory.  then 
+    """
+
+def cross_validate(full_data_d, fold_getter, stuffs_to_do, train_parameters_f):
+    """
+    stuffs_to_do is a tuple: (function to run on each fold, function that combines the stuff run on each fold)
+    combiner_f's should be memoized
+    """
+
+    trained_parameters = []
+
+    for fold in fold_getter(full_data_d):
+        trained_parameters.append(train_parameters_f(fold.train_data))
+
+    results = []
+    for stuff in stuff_to_do:
+        do_on_each_test_fold_f = stuff[0]
+        combiner_f = stuff[1]
+        stuff_results = []
+        for fold, trained_parameter in zip(fold_getter(full_data_d), trained_parameters):
+            stuff_results.append(do_on_each_test_fold(trained_parameter, fold.test_data))
+        results.append(combiner_f(stuff_results))
+
+    return results
