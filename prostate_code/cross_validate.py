@@ -32,42 +32,35 @@ to train, specify model file, folder where data will go.
 
 """
 
-def get_full_data_f(treatment, side_effect, attribute):
-    """
-    
-    """
 
-class k_fold_fold_getter(object):
+class k_fold_getter(object):
 
     def __init__(self, k, d):
-        self.k, self.d = k, k
+        self.k, self.d = k, d
 
     def __iter__(self):
         count = 0
         for i in range(self.k):
             train = {}
             test = {}
-            for k,v in d.iteritems():
-                if count % k == i:
-                    test[k] = v
+            for key,val in self.d.iteritems():
+                if count % self.k == i:
+                    test[key] = val
                 else:
-                    train[k] = v
-            yield fold(train, test)
+                    train[key] = val
+                count += 1
+            yield fold(i, self.k, train, test)
 
-"""
-ideally, objects would be tagged with their memoizing key
-is it true that object is either taggable, or stringable? 
-"""
+
+
 
 class fold(object):
 
-    def __init__(self, train_data, test_data):
-        self.train_data, self.test_data = train_data, test_data
+    def __init__(self, i, k, train_data, test_data):
+        self.i, self.k, self.train_data, self.test_data = i, k, train_data, test_data
 
-def full_model_train_parameters_f(train_data):
-    """
-    this function will train data, using the full model.  requires: generating data_file in some directory.  then 
-    """
+    def __str__(self):
+        return 'fold' + str(i) + '_' + str(k)
 
 def cross_validate(full_data_d, fold_getter, stuffs_to_do, train_parameters_f):
     """

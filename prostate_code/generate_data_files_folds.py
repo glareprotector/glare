@@ -19,68 +19,16 @@ import pandas
 import functools
 import cross_validate
 
+from analyze_helper import *
+
 experiment_folder = 'files_for_rstan/'
 experiment_name = 'full_model_3_fold'
 run_folder = experiment_folder + experiment_name + '/'
 
 
 
-#######################################################################################
-# define useful data structures to keep track of treatments, side effects, attributes #
-#######################################################################################
 
-class treatment(object):
-    def __init__(self, indicator_f, name):
-        self.indicator_f, self.name = indicator_f, name
 
-class side_effect(object):
-    def __init__(self, raw_series_getter, name):
-        self.raw_series_getter, self.name = raw_series_getter, name
-
-class attribute(object):
-    def __init__(self, f, name):
-        self.f, self.name = f, name
-
-def make_folder(folder):
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-
-def write_x_datapoints_abcs(d, base_folder):
-    x_stuff_f = lambda v: v.cov.x
-    x_df = helper.dict_of_series_to_dataframe(d, x_stuff_f)
-
-    x_df.to_csv(base_folder + 'xs.csv')
-
-    ss = [v.cov.s for k,v in d.iteritems()]
-    pids = [k for k,v in d.iteritems()]
-    ss_series = pandas.Series(ss,index=pids)
-    ss_series.to_csv(base_folder + 'ss.csv')
-
-    datapoints_folder = base_folder + 'datapoints/'
-    make_folder(datapoints_folder)
-
-    datapoints_f = lambda v: v.data_points
-    datapoints_file_f = lambda k: datapoints_folder + k
-    datapoints_write_f = lambda dp,f: dp.to_csv(f)
-    helper.write_dict_stuff_by_folder(d, datapoints_f, datapoints_write_f, datapoints_file_f)
-    
-    """
-    write as,bc,cs to file
-    """
-    as_d, bs_d, cs_d = {},{},{}
-
-    for k,v in d.iteritems():
-        as_d[k] = v.a
-        bs_d[k] = v.b
-        cs_d[k] = v.c
-
-    a_series = pandas.Series(as_d)
-    b_series = pandas.Series(bs_d)
-    c_series = pandas.Series(cs_d)
-
-    a_series.to_csv(base_folder + 'as.csv')
-    b_series.to_csv(base_folder + 'bs.csv')
-    c_series.to_csv(base_folder + 'cs.csv')
 
 ############################################################################
 # define pid_iterators, different raw_series_getters, different attributes #
@@ -95,15 +43,9 @@ raise_len_f = functools.partial(raise_if_too_short, l=7)
 
 all_iterable = bf.all_ucla_pid_iterable()
 
-treatments = [treatment(bf.indicator_feature(uf.ucla_treatment_code_f(), uf.ucla_treatment_code_f.brachy), 'brachytherapy'), \
-                  treatment(bf.indicator_feature(uf.ucla_treatment_code_f(), uf.ucla_treatment_code_f.surgery), 'surgery'), \
-                  treatment(bf.indicator_feature(uf.ucla_treatment_code_f(), uf.ucla_treatment_code_f.radiation), 'radiation')]
-
-side_effects = [side_effect(bf.compose(raise_len_f,bf.ucla_raw_series_getter_panda(bf.ucla_raw_series_getter.urinary_function)), 'urinary_function'), \
-                    side_effect(bf.compose(raise_len_f,bf.ucla_raw_series_getter_panda(bf.ucla_raw_series_getter.bowel_function)), 'bowel_function'), \
-                    side_effect(bf.compose(raise_len_f,bf.ucla_raw_series_getter_panda(bf.ucla_raw_series_getter.sexual_function)), 'sexual_function')]
-
-regular_attribute_fs = [brand(bf.always_raise,'age')(uf.ucla_feature(uf.ucla_feature.age))]
+treatments = [treatment_brachytherapy, treatment_surgery, treatment_radiation]
+side_effects = [side_effect_urinary_function, side_effect_bowel_function, side_effect_sexual_function]
+regular_attribute_fs = [attribute_age]
 
 num_folds = 3
 
@@ -145,8 +87,9 @@ if True:
                 print folder
                 train_folder = folder + 'train/'
                 test_folder = folder + 'test/'
-                make_folder(train_folder)
-                make_folder(test_folder)
+                import analyze_helper
+                train_folder = analyze_helper.se_treatment_fold_to_training_folder(run_folder, side_effect, treatment, fold.i, fold.k)
+                test_folder = analyze_helper.se_treatment_fold_to_testing_folder(run_folder, side_effect, treatment, fold.i, fold.k)
 
                 write_x_datapoints_abcs(fold.train_data, train_folder)
                 write_x_datapoints_abcs(fold.test_data, test_folder)

@@ -19,7 +19,7 @@ cbind_apply <- function(v, f){
 
 # function that takes in pid and returns long thin vector of its times/values
 get_tvs_given_folder <- function(pid, folder){
-    file <- paste(folder_path,'/','pid',sep='')
+    file <- paste(folder,'/',pid,sep='')
     return(read.csv(file,header=F))
 }
 
@@ -50,7 +50,7 @@ get_real_full_data <- function(folder_path){
 
 
 
-    get_tvs <- Curry(get_tvs_given_folder, folder=paste(folder_path,'/','datapoints/',sep=''))
+    get_tvs <- Curry(get_tvs_given_folder, folder=paste(folder_path,'/','datapoints',sep=''))
 
     tvs <- cbind_apply(pids, get_tvs)
 
@@ -68,11 +68,13 @@ get_real_full_data <- function(folder_path){
     cs_file <- paste(folder_path,'cs.csv',sep='')
     cs <- read.csv(cs_file,header=F,row.names=1)[,1]
 
-    pop_a = mean(as[,1])
-    pop_b = mean(bs[,1])
-    pop_c = mean(cs[,1])
 
-    data <- list(ls=tv_lengths,ts=tvs[,1],vs=tvs[,2],xs=xs,ss=ss,N=dim(xs)[1],K=dim(xs)[2],L=dim(tvs)[1])
+
+    pop_a = mean(as)
+    pop_b = mean(bs)
+    pop_c = mean(cs)
+
+    data <- list(ls=tv_lengths,ts=tvs[,1],vs=tvs[,2],xs=xs,ss=ss,N=dim(xs)[1],K=dim(xs)[2],L=dim(tvs)[1],pop_a=pop_a,pop_b=pop_b,pop_c=pop_c, c_a=1,c_b=1,c_c=1,l_a=15,l_b=15,l_c=15,l_m=1)
 
     return(data)
 
@@ -88,23 +90,23 @@ c_from_x <- function(x, B, pop){
     return(exp(y))
 }
 
-my_rbeta <- function(m, phi){
+my_rbeta <- function(n, m, phi){
     s <- 1.0 / phi
-    return(rbeta(1, 1+s*m, 1+s*(1-m)))
+    return(rbeta(n, 1+s*m, 1+s*(1-m)))
 }
 
-my_rgamma <- function(m, phi){
+my_rgamma <- function(n, m, phi){
     alpha <- 1.0 / phi + 1
-    beta <- m / (alpha - 1)
-    return(rgamma(1, shape=alpha, rate=beta))
+    beta <- (alpha - 1) / m
+    return(rgamma(n, shape=alpha, rate=beta))
 }
 
 a_from_x_random <- function(x, B, pop, phi){
-    return(my_rbeta(a_from_x(x, B, pop), phi))
+    return(my_rbeta(1, a_from_x(x, B, pop), phi))
 }
 
 c_from_x_random <- function(x, B, pop, phi){
-    return(my_rgamma(c_from_x(x, B, pop), phi))
+    return(my_rgamma(1, c_from_x(x, B, pop), phi))
 }
 
 the_f <- function(t, a, b, c){
@@ -125,7 +127,7 @@ vals_given_abc <- function(x, a_getter, b_getter, c_getter, ts, f){
 }
 
 # simulate data to feed into rstan
-get_simulated_full_data <- function(N, K, B_a, B_b, B_c, pop_a, pop_b, pop_c, ts, phi_a, phi_b, phi_c, phi_m){
+get_simulated_full_data <- function(N, K, B_a, B_b, B_c, pop_a, pop_b, pop_c, ts, phi_a, phi_b, phi_c, phi_m, c_a, c_b, c_c, l_a, l_b, l_c, l_m){
 
     squash_a <- Curry(a_from_x, B=B_a, pop=pop_a)			
     squash_b <- Curry(a_from_x, B=B_b, pop=pop_b)			
@@ -170,7 +172,7 @@ get_simulated_full_data <- function(N, K, B_a, B_b, B_c, pop_a, pop_b, pop_c, ts
     
     tv_lengths <- sapply(pids, Curry(get_tv_length, get_tvs_f=get_tvs_from_pid))
 
-    data <- list(ls=tv_lengths,ts=tvs[,1],vs=tvs[,2],xs=xs,N=dim(xs)[1],K=dim(xs)[2],L=dim(tvs)[1])
+    data <- list(ls=tv_lengths,ts=tvs[,1],vs=tvs[,2],xs=xs,N=dim(xs)[1],K=dim(xs)[2],L=dim(tvs)[1],ss=rep(1.0,N), pop_a=pop_a, pop_b=pop_b, pop_c=pop_c, c_a=c_a, c_b=c_b, c_c=c_c, l_a=l_a, l_b=l_b, l_c=l_c, l_m=l_m)
 
     return(data)
 
@@ -179,8 +181,7 @@ get_simulated_full_data <- function(N, K, B_a, B_b, B_c, pop_a, pop_b, pop_c, ts
 
 # given a fitted model and folder, writes the posterior parameters in the folder
 write_full_posterior_parameters <- function(fit, folder){
-    results_directory <- paste(folder_path, '/', 'posterior_parameters', sep='')
-    dir.create(results_directory)
+    dir.create(folder, recursive=TRUE)
 
     results <- extract(fit)
 
@@ -192,12 +193,12 @@ write_full_posterior_parameters <- function(fit, folder){
     phi_cR <- results$phi_c
     phi_mR <- results$phi_m
 
-    write.csv(B_aR, paste(results_directory,'/','out_B_a.csv',quote=F,header=F))
-    write.csv(B_bR, paste(results_directory,'/','out_B_b.csv',quote=F,header=F))
-    write.csv(B_cR, paste(results_directory,'/','out_B_c.csv',quote=F,header=F))
-    write.csv(phi_aR, paste(results_directory,'/','out_phi_a.csv',quote=F,header=F))
-    write.csv(phi_bR, paste(results_directory,'/','out_phi_b.csv',quote=F,header=F))
-    write.csv(phi_cR, paste(results_directory,'/','out_phi_c.csv',quote=F,header=F))
-    write.csv(phi_mR, paste(results_directory,'/','out_phi_m.csv',quote=F,header=F))
+    write.table(B_aR, paste(folder,'/','out_B_a.csv',sep=''),quote=F,row.names=F,col.names=F,sep=',')
+    write.table(B_bR, paste(folder,'/','out_B_b.csv',sep=''),quote=F,row.names=F,col.names=F,sep=',')
+    write.table(B_cR, paste(folder,'/','out_B_c.csv',sep=''),quote=F,row.names=F,col.names=F,sep=',')
+    write.table(phi_aR, paste(folder,'/','out_phi_a.csv',sep=''),quote=F,row.names=F,col.names=F,sep=',')
+    write.table(phi_bR, paste(folder,'/','out_phi_b.csv',sep=''),quote=F,row.names=F,col.names=F,sep=',')
+    write.table(phi_cR, paste(folder,'/','out_phi_c.csv',sep=''),quote=F,row.names=F,col.names=F,sep=',')
+    write.table(phi_mR, paste(folder,'/','out_phi_m.csv',sep=''),quote=F,row.names=F,col.names=F,sep=',')
 
 }

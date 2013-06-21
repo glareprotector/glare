@@ -77,7 +77,7 @@ elif orchestra_or_no == 'dragon':
     temp_home = None
     real_base_folder = 'home/fultonw/pros/data/by_pid/'
 elif orchestra_or_no == 'laptop':
-    real_home = '/Users/glareprotector/Documents/lab/glare/dump/'
+    real_home = '/Users/glareprotector/prostate_git/glare/dump/'
     real_base_folder = '/Users/glareprotector/Dropbox/prostate/by_pid/'
 
 
@@ -125,7 +125,7 @@ cosmic_raw_data_folder = data_folder + 'fasta/'
 negex_triggers_file = 'negex_triggers.txt'
 
 
-ucla_file = '/Users/glareprotector/Documents/lab/glare/data/BrachyFull.csv'
+ucla_file = '/Users/glareprotector/prostate_git/glare/data/BrachyFull.csv'
 
 
 
